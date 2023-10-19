@@ -23,6 +23,7 @@
 #endif
 
 #include "../meuh/ADS1115/ADS1115_WE.h"
+#include "../meuh/PCF8575/PCF8575.h"
 
 
 class MeuhRobotDriver: public RobotDriver {
@@ -48,6 +49,7 @@ class MeuhRobotDriver: public RobotDriver {
     float batteryTemp;
     float cpuTemp;
     ADS1115_WE adc;
+    PCF8575 pcf8575;
     bool triggeredLeftBumper;
     bool triggeredRightBumper;
     bool triggeredLift;

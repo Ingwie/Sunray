@@ -77,7 +77,13 @@ void MeuhRobotDriver::begin(){
     // and read first values to test I2C communications
     computeFusionImu();
 
-    //setImuPowerState(true);
+    // start IO Expander
+    CONSOLE.println("starting IO Expander");
+    // init PCF8575
+    pcf8575 = PCF8575(0x38);
+    if (!pcf8575.isConnected()) CONSOLE.println("IO Expander error");
+    // set all pin to input TODO check I/O pin needed and write macros
+    pcf8575.write16(0xFFFF);
 
     // switch-on fan
     //setFanPowerState(true);
