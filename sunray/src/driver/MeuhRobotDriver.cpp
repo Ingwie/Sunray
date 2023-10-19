@@ -65,28 +65,22 @@ void MeuhRobotDriver::begin(){
 	  robotID = p.readString();
     robotID.trim();
 
-    CONSOLE.println("ioboard init");
 
     // IMU/fan power-on code (Alfred-PCB-specific)
 
+    // start IMU
+    CONSOLE.println("starting IMU");
     // switch-on and configure IMU GY85
     initImusGY85();
     // init fusion computation
     initFusionImu();
+    // and read first values to test I2C communications
+    computeFusionImu();
+
     //setImuPowerState(true);
 
-    // switch-on fan via port-expander PCA9555
+    // switch-on fan
     //setFanPowerState(true);
-
-    // select IMU via multiplexer TCA9548A
-    ///ioI2cMux(MUX_I2C_ADDR, SLAVE_IMU_MPU, true);  // Alfred dev PCB with buzzer
-    ///ioI2cMux(MUX_I2C_ADDR, SLAVE_BUS0, true); // Alfred dev PCB without buzzer
-
-    // select EEPROM via multiplexer TCA9548A
-    ///ioI2cMux(MUX_I2C_ADDR, SLAVE_EEPROM, true);
-
-    // select ADC via multiplexer TCA9548A
-    ///ioI2cMux(MUX_I2C_ADDR, SLAVE_ADC, true);
 
     // buzzer test
     if (false){
@@ -98,20 +92,29 @@ void MeuhRobotDriver::begin(){
 
     // start ADC
     CONSOLE.println("starting ADC");
-    //////ioAdcStart(ADC_I2C_ADDR, false, true);
+    adc = ADS1115_WE(0x48);
+    // test communication
+    if (!adc.init()) CONSOLE.println("ADC error");
+    // set range
+    adc.setVoltageRange_mV(ADS1115_RANGE_2048);
+    // set ref to gnd
+    //adc.setCompareChannels(ADS1115_COMP_0_GND | ADS1115_COMP_1_GND | ADS1115_COMP_2_GND | ADS1115_COMP_3_GND);
+    // set rate
+    adc.setConvRate(ADS1115_128_SPS);
+    // set mode
+    adc.setMeasureMode(ADS1115_CONTINOUS);
 
     // ADC test
     if (true){
-      for (int idx=1; idx < 9; idx++){
-        //////ioAdcMux(idx);
-        //////ioAdcTrigger(ADC_I2C_ADDR);
         delay(5);
-        float v = ///ioAdc(ADC_I2C_ADDR);
-        CONSOLE.print("ADC S");
-        CONSOLE.print(idx);
-        CONSOLE.print("=");
-        CONSOLE.println(v);
-      }
+        CONSOLE.print("ADC S0 = ");
+        CONSOLE.println(readAdcChannel(ADS1115_COMP_0_GND));
+        CONSOLE.print("ADC S1 = ");
+        CONSOLE.println(readAdcChannel(ADS1115_COMP_1_GND));
+        CONSOLE.print("ADC S2 = ");
+        CONSOLE.println(readAdcChannel(ADS1115_COMP_2_GND));
+        CONSOLE.print("ADC S3 = ");
+        CONSOLE.println(readAdcChannel(ADS1115_COMP_3_GND));
     }
 
     // EEPROM test
@@ -125,6 +128,13 @@ void MeuhRobotDriver::begin(){
     }
 
   #endif
+}
+
+float MeuhRobotDriver::readAdcChannel(ADS1115_MUX channel) {
+  float voltage = 0.0;
+  adc.setCompareChannels(channel);
+  voltage = adc.getResult_V(); // alternative: getResult_mV for Millivolt
+  return voltage;
 }
 
 bool MeuhRobotDriver::setFanPowerState(bool state){

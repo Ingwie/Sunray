@@ -22,6 +22,8 @@
   #include <Process.h>
 #endif
 
+#include "../meuh/ADS1115/ADS1115_WE.h"
+
 
 class MeuhRobotDriver: public RobotDriver {
   public:
@@ -45,6 +47,7 @@ class MeuhRobotDriver: public RobotDriver {
     bool resetMotorTicks;
     float batteryTemp;
     float cpuTemp;
+    ADS1115_WE adc;
     bool triggeredLeftBumper;
     bool triggeredRightBumper;
     bool triggeredLift;
@@ -61,6 +64,7 @@ class MeuhRobotDriver: public RobotDriver {
     void updateCpuTemperature();
     void updateWifiConnectionState();
     bool setFanPowerState(bool state);
+    float readAdcChannel(ADS1115_MUX channel);
     //bool setImuPowerState(bool state);
   protected:
     #ifdef __linux__
