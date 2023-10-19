@@ -1,4 +1,4 @@
-// Ardumower Sunray 
+// Ardumower Sunray
 // Copyright (c) 2013-2020 by Alexander Grau, Grau GmbH
 // Licensed GPLv3 for open source use
 // or Grau GmbH Commercial License for commercial use (http://grauonline.de/cms2/?page_id=153)
@@ -28,6 +28,7 @@
 #include "motor.h"
 #include "src/driver/AmRobotDriver.h"
 #include "src/driver/SerialRobotDriver.h"
+#include "src/driver/MeuhRobotDriver.h"
 #include "src/driver/MpuDriver.h"
 #include "src/driver/BnoDriver.h"
 #include "battery.h"
@@ -58,7 +59,7 @@ const signed char orientationMatrix[9] = {
 #ifdef DRV_SIM_ROBOT
   SimImuDriver imuDriver(robotDriver);
 #elif defined(BNO055)
-  BnoDriver imuDriver;  
+  BnoDriver imuDriver;
 #else
   MpuDriver imuDriver;
 #endif
@@ -71,6 +72,15 @@ const signed char orientationMatrix[9] = {
   SerialRainSensorDriver rainDriver(robotDriver);
   SerialLiftSensorDriver liftDriver(robotDriver);
   SerialBuzzerDriver buzzerDriver(robotDriver);
+#elif DRV_MEUH_ROBOT
+  MeuhRobotDriver robotDriver;
+  MeuhMotorDriver motorDriver(robotDriver);
+  MeuhBatteryDriver batteryDriver(robotDriver);
+  MeuhBumperDriver bumperDriver(robotDriver);
+  MeuhStopButtonDriver stopButton(robotDriver);
+  MeuhRainSensorDriver rainDriver(robotDriver);
+  MeuhLiftSensorDriver liftDriver(robotDriver);
+  MeuhBuzzerDriver buzzerDriver(robotDriver);
 #elif defined(DRV_SIM_ROBOT)
   SimRobotDriver robotDriver;
   SimMotorDriver motorDriver(robotDriver);
@@ -97,9 +107,9 @@ PinManager pinMan;
   SimGpsDriver gps(robotDriver);
 #elif GPS_SKYTRAQ
   SKYTRAQ gps;
-#else 
+#else
   UBLOX gps;
-#endif 
+#endif
 BLEConfig bleConfig;
 Buzzer buzzer;
 Sonar sonar;
@@ -109,7 +119,7 @@ Map maps;
 RCModel rcmodel;
 TimeTable timetable;
 
-int stateButton = 0;  
+int stateButton = 0;
 int stateButtonTemp = 0;
 unsigned long stateButtonTimeout = 0;
 
@@ -177,7 +187,7 @@ PubSubClient mqttClient(espClient);
   NTRIPClient ntrip;  // NTRIP tcp client (optional)
 #endif
 #ifdef GPS_USE_TCP
-  WiFiClient gpsClient; // GPS tcp client (optional)  
+  WiFiClient gpsClient; // GPS tcp client (optional)
 #endif
 
 int motorErrorCounter = 0;
@@ -187,12 +197,12 @@ RunningMedian<unsigned int,3> tofMeasurements;
 
 
 // must be defined to override default behavior
-void watchdogSetup (void){} 
+void watchdogSetup (void){}
 
 
 // reset linear motion measurement
 void resetLinearMotionMeasurement(){
-  linearMotionStartTime = millis();  
+  linearMotionStartTime = millis();
   //stateGroundSpeed = 1.0;
 }
 
@@ -203,25 +213,25 @@ void resetAngularMotionMeasurement(){
 
 // reset overall motion timeout
 void resetOverallMotionTimeout(){
-  overallMotionTimeout = millis() + 10000;      
+  overallMotionTimeout = millis() + 10000;
 }
 
 void updateGPSMotionCheckTime(){
-  nextGPSMotionCheckTime = millis() + GPS_MOTION_DETECTION_TIMEOUT * 1000;     
+  nextGPSMotionCheckTime = millis() + GPS_MOTION_DETECTION_TIMEOUT * 1000;
 }
 
 
 
 void sensorTest(){
   CONSOLE.println("testing sensors for 60 seconds...");
-  unsigned long stopTime = millis() + 60000;  
+  unsigned long stopTime = millis() + 60000;
   unsigned long nextMeasureTime = 0;
   while (millis() < stopTime){
     sonar.run();
     bumper.run();
     liftDriver.run();
     if (millis() > nextMeasureTime){
-      nextMeasureTime = millis() + 1000;      
+      nextMeasureTime = millis() + 1000;
       if (SONAR_ENABLE){
         CONSOLE.print("sonar (enabled,left,center,right,triggered): ");
         CONSOLE.print(sonar.enabled);
@@ -235,14 +245,14 @@ void sensorTest(){
         CONSOLE.print(((int)sonar.obstacle()));
         CONSOLE.print("\t");
       }
-      if (TOF_ENABLE){   
+      if (TOF_ENABLE){
         CONSOLE.print("ToF (dist): ");
-        int v = tof.readRangeContinuousMillimeters();        
-        if (!tof.timeoutOccurred()) {     
+        int v = tof.readRangeContinuousMillimeters();
+        if (!tof.timeoutOccurred()) {
           CONSOLE.print(v/10);
         }
         CONSOLE.print("\t");
-      }    
+      }
       if (BUMPER_ENABLE){
         CONSOLE.print("bumper (left,right,triggered): ");
         CONSOLE.print(((int)bumper.testLeft()));
@@ -250,17 +260,17 @@ void sensorTest(){
         CONSOLE.print(((int)bumper.testRight()));
         CONSOLE.print("\t");
         CONSOLE.print(((int)bumper.obstacle()));
-        CONSOLE.print("\t");       
+        CONSOLE.print("\t");
       }
-	    #ifdef ENABLE_LIFT_DETECTION 
-        CONSOLE.print("lift sensor (triggered): ");		
-        CONSOLE.print(((int)liftDriver.triggered()));	
-        CONSOLE.print("\t");							            
-      #endif  
-	
-      CONSOLE.println();  
+	    #ifdef ENABLE_LIFT_DETECTION
+        CONSOLE.print("lift sensor (triggered): ");
+        CONSOLE.print(((int)liftDriver.triggered()));
+        CONSOLE.print("\t");
+      #endif
+
+      CONSOLE.println();
       watchdogReset();
-      robotDriver.run();   
+      robotDriver.run();
     }
   }
   CONSOLE.println("end of sensor test - please ignore any IMU/GPS errors");
@@ -271,59 +281,59 @@ void startWIFI(){
 #ifdef __linux__
   WiFi.begin();
   wifiFound = true;
-#else  
+#else
   CONSOLE.println("probing for ESP8266 (NOTE: will fail for ESP32)...");
   int status = WL_IDLE_STATUS;     // the Wifi radio's status
-  WIFI.begin(WIFI_BAUDRATE); 
-  WIFI.print("AT\r\n");  
+  WIFI.begin(WIFI_BAUDRATE);
+  WIFI.print("AT\r\n");
   delay(500);
-  String res = "";  
+  String res = "";
   while (WIFI.available()){
-    char ch = WIFI.read();    
+    char ch = WIFI.read();
     res += ch;
   }
   if (res.indexOf("OK") == -1){
     CONSOLE.println("WIFI (ESP8266) not found! If you have ESP8266 and the problem persist, you may need to flash your ESP to firmware 2.2.1");
     return;
-  }    
-  WiFi.init(&WIFI);  
+  }
+  WiFi.init(&WIFI);
   if (WiFi.status() == WL_NO_SHIELD) {
-    CONSOLE.println("ERROR: WiFi not present");       
+    CONSOLE.println("ERROR: WiFi not present");
     return;
-  }   
+  }
   wifiFound = true;
   CONSOLE.print("WiFi found! ESP8266 firmware: ");
-  CONSOLE.println(WiFi.firmwareVersion());       
+  CONSOLE.println(WiFi.firmwareVersion());
   if (START_AP){
-    CONSOLE.print("Attempting to start AP ");  
+    CONSOLE.print("Attempting to start AP ");
     CONSOLE.println(ssid);
     // uncomment these two lines if you want to set the IP address of the AP
-    #ifdef WIFI_IP  
+    #ifdef WIFI_IP
       IPAddress localIp(WIFI_IP);
-      WiFi.configAP(localIp);  
-    #endif            
+      WiFi.configAP(localIp);
+    #endif
     // start access point
-    status = WiFi.beginAP(ssid, 10, pass, ENC_TYPE_WPA2_PSK);         
+    status = WiFi.beginAP(ssid, 10, pass, ENC_TYPE_WPA2_PSK);
   } else {
     while ( status != WL_CONNECTED) {
       CONSOLE.print("Attempting to connect to WPA SSID: ");
-      CONSOLE.println(ssid);      
+      CONSOLE.println(ssid);
       status = WiFi.begin(ssid, pass);
-      #ifdef WIFI_IP  
+      #ifdef WIFI_IP
         IPAddress localIp(WIFI_IP);
-        WiFi.config(localIp);  
+        WiFi.config(localIp);
       #endif
-    }    
-  } 
-  CONSOLE.print("You're connected with SSID=");    
+    }
+  }
+  CONSOLE.print("You're connected with SSID=");
   CONSOLE.print(WiFi.SSID());
-  CONSOLE.print(" and IP=");        
-  IPAddress ip = WiFi.localIP();    
-  CONSOLE.println(ip);   
-#endif         
+  CONSOLE.print(" and IP=");
+  IPAddress ip = WiFi.localIP();
+  CONSOLE.println(ip);
+#endif
   #if defined(ENABLE_UDP)
-    udpSerial.beginUDP();  
-  #endif    
+    udpSerial.beginUDP();
+  #endif
   if (ENABLE_SERVER){
     //server.listenOnLocalhost();
     server.begin();
@@ -332,13 +342,16 @@ void startWIFI(){
     CONSOLE.println("MQTT: enabled");
     mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
     mqttClient.setCallback(mqttCallback);
-  }  
+  }
 }
 
 
 
 // check for RTC module
 bool checkAT24C32() {
+  #ifdef __linux__
+    return true;
+  #else
   byte b = 0;
   int r = 0;
   unsigned int address = 0;
@@ -349,15 +362,12 @@ bool checkAT24C32() {
     Wire.write(address & 0xFF);
     if (Wire.endTransmission() == 0) {
       Wire.requestFrom(AT24C32_ADDRESS, 1);
-      while (Wire.available() > 0 && r < 1) {        
-        b = (byte)Wire.read();        
+      while (Wire.available() > 0 && r < 1) {
+        b = (byte)Wire.read();
         r++;
       }
     }
   }
-  #ifdef __linux__  
-    return true;
-  #else
     return (r == 1);
   #endif
 }
@@ -366,7 +376,7 @@ bool checkAT24C32() {
 void outputConfig(){
   #ifdef ENABLE_PASS
     CONSOLE.println("ENABLE_PASS");
-  #endif 
+  #endif
   #ifdef ENABLE_TILT_DETECTION
     CONSOLE.println("ENABLE_TILT_DETECTION");
   #endif
@@ -392,36 +402,36 @@ void outputConfig(){
 
   #ifdef MOTOR_DRIVER_BRUSHLESS_MOW_DRV8308
     CONSOLE.println("MOTOR_DRIVER_BRUSHLESS_MOW_DRV8308");
-  #endif 
+  #endif
   #ifdef MOTOR_DRIVER_BRUSHLESS_MOW_BLDC8015A
     CONSOLE.println("MOTOR_DRIVER_BRUSHLESS_MOW_BLDC8015A");
   #endif
   #ifdef MOTOR_DRIVER_BRUSHLESS_MOW_A4931
     CONSOLE.println("MOTOR_DRIVER_BRUSHLESS_MOW_A4931");
-  #endif 
+  #endif
   #ifdef MOTOR_DRIVER_BRUSHLESS_MOW_JYQD
     CONSOLE.println("MOTOR_DRIVER_BRUSHLESS_MOW_JYQD");
-  #endif 
+  #endif
   #ifdef MOTOR_DRIVER_BRUSHLESS_MOW_OWL
     CONSOLE.println("MOTOR_DRIVER_BRUSHLESS_MOW_OWL");
-  #endif 
+  #endif
 
   #ifdef MOTOR_DRIVER_BRUSHLESS_GEARS_DRV8308
     CONSOLE.println("MOTOR_DRIVER_BRUSHLESS_GEARS_DRV8308");
-  #endif 
+  #endif
   #ifdef MOTOR_DRIVER_BRUSHLESS_GEARS_BLDC8015A
     CONSOLE.println("MOTOR_DRIVER_BRUSHLESS_GEARS_BLDC8015A");
   #endif
   #ifdef MOTOR_DRIVER_BRUSHLESS_GEARS_A4931
     CONSOLE.println("MOTOR_DRIVER_BRUSHLESS_GEARS_A4931");
-  #endif     
+  #endif
   #ifdef MOTOR_DRIVER_BRUSHLESS_GEARS_JYQD
     CONSOLE.println("MOTOR_DRIVER_BRUSHLESS_GEARS_JYQD");
   #endif
   #ifdef MOTOR_DRIVER_BRUSHLESS_GEARS_OWL
     CONSOLE.println("MOTOR_DRIVER_BRUSHLESS_GEARS_OWL");
   #endif
-  
+
   CONSOLE.print("MOTOR_FAULT_CURRENT: ");
   CONSOLE.println(MOTOR_FAULT_CURRENT);
   CONSOLE.print("MOTOR_OVERLOAD_CURRENT: ");
@@ -458,7 +468,7 @@ void outputConfig(){
   CONSOLE.println(ENABLE_RPM_FAULT_DETECTION);
   #ifdef SONAR_INSTALLED
     CONSOLE.println("SONAR_INSTALLED");
-    CONSOLE.print("SONAR_ENABLE: ");  
+    CONSOLE.print("SONAR_ENABLE: ");
     CONSOLE.println(SONAR_ENABLE);
     CONSOLE.print("SONAR_TRIGGER_OBSTACLES: ");
     CONSOLE.println(SONAR_TRIGGER_OBSTACLES);
@@ -472,7 +482,7 @@ void outputConfig(){
   CONSOLE.print("BUMPER_TRIGGER_DELAY: ");
   CONSOLE.println(BUMPER_TRIGGER_DELAY);
   CONSOLE.print("BUMPER_MAX_TRIGGER_TIME: ");
-  CONSOLE.println(BUMPER_MAX_TRIGGER_TIME);  
+  CONSOLE.println(BUMPER_MAX_TRIGGER_TIME);
   CONSOLE.print("CURRENT_FACTOR: ");
   CONSOLE.println(CURRENT_FACTOR);
   CONSOLE.print("GO_HOME_VOLTAGE: ");
@@ -489,7 +499,7 @@ void outputConfig(){
     CONSOLE.println("GPS_USE_TCP");
   #endif
   #ifdef GPS_SKYTRAQ
-    CONSOLE.println("GPS_USE_SKYTRAQ");  
+    CONSOLE.println("GPS_USE_SKYTRAQ");
   #endif
   CONSOLE.print("REQUIRE_VALID_GPS: ");
   CONSOLE.println(REQUIRE_VALID_GPS);
@@ -538,61 +548,61 @@ void outputConfig(){
   CONSOLE.print("USE_TEMP_SENSOR: ");
   CONSOLE.println(USE_TEMP_SENSOR);
   #ifdef BUZZER_ENABLE
-    CONSOLE.println("BUZZER_ENABLE");    
+    CONSOLE.println("BUZZER_ENABLE");
   #endif
 }
 
 
 // robot start routine
-void start(){    
-  pinMan.begin();         
+void start(){
+  pinMan.begin();
   // keep battery switched ON
-  batteryDriver.begin();  
-  CONSOLE.begin(CONSOLE_BAUDRATE);    
+  batteryDriver.begin();
+  CONSOLE.begin(CONSOLE_BAUDRATE);
   buzzerDriver.begin();
-  buzzer.begin();      
-    
-  Wire.begin();      
+  buzzer.begin();
+
+  Wire.begin();
   analogReadResolution(12);  // configure ADC 12 bit resolution
   unsigned long timeout = millis() + 2000;
   while (millis() < timeout){
     if (!checkAT24C32()){
-      CONSOLE.println(F("PCB not powered ON or RTC module missing"));      
-      I2Creset();  
-      Wire.begin();    
+      CONSOLE.println(F("PCB not powered ON or RTC module missing"));
+      I2Creset();
+      Wire.begin();
       #ifdef I2C_SPEED
-        Wire.setClock(I2C_SPEED);     
+        Wire.setClock(I2C_SPEED);
       #endif
     } else break;
-  }  
-  
+  }
+
   // give Arduino IDE users some time to open serial console to actually see very first console messages
   #ifndef __linux__
     delay(1500);
   #endif
-    
+
   #if defined(ENABLE_SD)
     #ifdef __linux__
       bool res = SD.begin();
-    #else 
+    #else
       bool res = SD.begin(SDCARD_SS_PIN);
-    #endif    
+    #endif
     if (res){
       CONSOLE.println("SD card found!");
-      #if defined(ENABLE_SD_LOG)        
-        sdSerial.beginSD();  
+      #if defined(ENABLE_SD_LOG)
+        sdSerial.beginSD();
       #endif
     } else {
-      CONSOLE.println("no SD card found");                
-    }    
-  #endif 
-  
+      CONSOLE.println("no SD card found");
+    }
+  #endif
+
   logResetCause();
-  
-  CONSOLE.println(VER);          
+
+  CONSOLE.println(VER);
   CONSOLE.print("compiled for: ");
   CONSOLE.println(BOARD);
-  
+
   robotDriver.begin();
   CONSOLE.print("robot id: ");
   String rid = "";
@@ -600,14 +610,14 @@ void start(){
   CONSOLE.println(rid);
   motorDriver.begin();
   rainDriver.begin();
-  liftDriver.begin();  
-  battery.begin();      
+  liftDriver.begin();
+  battery.begin();
   stopButton.begin();
 
-  bleConfig.run();   
-  //BLE.println(VER); is this needed? can confuse BLE modules if not connected?  
-    
-  rcmodel.begin();  
+  bleConfig.run();
+  //BLE.println(VER); is this needed? can confuse BLE modules if not connected?
+
+  rcmodel.begin();
   motor.begin();
   sonar.begin();
   bumper.begin();
@@ -622,8 +632,8 @@ void start(){
       delay(1000);
     }
     tof.startContinuous(100);
-  }        
-  
+  }
+
   CONSOLE.print("SERIAL_BUFFER_SIZE=");
   CONSOLE.print(SERIAL_BUFFER_SIZE);
   CONSOLE.println(" (increase if you experience GPS checksum errors)");
@@ -631,31 +641,31 @@ void start(){
   //CONSOLE.println("NOTE: if you experience GPS checksum errors, try to increase UART FIFO size:");
   //CONSOLE.println("1. Arduino IDE->File->Preferences->Click on 'preferences.txt' at the bottom");
   //CONSOLE.println("2. Locate file 'packages/arduino/hardware/sam/xxxxx/cores/arduino/RingBuffer.h");
-  //CONSOLE.println("   for Grand Central M4 'packages/adafruit/hardware/samd/xxxxx/cores/arduino/RingBuffer.h");  
+  //CONSOLE.println("   for Grand Central M4 'packages/adafruit/hardware/samd/xxxxx/cores/arduino/RingBuffer.h");
   //CONSOLE.println("change:     #define SERIAL_BUFFER_SIZE 128     into into:     #define SERIAL_BUFFER_SIZE 1024");
   CONSOLE.println("-----------------------------------------------------");
-  
+
   #ifdef GPS_USE_TCP
     gps.begin(gpsClient, GPS_HOST, GPS_PORT);
-  #else 
-    gps.begin(GPS, GPS_BAUDRATE);   
+  #else
+    gps.begin(GPS, GPS_BAUDRATE);
   #endif
 
-  maps.begin();      
+  maps.begin();
   //maps.clipperTest();
-    
+
   // initialize ESP module
   startWIFI();
   #ifdef ENABLE_NTRIP
-    ntrip.begin();  
+    ntrip.begin();
   #endif
-  
-  watchdogEnable(15000L);   // 15 seconds  
-  
-  startIMU(false);        
-  
-  buzzer.sound(SND_READY);  
-  battery.resetIdle();        
+
+  watchdogEnable(15000L);   // 15 seconds
+
+  startIMU(false);
+
+  buzzer.sound(SND_READY);
+  battery.resetIdle();
   loadState();
 
   #ifdef DRV_SIM_ROBOT
@@ -681,7 +691,7 @@ bool robotShouldMove(){
     if (millis() < linearSpeedSetDeadTime){
       return false;  // wait dead-time (due to direction change)
     }
-    linearSpeedSetDeadTimeIsSet = false;    
+    linearSpeedSetDeadTimeIsSet = false;
   }
   return ( fabs(motor.linearSpeedSet) > 0.001 );
 }
@@ -697,10 +707,10 @@ bool robotShouldRotate(){
 }
 
 // should robot be in motion? NOTE: function ignores very short motion pauses (with motion low-pass filtering)
-bool robotShouldBeInMotion(){  
+bool robotShouldBeInMotion(){
   if (robotShouldMove() || (robotShouldRotate())) {
     stateInMotionLastTime = millis();
-    stateInMotionLP = true;    
+    stateInMotionLP = true;
   }
   if (millis() > stateInMotionLastTime + 2000) {
     stateInMotionLP = false;
@@ -716,101 +726,101 @@ void triggerObstacle(){
 
 
 // detect sensor malfunction
-void detectSensorMalfunction(){  
+void detectSensorMalfunction(){
   if (ENABLE_ODOMETRY_ERROR_DETECTION){
     if (motor.odometryError){
-      CONSOLE.println("odometry error!");    
+      CONSOLE.println("odometry error!");
       activeOp->onOdometryError();
-      return;      
+      return;
     }
   }
   if (ENABLE_OVERLOAD_DETECTION){
     if (motor.motorOverloadDuration > 20000){
       // one motor is taking too much current over a long time (too high gras etc.) and we should stop mowing
-      CONSOLE.println("overload!");    
+      CONSOLE.println("overload!");
       activeOp->onMotorOverload();
       return;
-    }  
+    }
   }
   if (ENABLE_FAULT_OBSTACLE_AVOIDANCE){
     // there is a motor error (either unrecoverable fault signal or a malfunction) and we should try an obstacle avoidance
     if (motor.motorError){
       CONSOLE.println("motor error!");
       activeOp->onMotorError();
-      return;      
-    }  
+      return;
+    }
   }
 }
 
-// detect lift 
+// detect lift
 // returns true, if lift detected, otherwise false
-bool detectLift(){  
+bool detectLift(){
   #ifdef ENABLE_LIFT_DETECTION
     if (liftDriver.triggered()) {
       CONSOLE.println("LIFT triggered");
-      return true;            
-    }  
-  #endif 
+      return true;
+    }
+  #endif
   return false;
 }
 
 // detect obstacle (bumper, sonar, ToF)
 // returns true, if obstacle detected, otherwise false
-bool detectObstacle(){   
-  if (! ((robotShouldMoveForward()) || (robotShouldRotate())) ) return false;      
+bool detectObstacle(){
+  if (! ((robotShouldMoveForward()) || (robotShouldRotate())) ) return false;
   if (TOF_ENABLE){
     if (millis() >= nextToFTime){
       nextToFTime = millis() + 200;
-      int v = tof.readRangeContinuousMillimeters();        
-      if (!tof.timeoutOccurred()) {     
-        tofMeasurements.add(v);        
+      int v = tof.readRangeContinuousMillimeters();
+      if (!tof.timeoutOccurred()) {
+        tofMeasurements.add(v);
         float avg = 0;
         if (tofMeasurements.getAverage(avg) == tofMeasurements.OK){
           //CONSOLE.println(avg);
           if (avg < TOF_OBSTACLE_CM * 10){
-            CONSOLE.println("ToF obstacle!");    
-            triggerObstacle();                
-            return true; 
+            CONSOLE.println("ToF obstacle!");
+            triggerObstacle();
+            return true;
           }
-        }      
-      } 
-    }    
-  }   
-  
+        }
+      }
+    }
+  }
+
   #ifdef ENABLE_LIFT_DETECTION
     #ifdef LIFT_OBSTACLE_AVOIDANCE
       if ( (millis() > linearMotionStartTime + BUMPER_DEADTIME) && (liftDriver.triggered()) ) {
-        CONSOLE.println("lift sensor obstacle!");    
+        CONSOLE.println("lift sensor obstacle!");
         statMowBumperCounter++;
-        triggerObstacle();    
+        triggerObstacle();
         return true;
       }
     #endif
   #endif
 
-  if ( (millis() > linearMotionStartTime + BUMPER_DEADTIME) && (bumper.obstacle()) ){  
-    CONSOLE.println("bumper obstacle!");    
+  if ( (millis() > linearMotionStartTime + BUMPER_DEADTIME) && (bumper.obstacle()) ){
+    CONSOLE.println("bumper obstacle!");
     statMowBumperCounter++;
-    triggerObstacle();    
+    triggerObstacle();
     return true;
   }
-  
+
   if (sonar.obstacle() && (maps.wayMode != WAY_DOCK)){
-    CONSOLE.println("sonar obstacle!");    
+    CONSOLE.println("sonar obstacle!");
     statMowSonarCounter++;
     if (SONAR_TRIGGER_OBSTACLES){
       triggerObstacle();
       return true;
-    }        
-  }  
-  // check if GPS motion (obstacle detection)  
-  if ((millis() > nextGPSMotionCheckTime) || (millis() > overallMotionTimeout)) {        
+    }
+  }
+  // check if GPS motion (obstacle detection)
+  if ((millis() > nextGPSMotionCheckTime) || (millis() > overallMotionTimeout)) {
     updateGPSMotionCheckTime();
-    resetOverallMotionTimeout(); // this resets overall motion timeout (overall motion timeout happens if e.g. 
+    resetOverallMotionTimeout(); // this resets overall motion timeout (overall motion timeout happens if e.g.
     // motion between anuglar-only and linar-only toggles quickly, and their specific timeouts cannot apply due to the quick toggling)
     float dX = lastGPSMotionX - stateX;
     float dY = lastGPSMotionY - stateY;
-    float delta = sqrt( sq(dX) + sq(dY) );    
+    float delta = sqrt( sq(dX) + sq(dY) );
     if (delta < 0.05){
       if (GPS_MOTION_DETECTION){
         CONSOLE.println("gps no motion => obstacle!");
@@ -819,9 +829,9 @@ bool detectObstacle(){
         return true;
       }
     }
-    lastGPSMotionX = stateX;      
-    lastGPSMotionY = stateY;      
-  }    
+    lastGPSMotionX = stateX;
+    lastGPSMotionY = stateY;
+  }
   return false;
 }
 
@@ -832,39 +842,39 @@ void triggerObstacleRotation(){
 
 // stuck rotate detection (e.g. robot cannot due to an obstacle outside of robot rotation point)
 // returns true, if stuck detected, otherwise false
-bool detectObstacleRotation(){  
+bool detectObstacleRotation(){
   if (!robotShouldRotate()) {
     return false;
-  }  
-  if (!OBSTACLE_DETECTION_ROTATION) return false; 
+  }
+  if (!OBSTACLE_DETECTION_ROTATION) return false;
   if (millis() > angularMotionStartTime + 15000) { // too long rotation time (timeout), e.g. due to obstacle
     CONSOLE.println("too long rotation time (timeout) for requested rotation => assuming obstacle");
     triggerObstacleRotation();
     return true;
   }
   /*if (BUMPER_ENABLE){
-    if (millis() > angularMotionStartTime + 500) { // FIXME: do we actually need a deadtime here for the freewheel sensor?        
-      if (bumper.obstacle()){  
-        CONSOLE.println("bumper obstacle!");    
+    if (millis() > angularMotionStartTime + 500) { // FIXME: do we actually need a deadtime here for the freewheel sensor?
+      if (bumper.obstacle()){
+        CONSOLE.println("bumper obstacle!");
         statMowBumperCounter++;
-        triggerObstacleRotation();    
+        triggerObstacleRotation();
         return true;
       }
     }
   }*/
   if (imuDriver.imuFound){
-    if (millis() > angularMotionStartTime + 3000) {                  
+    if (millis() > angularMotionStartTime + 3000) {
       if (fabs(stateDeltaSpeedLP) < 3.0/180.0 * PI){ // less than 3 degree/s yaw speed, e.g. due to obstacle
-        CONSOLE.println("no IMU rotation speed detected for requested rotation => assuming obstacle");    
+        CONSOLE.println("no IMU rotation speed detected for requested rotation => assuming obstacle");
         triggerObstacleRotation();
-        return true;      
+        return true;
       }
     }
     if (diffIMUWheelYawSpeedLP > 10.0/180.0 * PI) {  // yaw speed difference between wheels and IMU more than 8 degree/s, e.g. due to obstacle
-      CONSOLE.println("yaw difference between wheels and IMU for requested rotation => assuming obstacle");            
+      CONSOLE.println("yaw difference between wheels and IMU for requested rotation => assuming obstacle");
       triggerObstacleRotation();
-      return true;            
-    }    
+      return true;
+    }
   }
   return false;
 }
@@ -873,7 +883,7 @@ bool detectObstacleRotation(){
 
 
 // robot main loop
-void run(){  
+void run(){
   #ifdef ENABLE_NTRIP
     ntrip.run();
   #endif
@@ -891,44 +901,44 @@ void run(){
   liftDriver.run();
   motor.run();
   sonar.run();
-  maps.run();  
+  maps.run();
   rcmodel.run();
   bumper.run();
-  
+
   // state saving
-  if (millis() >= nextSaveTime){  
+  if (millis() >= nextSaveTime){
     nextSaveTime = millis() + 5000;
     saveState();
   }
-  
+
   // temp
   if (millis() > nextTempTime){
-    nextTempTime = millis() + 60000;    
+    nextTempTime = millis() + 60000;
     float batTemp = batteryDriver.getBatteryTemperature();
-    float cpuTemp = robotDriver.getCpuTemperature();    
+    float cpuTemp = robotDriver.getCpuTemperature();
     CONSOLE.print("batTemp=");
     CONSOLE.print(batTemp,0);
     CONSOLE.print("  cpuTemp=");
-    CONSOLE.print(cpuTemp,0);    
+    CONSOLE.print(cpuTemp,0);
     //logCPUHealth();
-    CONSOLE.println();    
+    CONSOLE.println();
     if (batTemp < -999){
       stateTemp = cpuTemp;
     } else {
-      stateTemp = batTemp;    
+      stateTemp = batTemp;
     }
     statTempMin = min(statTempMin, stateTemp);
-    statTempMax = max(statTempMax, stateTemp);    
+    statTempMax = max(statTempMax, stateTemp);
   }
-  
+
   // IMU
   if (millis() > nextImuTime){
-    nextImuTime = millis() + 150;        
-    //imu.resetFifo();    
+    nextImuTime = millis() + 150;
+    //imu.resetFifo();
     if (imuIsCalibrating) {
-      activeOp->onImuCalibration();             
+      activeOp->onImuCalibration();
     } else {
-      readIMU();    
+      readIMU();
     }
   }
 
@@ -937,7 +947,7 @@ void run(){
     nextLedTime = millis() + 1000;
     robotDriver.ledStateGpsFloat = (gps.solution == SOL_FLOAT);
     robotDriver.ledStateGpsFix = (gps.solution == SOL_FIXED);
-    robotDriver.ledStateError = (stateOp == OP_ERROR);     
+    robotDriver.ledStateError = (stateOp == OP_ERROR);
   }
 
   gps.run();
@@ -949,17 +959,17 @@ void run(){
     timetable.run();
   }
 
-  calcStats();  
-  
-  
-  if (millis() >= nextControlTime){        
-    nextControlTime = millis() + 20; 
-    controlLoops++;    
-    
+  calcStats();
+
+
+  if (millis() >= nextControlTime){
+    nextControlTime = millis() + 20;
+    controlLoops++;
+
     computeRobotState();
     if (!robotShouldMove()){
       resetLinearMotionMeasurement();
-      updateGPSMotionCheckTime();  
+      updateGPSMotionCheckTime();
     }
     if (!robotShouldRotate()){
       resetAngularMotionMeasurement();
@@ -977,76 +987,76 @@ void run(){
       motor.stopImmediately(true);
       setOperation(stateOp, true);    // restart current operation
     }*/
-    
-    if (battery.chargerConnected() != stateChargerConnected) {    
-      stateChargerConnected = battery.chargerConnected(); 
-      if (stateChargerConnected){      
-        // charger connected event        
-        activeOp->onChargerConnected();                
+
+    if (battery.chargerConnected() != stateChargerConnected) {
+      stateChargerConnected = battery.chargerConnected();
+      if (stateChargerConnected){
+        // charger connected event
+        activeOp->onChargerConnected();
       } else {
         activeOp->onChargerDisconnected();
-      }            
+      }
     }
     if (millis() > nextBadChargingContactCheck) {
       if (battery.badChargerContact()){
         nextBadChargingContactCheck = millis() + 60000; // 1 min.
         activeOp->onBadChargingContactDetected();
       }
-    } 
+    }
 
     if (battery.underVoltage()){
       activeOp->onBatteryUndervoltage();
-    } 
-    else {      
+    }
+    else {
       if (USE_TEMP_SENSOR){
         if (stateTemp > DOCK_OVERHEAT_TEMP){
           activeOp->onTempOutOfRangeTriggered();
-        } 
+        }
         else if (stateTemp < DOCK_TOO_COLD_TEMP){
           activeOp->onTempOutOfRangeTriggered();
         }
       }
       if (RAIN_ENABLE){
         // rain sensor should trigger serveral times to robustly detect rain (robust rain detection)
-        // it should not trigger if one rain drop or wet tree leaves touches the sensor  
-        if (rainDriver.triggered()){  
+        // it should not trigger if one rain drop or wet tree leaves touches the sensor
+        if (rainDriver.triggered()){
           //CONSOLE.print("RAIN TRIGGERED ");
-          activeOp->onRainTriggered();                                                                              
-        }                           
-      }    
+          activeOp->onRainTriggered();
+        }
+      }
       if (battery.shouldGoHome()){
         if (DOCKING_STATION){
            activeOp->onBatteryLowShouldDock();
         }
-      }   
-       
+      }
+
       if (battery.chargerConnected()){
         if (battery.chargingHasCompleted()){
           activeOp->onChargingCompleted();
         }
-      }        
-    } 
+      }
+    }
 
     //CONSOLE.print("active:");
     //CONSOLE.println(activeOp->name());
     activeOp->checkStop();
-    activeOp->run();     
-      
+    activeOp->run();
+
     // process button state
     if (stateButton == 5){
       stateButton = 0; // reset button state
       stateSensor = SENS_STOP_BUTTON;
       setOperation(OP_DOCK, false);
-    } else if (stateButton == 6){ 
-      stateButton = 0; // reset button state        
+    } else if (stateButton == 6){
+      stateButton = 0; // reset button state
       stateSensor = SENS_STOP_BUTTON;
       setOperation(OP_MOW, false);
-    } 
-    //else if (stateButton > 0){  // stateButton 1 (or unknown button state)        
-    else if (stateButton == 1){  // stateButton 1                   
+    }
+    //else if (stateButton > 0){  // stateButton 1 (or unknown button state)
+    else if (stateButton == 1){  // stateButton 1
       stateButton = 0;  // reset button state
       stateSensor = SENS_STOP_BUTTON;
-      setOperation(OP_IDLE, false);                             
+      setOperation(OP_IDLE, false);
     } else if (stateButton == 9){
       stateButton = 0;  // reset button state
       stateSensor = SENS_STOP_BUTTON;
@@ -1059,25 +1069,25 @@ void run(){
       #endif
     }
 
-    // update operation type      
-    stateOp = activeOp->getGoalOperationType();  
-            
+    // update operation type
+    stateOp = activeOp->getGoalOperationType();
+
   }   // if (millis() >= nextControlTime)
-    
+
   // ----- read serial input (BT/console) -------------
   processComm();
-  outputConsole();    
+  outputConsole();
 
   //##############################################################################
 
   if(millis() > wdResetTimer + 1000){
     watchdogReset();
-  }   
+  }
 
   loopTimeNow = millis() - loopTime;
-  loopTimeMin = min(loopTimeNow, loopTimeMin); 
+  loopTimeMin = min(loopTimeNow, loopTimeMin);
   loopTimeMax = max(loopTimeNow, loopTimeMax);
-  loopTimeMean = 0.99 * loopTimeMean + 0.01 * loopTimeNow; 
+  loopTimeMean = 0.99 * loopTimeMean + 0.01 * loopTimeNow;
   loopTime = millis();
 
   if(millis() > loopTimeTimer + 10000){
@@ -1094,10 +1104,10 @@ void run(){
     CONSOLE.print(" - ");
     CONSOLE.print(loopTimeMax);
     CONSOLE.println("ms");
-    loopTimeMin = 99999; 
+    loopTimeMin = 99999;
     loopTimeMax = 0;
     loopTimeTimer = millis();
-  }   
+  }
   //##############################################################################
 
   // compute button state (stateButton)
@@ -1109,9 +1119,9 @@ void run(){
         buzzer.sound(SND_READY, true);
         CONSOLE.print("BUTTON ");
         CONSOLE.print(stateButtonTemp);
-        CONSOLE.println("s");                                     
+        CONSOLE.println("s");
       }
-                          
+
     } else {
       if (stateButtonTemp > 0){
         // button released => set stateButton
@@ -1122,17 +1132,17 @@ void run(){
         CONSOLE.println(stateButton);
       }
     }
-  }    
-}        
+  }
+}
 
 
 
 // set new robot operation
-void setOperation(OperationType op, bool allowRepeat){  
-  if ((stateOp == op) && (!allowRepeat)) return;  
+void setOperation(OperationType op, bool allowRepeat){
+  if ((stateOp == op) && (!allowRepeat)) return;
   CONSOLE.print("setOperation op=");
   CONSOLE.println(op);
-  stateOp = op;  
+  stateOp = op;
   activeOp->changeOperationTypeByOperator(stateOp);
   saveState();
 }

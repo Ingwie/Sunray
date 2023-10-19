@@ -1,5 +1,5 @@
 /******************************************************************************
-arduino_mpu9250_clk.c - MPU-9250 Digital Motion Processor Arduino Library 
+arduino_mpu9250_clk.c - MPU-9250 Digital Motion Processor Arduino Library
 Jim Lindblom @ SparkFun Electronics
 original creation date: November 23, 2016
 https://github.com/sparkfun/SparkFun_MPU9250_DMP_Arduino_Library

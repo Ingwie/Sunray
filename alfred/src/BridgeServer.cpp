@@ -57,7 +57,7 @@ int BridgeServer::setTimeout(uint32_t seconds){
   return setSocketOption(SO_SNDTIMEO, (char *)&tv, sizeof(struct timeval));
 }
 
-size_t BridgeServer::write(const uint8_t *data, size_t len){  
+size_t BridgeServer::write(const uint8_t *data, size_t len){
   return 0;
 }
 
@@ -65,8 +65,8 @@ void BridgeServer::stopAll(){
   Serial.println("server stopAll");
 }
 
-void BridgeServer::run(){  
-  struct sockaddr_in _client;      
+void BridgeServer::run(){
+  struct sockaddr_in _client;
   int cs = sizeof(struct sockaddr_in);
   int sock = ::accept(sockfd, (struct sockaddr *)&_client, (socklen_t*)&cs);
   pthread_mutex_lock( &eventsMutex );
@@ -80,20 +80,20 @@ BridgeClient BridgeServer::available(){
     Serial.println("available(): not listening");
     return BridgeClient();
   }
-  
+
   pthread_mutex_lock( &eventsMutex );
   int sock = clientSock;
   clientSock = -1;
   pthread_mutex_unlock( &eventsMutex );
 
-  if (sock < 0){ 
-    return BridgeClient();  // no client 
+  if (sock < 0){
+    return BridgeClient();  // no client
   }
 
-  //Serial.println("server accepting");        
+  //Serial.println("server accepting");
   BridgeClient *client = new BridgeClient(this, sock);
 
-  return *client;  // NOTE: THIS RETURNS A COPY!          
+  return *client;  // NOTE: THIS RETURNS A COPY!
 }
 
 
@@ -107,7 +107,7 @@ void BridgeServer::begin(){
   sockfd = socket(AF_INET , SOCK_STREAM, 0);
   Serial.printf("sockfd=%d\n", sockfd);
   if (sockfd < 0){
-    Serial.println("socket error");    
+    Serial.println("socket error");
     return;
   }
   // connection will close immediately after closing the program; and next restart will be able to bind again.
@@ -125,7 +125,7 @@ void BridgeServer::begin(){
     return;
   }
   if(listen(sockfd , _max_clients) < 0){
-    Serial.println("listen error");  
+    Serial.println("listen error");
     return;
   }
 

@@ -24,7 +24,8 @@
 static pthread_mutex_t thread_mutexes[10];
 
 void thread_yield(){
-    pthread_yield();
+    //pthread_yield();
+sched_yield();
 }
 
 pthread_t thread_self(){

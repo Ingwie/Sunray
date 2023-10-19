@@ -1,4 +1,4 @@
-// Ardumower Sunray 
+// Ardumower Sunray
 // Copyright (c) 2013-2020 by Alexander Grau, Grau GmbH
 // Licensed GPLv3 for open source use
 // or Grau GmbH Commercial License for commercial use (http://grauonline.de/cms2/?page_id=153)
@@ -13,6 +13,7 @@
 #include "config.h"
 #include "src/driver/AmRobotDriver.h"
 #include "src/driver/SerialRobotDriver.h"
+#include "src/driver/MeuhRobotDriver.h"
 #include "src/driver/SimRobotDriver.h"
 #include "src/driver/MpuDriver.h"
 #include "src/driver/BnoDriver.h"
@@ -23,7 +24,7 @@
 #include "buzzer.h"
 #include "sonar.h"
 #include "VL53L0X.h"
-#include "map.h"   
+#include "map.h"
 #include "src/ublox/ublox.h"
 #include "src/skytraq/skytraq.h"
 #ifdef __linux__
@@ -45,7 +46,7 @@ enum OperationType {
       OP_CHARGE,    // charging
       OP_ERROR,     // serious error
       OP_DOCK,      // go to docking
-};    
+};
 
 // sensor errors
 enum Sensor {
@@ -53,7 +54,7 @@ enum Sensor {
       SENS_BAT_UNDERVOLTAGE,  // battery undervoltage
       SENS_OBSTACLE,          // obstacle triggered
       SENS_GPS_FIX_TIMEOUT,   // gps fix timeout
-      SENS_IMU_TIMEOUT,       // imu timeout  
+      SENS_IMU_TIMEOUT,       // imu timeout
       SENS_IMU_TILT,          // imut tilt
       SENS_KIDNAPPED,         // robot has been kidnapped (is no longer on planned track)
       SENS_OVERLOAD,          // motor overload
@@ -111,8 +112,17 @@ extern int motorErrorCounter;
   extern SerialBumperDriver bumperDriver;
   extern SerialStopButtonDriver stopButton;
   extern SerialRainSensorDriver rainDriver;
-  extern SerialLiftSensorDriver liftDriver;  
+  extern SerialLiftSensorDriver liftDriver;
   extern SerialBuzzerDriver buzzerDriver;
+#elif DRV_MEUH_ROBOT
+  extern MeuhRobotDriver robotDriver;
+  extern MeuhMotorDriver motorDriver;
+  extern MeuhBatteryDriver batteryDriver;
+  extern MeuhBumperDriver bumperDriver;
+  extern MeuhStopButtonDriver stopButton;
+  extern MeuhRainSensorDriver rainDriver;
+  extern MeuhLiftSensorDriver liftDriver;
+  extern MeuhBuzzerDriver buzzerDriver;
 #elif DRV_SIM_ROBOT
   extern SimRobotDriver robotDriver;
   extern SimMotorDriver motorDriver;
@@ -136,7 +146,7 @@ extern int motorErrorCounter;
 #ifdef DRV_SIM_ROBOT
   extern SimImuDriver imuDriver;
 #elif defined(BNO055)
-  extern BnoDriver imuDriver;  
+  extern BnoDriver imuDriver;
 #else
   extern MpuDriver imuDriver;
 #endif

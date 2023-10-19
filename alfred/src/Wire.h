@@ -18,12 +18,12 @@ extern "C"{
 
 #include "Stream.h"
 
-#define BUFFER_LENGTH 32
+#define BUFFER_LENGTH 40 // needed for TMC5160
 
 class TwoWire : public Stream {
   private:
 
-    // static?    
+    // static?
     static uint8_t rxBuffer[];
     static uint8_t rxBufferIndex;
     static uint8_t rxBufferLength;
@@ -35,7 +35,7 @@ class TwoWire : public Stream {
 
     static uint8_t busAddress;
     static int busFd;
-    
+
   public:
     TwoWire();
     void begin();

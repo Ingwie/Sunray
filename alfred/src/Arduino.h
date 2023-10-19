@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#include <stdint.h>
 
 #include <math.h>
 #include <pthread.h>
@@ -112,7 +113,7 @@ void yield(void);
 
 #define bit(b) (1UL << (b))
 
-//#ifdef __arm__ 
+//#ifdef __arm__
 //    #define micros() (unsigned long)(STCV)
 //    #define millis() (unsigned long)(STCV / 1000)
 //#else
@@ -224,5 +225,4 @@ String shellExec(const char *cmd, int *result);
 #include "binary.h"
 //#include "pins_arduino.h"
 
-#endif   
- 
+#endif

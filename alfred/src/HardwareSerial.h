@@ -7,9 +7,12 @@
 
 #include "Stream.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
+
 class HardwareSerial : public Stream {
   protected:
-    
+
   public:
     inline HardwareSerial(){}
     virtual void begin(uint32_t baud) {}
@@ -26,7 +29,7 @@ class HardwareSerial : public Stream {
     using Print::write; // pull in write(str) and write(buf, size) from Print
     operator bool() { return true; }
 };
-
+#pragma GCC diagnostic pop
 #ifdef SERIAL_TO_CONSOLE
 //extern HardwareSerial Serial1;
 #else

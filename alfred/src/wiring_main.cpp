@@ -28,14 +28,14 @@ void analogReadResolution(uint8_t res){
 }
 
 
-void watchdogReset(void){    
+void watchdogReset(void){
 }
 
-void watchdogEnable(uint32_t ms){    
+void watchdogEnable(uint32_t ms){
 }
 
 
-//#ifndef __arm__ 
+//#ifndef __arm__
     unsigned long micros(){
         struct timeval tv;
         gettimeofday(&tv,NULL);
@@ -102,18 +102,18 @@ void *_loop_thread_task(void *arg __attribute__((unused))){
  *
  * See Issue #10
  */
-__attribute__((constructor(101))) void startInit() {  
+__attribute__((constructor(101))) void startInit() {
   if(init()) exit(1);
 }
 
 
 int main(int argc __attribute__((unused)), char **argv __attribute__((unused))){
     printf("main\n");
-    
+
     struct timeval tv;
     gettimeofday(&tv,NULL);
     startMillis = 1000 * tv.tv_sec + tv.tv_usec/1000;
-    
+
     thread_set_priority(65);
     _keep_sketch_running = 1;
     _loop_is_running = 0;
