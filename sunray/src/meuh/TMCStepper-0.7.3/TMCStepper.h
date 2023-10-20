@@ -6,6 +6,13 @@
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
+// Already defined in Linux lib .. push and pop those defines
+#pragma push_macro("VSTART")
+#undef VSTART
+#pragma push_macro("VSTOP")
+#undef VSTOP
+
+
 //#if defined(ARDUINO) && ARDUINO >= 100
 	#include <Arduino.h>
 	#include <SPI.h>
@@ -1262,3 +1269,6 @@ class TMC2660Stepper {
 		uint8_t _savedToff = 0;
 		SW_SPIClass * TMC_SW_SPI = nullptr;
 };
+
+#pragma pop_macro("VSTART")
+#pragma pop_macro("VSTOP")

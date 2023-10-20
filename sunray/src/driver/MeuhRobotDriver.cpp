@@ -20,6 +20,7 @@
 #include "../meuh/Imu.h"
 #include "../meuh/FusionImu.h"
 
+
 #define COMM  ROBOT
 
 //#define DEBUG_SERIAL_ROBOT 1
@@ -109,6 +110,23 @@ void MeuhRobotDriver::begin(){
     adc.setConvRate(ADS1115_128_SPS);
     // set mode
     adc.setMeasureMode(ADS1115_CONTINOUS);
+
+
+    // start stepper drivers (wheels)
+    #define RsensE 0.22f // ohms
+    // right
+    TMC5160Stepper R_Stepper = TMC5160Stepper(0, RsensE);
+    // left
+    TMC5160Stepper L_Stepper = TMC5160Stepper(0, RsensE);
+    // start sequence macro
+    #define START_TMC_SEQUENCE(x) \
+    x.begin(); \
+    x.rms_current(600); /* Set motor RMS current */ \
+    x.microsteps(32);   /* Set microsteps */
+    TODO......
+    // start TMSs
+    START_TMC_SEQUENCE(R_Stepper);
+    START_TMC_SEQUENCE(L_Stepper);
 
     // ADC test
     if (true){

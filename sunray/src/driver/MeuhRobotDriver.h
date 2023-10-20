@@ -24,6 +24,8 @@
 
 #include "../meuh/ADS1115/ADS1115_WE.h"
 #include "../meuh/PCF8575/PCF8575.h"
+#include "../meuh/TMCStepper-0.7.3/TMCStepper.h"
+
 
 
 class MeuhRobotDriver: public RobotDriver {
@@ -50,6 +52,8 @@ class MeuhRobotDriver: public RobotDriver {
     float cpuTemp;
     ADS1115_WE adc;
     PCF8575 pcf8575;
+    TMC5160Stepper *R_Stepper;
+    TMC5160Stepper *L_Stepper;
     bool triggeredLeftBumper;
     bool triggeredRightBumper;
     bool triggeredLift;
