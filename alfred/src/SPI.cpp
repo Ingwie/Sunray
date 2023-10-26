@@ -21,10 +21,10 @@
 
 
 int SPIClass::fd = 0;
-uint8_t SPIClass::mode=0; 
-uint32_t SPIClass::speed=0;
+uint8_t SPIClass::mode=SPI_MODE3;
+uint32_t SPIClass::speed=4000000;
 uint16_t SPIClass::delay=0;
-uint8_t SPIClass::bits=0;               
+uint8_t SPIClass::bits=8;
 
 
 void SPIClass::begin() {
@@ -35,25 +35,21 @@ void SPIClass::begin() {
   char filename[50];
   int busAddressMajor = 0;
   int busAddressMinor = 0;
-  
+
 	sprintf(filename, "/dev/spidev%d.%d", busAddressMajor, busAddressMinor);
-
-  delay = 0;             //  SPI driver latency: https://www.raspberrypi.org/forums/viewtopic.php?f=44&t=19489
-  bits = 8;
-
-  //  Previously: parse_opts(argc, argv);
-  setDataMode(0);
-  setClock(500000);
-  printf("spi mode: %d\n", mode);
-  printf("bits per word: %d\n", bits);
-  printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
 
     //  Open SPI device.
   fd = open(filename, O_RDWR);
-  if (fd < 0) { 
-    perror("error: can't open SPI bus"); 
+  if (fd < 0) {
+    perror("error: can't open SPI bus");
     return;
   }
+  //  Previously: parse_opts(argc, argv);
+  setDataMode(mode);
+  setClock(speed);
+  printf("spi mode: %d\n", mode);
+  printf("bits per word: %d\n", bits);
+  printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
 
   //  Set SPI read and write bits per word.
   int ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
@@ -81,7 +77,7 @@ void SPIClass::setClockDivider(uint32_t rate){
 }
 
 void SPIClass::setClock(uint32_t rate){
-  speed = rate; 
+  speed = rate;
   //  Set SPI read and write max speed.
   int ret = ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
   if (ret == -1) { perror("can't set max speed hz"); }
@@ -100,13 +96,13 @@ uint8_t SPIClass::transfer(uint8_t data) {
   tr.delay_usecs = delay;
   tr.speed_hz = speed;
   tr.bits_per_word = bits;
-	
+
 	int ret = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
     //  Check SPI result.
 	if (ret < 1) { perror("spi_transmit failed"); }
 
   tr.tx_buf = (unsigned long) NULL;
-	tr.rx_buf =  (unsigned long) &res;	  
+	tr.rx_buf =  (unsigned long) &res;
   tr.len = 1;
   tr.delay_usecs = delay;
   tr.speed_hz = speed;
@@ -115,7 +111,7 @@ uint8_t SPIClass::transfer(uint8_t data) {
 	ret = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
     //  Check SPI result.
 	if (ret < 1) { perror("spi_receive failed"); }
-  
+
   return res;
 }
 

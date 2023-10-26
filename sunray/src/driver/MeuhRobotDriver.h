@@ -39,7 +39,7 @@ class MeuhRobotDriver: public RobotDriver {
     unsigned long encoderTicksLeft;
     unsigned long encoderTicksRight;
     unsigned long encoderTicksMow;
-    bool mcuCommunicationLost;
+    //bool mcuCommunicationLost;
     bool motorFault;
     float batteryVoltage;
     float chargeVoltage;
@@ -65,8 +65,6 @@ class MeuhRobotDriver: public RobotDriver {
     bool getMcuFirmwareVersion(String &name, String &ver) override;
     float getCpuTemperature() override;
     void requestMotorPwm(int leftPwm, int rightPwm, int mowPwm);
-    void requestSummary();
-    void requestVersion();
     void updateCpuTemperature();
     void updateWifiConnectionState();
     bool setFanPowerState(bool state);
@@ -84,15 +82,14 @@ class MeuhRobotDriver: public RobotDriver {
     unsigned long nextConsoleTime;
     unsigned long nextTempTime;
     unsigned long nextWifiTime;
-    int cmdMotorCounter;
-    int cmdSummaryCounter;
-    int cmdMotorResponseCounter;
-    int cmdSummaryResponseCounter;
-    void sendRequest(String s);
-    void processComm();
-    void processResponse(bool checkCrc);
-    void motorResponse();
-    void summaryResponse();
+    //int cmdMotorCounter;
+    //int cmdSummaryCounter;
+    //int cmdMotorResponseCounter;
+    //int cmdSummaryResponseCounter;
+    //void processComm();
+    //void processResponse(bool checkCrc);
+    //void motorResponse();
+    //void summaryResponse();
     void versionResponse();
 };
 

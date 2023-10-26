@@ -46,16 +46,16 @@ void MeuhRobotDriver::begin(){
   triggeredStopButton = false;
   triggeredLift = false;
   motorFault = false;
-  mcuCommunicationLost = true;
+  //mcuCommunicationLost = true;
   nextSummaryTime = 0;
   nextConsoleTime = 0;
   nextMotorTime = 0;
   nextTempTime = 0;
   nextWifiTime = 0;
-  cmdMotorResponseCounter = 0;
-  cmdSummaryResponseCounter = 0;
-  cmdMotorCounter = 0;
-  cmdSummaryCounter = 0;
+  //cmdMotorResponseCounter = 0;
+  //cmdSummaryResponseCounter = 0;
+  //cmdMotorCounter = 0;
+  //cmdSummaryCounter = 0;
   requestLeftPwm = requestRightPwm = requestMowPwm = 0;
   robotID = "XX";
 
@@ -110,24 +110,6 @@ void MeuhRobotDriver::begin(){
     adc.setConvRate(ADS1115_128_SPS);
     // set mode
     adc.setMeasureMode(ADS1115_CONTINOUS);
-
-
-    // start stepper drivers (wheels)
-    #define RsensE 0.22f // ohms
-    // right
-    TMC5160Stepper R_Stepper = TMC5160Stepper(0, RsensE);
-    // left
-    TMC5160Stepper L_Stepper = TMC5160Stepper(0, RsensE);
-    // start sequence macro
-    #define START_TMC_SEQUENCE(x) \
-    x.begin(); \
-    x.rms_current(600); /* Set motor RMS current */ \
-    x.microsteps(32);   /* Set microsteps */
-    TODO......
-    // start TMSs
-    START_TMC_SEQUENCE(R_Stepper);
-    START_TMC_SEQUENCE(L_Stepper);
-
     // ADC test
     if (true){
         delay(5);
@@ -140,6 +122,25 @@ void MeuhRobotDriver::begin(){
         CONSOLE.print("ADC S3 = ");
         CONSOLE.println(readAdcChannel(ADS1115_COMP_3_GND));
     }
+
+    // start stepper drivers (wheels)
+    CONSOLE.println("starting TMC5160");
+    SPI.begin();
+    #define RsensE 0.22f // ohms
+    // right
+    TMC5160Stepper R_Stepper = TMC5160Stepper(0, RsensE);
+    // left
+    TMC5160Stepper L_Stepper = TMC5160Stepper(0, RsensE);
+    // start sequence macro
+    #define START_TMC_SEQUENCE(x) \
+    x.begin(); \
+    x.rms_current(600); /* Set motor RMS current (mA) */ \
+    x.microsteps(32);   /* Set microsteps */ \
+    x.diag1_stall(1);
+
+    // start TMSs
+    START_TMC_SEQUENCE(R_Stepper); // A lot of todo to switch to speed mode, colldrive, stallguard ....
+    START_TMC_SEQUENCE(L_Stepper);
 
     // EEPROM test
     if (false){
@@ -230,93 +231,9 @@ void MeuhRobotDriver::updateWifiConnectionState(){
   #endif
 }
 
-// send serial request to MCU
-void MeuhRobotDriver::sendRequest(String s){
-  byte crc = 0;
-  for (int i=0; i < s.length(); i++) crc += s[i];
-  s += F(",0x");
-  if (crc <= 0xF) s += F("0");
-  s += String(crc, HEX);
-  s += F("\r\n");
-  #ifdef DEBUG_SERIAL_ROBOT
-    CONSOLE.print("MeuhRobot request: ");
-    CONSOLE.println(s);
-  #endif
-  //cmdResponse = s;
-  COMM.print(s);
-}
-
-
-// request MCU SW version
-void MeuhRobotDriver::requestVersion(){
-  String req;
-  req += "AT+V";
-  sendRequest(req);
-}
-
-
-// request MCU summary
-void MeuhRobotDriver::requestSummary(){
-  String req;
-  req += "AT+S";
-  sendRequest(req);
-  cmdSummaryCounter++;
-}
-
-
 // request MCU motor PWM
 void MeuhRobotDriver::requestMotorPwm(int leftPwm, int rightPwm, int mowPwm){
-  String req;
-  req += "AT+M,";
-  req += rightPwm;
-  req += ",";
-  req += leftPwm;
-  req += ",";
-  req += mowPwm;
-  //if (abs(mowPwm) > 0)
-  //  req += "1";
-  //else
-  //  req += "0";
-  sendRequest(req);
-  cmdMotorCounter++;
-}
 
-void MeuhRobotDriver::motorResponse(){
-  if (cmd.length()<6) return;
-  int counter = 0;
-  int lastCommaIdx = 0;
-  for (int idx=0; idx < cmd.length(); idx++){
-    char ch = cmd[idx];
-    //Serial.print("ch=");
-    //Serial.println(ch);
-    if ((ch == ',') || (idx == cmd.length()-1)){
-      int intValue = cmd.substring(lastCommaIdx+1, ch==',' ? idx : idx+1).toInt();
-      float floatValue = cmd.substring(lastCommaIdx+1, ch==',' ? idx : idx+1).toFloat();
-      if (counter == 1){
-        encoderTicksRight = intValue;  // ag
-      } else if (counter == 2){
-        encoderTicksLeft = intValue;   // ag
-      } else if (counter == 3){
-        encoderTicksMow = intValue;
-      } else if (counter == 4){
-        chargeVoltage = floatValue;
-      } else if (counter == 5){
-        triggeredLeftBumper = (intValue != 0);
-      } else if (counter == 6){
-        triggeredLift = (intValue != 0);
-      } else if (counter == 7){
-        triggeredStopButton = (intValue != 0);
-      }
-      counter++;
-      lastCommaIdx = idx;
-    }
-  }
-  if (triggeredStopButton){
-    //CONSOLE.println("STOPBUTTON");
-  }
-  //CONSOLE.println(encoderTicksMow);
-  cmdMotorResponseCounter++;
-  mcuCommunicationLost=false;
 }
 
 
@@ -346,150 +263,21 @@ void MeuhRobotDriver::versionResponse(){
 }
 
 
-void MeuhRobotDriver::summaryResponse(){
-  if (cmd.length()<6) return;
-  int counter = 0;
-  int lastCommaIdx = 0;
-  for (int idx=0; idx < cmd.length(); idx++){
-    char ch = cmd[idx];
-    //Serial.print("ch=");
-    //Serial.println(ch);
-    if ((ch == ',') || (idx == cmd.length()-1)){
-      int intValue = cmd.substring(lastCommaIdx+1, ch==',' ? idx : idx+1).toInt();
-      float floatValue = cmd.substring(lastCommaIdx+1, ch==',' ? idx : idx+1).toFloat();
-      if (counter == 1){
-        batteryVoltage = floatValue;
-      } else if (counter == 2){
-        chargeVoltage = floatValue;
-      } else if (counter == 3){
-        chargeCurrent = floatValue;
-      } else if (counter == 4){
-        triggeredLift = (intValue != 0);
-      } else if (counter == 5){
-        triggeredLeftBumper = (intValue != 0);
-      } else if (counter == 6){
-        triggeredRain = (intValue != 0);
-      } else if (counter == 7){
-        motorFault = (intValue != 0);
-      } else if (counter == 8){
-        //CONSOLE.println(cmd.substring(lastCommaIdx+1, ch==',' ? idx : idx+1));
-        mowCurr = floatValue;
-      } else if (counter == 9){
-        motorLeftCurr = floatValue;
-      } else if (counter == 10){
-        motorRightCurr = floatValue;
-      } else if (counter == 11){
-        batteryTemp = floatValue;
-      }
-      counter++;
-      lastCommaIdx = idx;
-    }
-  }
-  cmdSummaryResponseCounter++;
-  /*CONSOLE.print("motor currents=");
-  CONSOLE.print(mowCurr);
-  CONSOLE.print(",");
-  CONSOLE.print(motorLeftCurr);
-  CONSOLE.print(",");
-  CONSOLE.println(motorRightCurr);*/
-  //CONSOLE.print("batteryTemp=");
-  //CONSOLE.println(batteryTemp);
-}
 
-// process response
-void MeuhRobotDriver::processResponse(bool checkCrc){
-  cmdResponse = "";
-  if (cmd.length() < 4) return;
-  byte expectedCrc = 0;
-  int idx = cmd.lastIndexOf(',');
-  if (idx < 1){
-    if (checkCrc){
-      CONSOLE.println("MeuhRobot: CRC ERROR");
-      return;
-    }
-  } else {
-    for (int i=0; i < idx; i++) expectedCrc += cmd[i];
-    String s = cmd.substring(idx+1, idx+5);
-    int crc = strtol(s.c_str(), NULL, 16);
-    if (expectedCrc != crc){
-      if (checkCrc){
-        CONSOLE.print("MeuhRobot: CRC ERROR");
-        CONSOLE.print(crc,HEX);
-        CONSOLE.print(",");
-        CONSOLE.print(expectedCrc,HEX);
-        CONSOLE.println();
-        return;
-      }
-    } else {
-      #ifdef DEBUG_SERIAL_ROBOT
-        CONSOLE.print("MeuhRobot resp:");
-        CONSOLE.println(cmd);
-      #endif
-      // remove CRC
-      cmd = cmd.substring(0, idx);
-    }
-  }
-  if (cmd[0] == 'M') motorResponse();
-  if (cmd[0] == 'S') summaryResponse();
-  if (cmd[0] == 'V') versionResponse();
-}
-
-
-// process console input
-void MeuhRobotDriver::processComm(){
-  char ch;
-  if (COMM.available()){
-    //battery.resetIdle();
-    while ( COMM.available() ){
-      ch = COMM.read();
-      if ((ch == '\r') || (ch == '\n')) {
-        //CONSOLE.println(cmd);
-        processResponse(true);
-        //CONSOLE.print(cmdResponse);
-        cmd = "";
-      } else if (cmd.length() < 500){
-        cmd += ch;
-      }
-    }
-  }
-}
 
 void MeuhRobotDriver::run(){
-  processComm();
+  //processComm();
   if (millis() > nextMotorTime){
     nextMotorTime = millis() + 20; // 50 hz
     requestMotorPwm(requestLeftPwm, requestRightPwm, requestMowPwm);
   }
   if (millis() > nextSummaryTime){
     nextSummaryTime = millis() + 500; // 2 hz
-    requestSummary();
+    //requestSummary();
   }
   if (millis() > nextConsoleTime){
     nextConsoleTime = millis() + 1000;  // 1 hz
-    if (!mcuCommunicationLost){
-      if (mcuFirmwareName == ""){
-        requestVersion();
-      }
-    }
-    if ((cmdMotorCounter > 0) && (cmdMotorResponseCounter == 0)){
-      CONSOLE.println("WARN: resetting motor ticks");
-      resetMotorTicks = true;
-      mcuCommunicationLost = true;
-    }
-    if ( (cmdMotorResponseCounter < 30) ) { // || (cmdSummaryResponseCounter == 0) ){
-      CONSOLE.print("WARN: MeuhRobot unmet communication frequency: motorFreq=");
-      CONSOLE.print(cmdMotorCounter);
-      CONSOLE.print("/");
-      CONSOLE.print(cmdMotorResponseCounter);
-      CONSOLE.print("  summaryFreq=");
-      CONSOLE.print(cmdSummaryCounter);
-      CONSOLE.print("/");
-      CONSOLE.println(cmdSummaryResponseCounter);
-      if (cmdMotorResponseCounter == 0){
-        // FIXME: maybe reset motor PID controls here?
-      }
-    }
-    cmdMotorCounter=cmdMotorResponseCounter=cmdSummaryCounter=cmdSummaryResponseCounter=0;
+
   }
   if (millis() > nextTempTime){
     nextTempTime = millis() + 59000; // 59 sec
@@ -562,11 +350,6 @@ void MeuhMotorDriver::getMotorCurrent(float &leftCurrent, float &rightCurrent, f
 }
 
 void MeuhMotorDriver::getMotorEncoderTicks(int &leftTicks, int &rightTicks, int &mowTicks){
-  if (meuhRobot.mcuCommunicationLost) {
-    //CONSOLE.println("getMotorEncoderTicks: no ticks!");
-    leftTicks = rightTicks = 0; mowTicks = 0;
-    return;
-  }
   if (meuhRobot.resetMotorTicks){
     meuhRobot.resetMotorTicks = false;
     //CONSOLE.println("getMotorEncoderTicks: resetMotorTicks");
@@ -668,13 +451,6 @@ float MeuhBatteryDriver::getBatteryVoltage(){
           }
         }
       }
-    }
-    if (meuhRobot.mcuCommunicationLost){
-      // return 0 volt if MCU PCB is connected and powered-off (Linux will shutdown)
-      //if (!mcuBoardPoweredOn) return 0;
-      // return 28 volts if MCU PCB is not connected (so Linux can be tested without MCU PCB
-      // and will not shutdown if mower is not connected)
-      return 28;
     }
   #endif
   return meuhRobot.batteryVoltage;
