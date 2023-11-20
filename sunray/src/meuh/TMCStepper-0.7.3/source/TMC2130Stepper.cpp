@@ -67,7 +67,7 @@ void TMC2130Stepper::switchCSpin(bool state) {
 __attribute__((weak))
 void TMC2130Stepper::beginTransaction() {
   if (TMC_SW_SPI == nullptr) {
-    SPI.beginTransaction(SPISettings(spi_speed, MSBFIRST, SPI_MODE3));
+    SPI.beginTransaction(SPISettings(spi_speed, MSBFIRST, SPI_MODE_3 | SPI_NO_CS));
   }
 }
 __attribute__((weak))

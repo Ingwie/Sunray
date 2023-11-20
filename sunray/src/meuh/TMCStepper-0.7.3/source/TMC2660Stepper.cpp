@@ -38,7 +38,7 @@ uint32_t TMC2660Stepper::read() {
     response <<= 8;
     response |= TMC_SW_SPI->transfer(dummy & 0xFF);
   } else {
-    SPI.beginTransaction(SPISettings(spi_speed, MSBFIRST, SPI_MODE3));
+    SPI.beginTransaction(SPISettings(spi_speed, MSBFIRST, SPI_MODE_3 | SPI_NO_CS));
     switchCSpin(LOW);
     response |= SPI.transfer((dummy >> 16) & 0xFF);
     response <<= 8;
@@ -59,7 +59,7 @@ void TMC2660Stepper::write(uint8_t addressByte, uint32_t config) {
     TMC_SW_SPI->transfer((data >>  8) & 0xFF);
     TMC_SW_SPI->transfer(data & 0xFF);
   } else {
-    SPI.beginTransaction(SPISettings(spi_speed, MSBFIRST, SPI_MODE3));
+    SPI.beginTransaction(SPISettings(spi_speed, MSBFIRST, SPI_MODE_3 | SPI_NO_CS));
     switchCSpin(LOW);
     SPI.transfer((data >> 16) & 0xFF);
     SPI.transfer((data >>  8) & 0xFF);
