@@ -26,7 +26,7 @@ void initImusGY85() // init Gyro, accel and compass
 
 // ITG3205 code --------------------------------------------------
 
-#define GYRO_ADRESS      (0x68 << 1)
+#define GYRO_ADRESS      (0x68)
 
 // Register 0x15 – Sample Rate Divider : SMPLRT_DIV
 // F sample = 1Khz / (SMPLRT_DIV+1)
@@ -85,7 +85,7 @@ void readGyroTemp() // return 0 on success
 
 // ADXL345 code --------------------------------------------------
 
-#define ACC_ADRESS      (0x53 << 1)
+#define ACC_ADRESS      (0x53)
 
 //Register 0x2C—BW_RATE
 #define BW_RATE         0x2C
@@ -136,7 +136,7 @@ bool readAcc() // return 0 on success
 
 // QMC5883L code --------------------------------------------------
 
-#define MAG_ADRESS      (0x0D << 1)
+#define MAG_ADRESS      (0x0D)
 
 #define CTRLREG1        0x09
 #define CTRLREG1VAL     0b00000101 // 50Hz, High filter, 2 Gauss

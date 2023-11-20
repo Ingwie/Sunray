@@ -96,7 +96,7 @@ void MeuhRobotDriver::begin(){
       delay(500);
       ///ioExpanderOut(EX2_I2C_ADDR, EX2_BUZZER_PORT, EX2_BUZZER_PIN, false);
     }
-
+int toto = millis();
     // start ADC
     CONSOLE.println("starting ADC");
     adc = ADS1115_WE(0x48);
@@ -121,35 +121,6 @@ void MeuhRobotDriver::begin(){
         CONSOLE.println(readAdcChannel(ADS1115_COMP_2_GND));
         CONSOLE.print("ADC S3 = ");
         CONSOLE.println(readAdcChannel(ADS1115_COMP_3_GND));
-    }
-
-    // start stepper drivers (wheels)
-    CONSOLE.println("starting TMC5160");
-    SPI.begin();
-    #define RsensE 0.22f // ohms
-    // right
-    TMC5160Stepper R_Stepper = TMC5160Stepper(0, RsensE);
-    // left
-    TMC5160Stepper L_Stepper = TMC5160Stepper(0, RsensE);
-    // start sequence macro
-    #define START_TMC_SEQUENCE(x) \
-    x.begin(); \
-    x.rms_current(600); /* Set motor RMS current (mA) */ \
-    x.microsteps(32);   /* Set microsteps */ \
-    x.diag1_stall(1);
-
-    // start TMSs
-    START_TMC_SEQUENCE(R_Stepper); // A lot of todo to switch to speed mode, colldrive, stallguard ....
-    START_TMC_SEQUENCE(L_Stepper);
-
-    // EEPROM test
-    if (false){
-      CONSOLE.println("EEPROM test");
-      ///ioEepromWriteByte( EEPROM_I2C_ADDR, 0, 42);
-      delay(50);
-      int v = ///ioEepromReadByte( EEPROM_I2C_ADDR, 0);
-      CONSOLE.print("EEPROM=");
-      CONSOLE.println(v);
     }
 
   #endif
@@ -186,15 +157,10 @@ bool MeuhRobotDriver::getMcuFirmwareVersion(String &name, String &ver){
 }
 
 float MeuhRobotDriver::getCpuTemperature(){
-  #ifdef __linux__
     return cpuTemp;
-  #else
-    return -9999;
-  #endif
 }
 
 void MeuhRobotDriver::updateCpuTemperature(){
-  #ifdef __linux__
     //unsigned long startTime = millis();
     String s;
     while (cpuTempProcess.available()) s+= (char)cpuTempProcess.read();
@@ -207,11 +173,9 @@ void MeuhRobotDriver::updateCpuTemperature(){
     //unsigned long duration = millis() - startTime;
     //CONSOLE.print("updateCpuTemperature duration: ");
     //CONSOLE.println(duration);
-  #endif
 }
 
 void MeuhRobotDriver::updateWifiConnectionState(){
-  #ifdef __linux__
     //unsigned long startTime = millis();
     String s;
     while (wifiStatusProcess.available()) s+= (char)wifiStatusProcess.read();
@@ -228,7 +192,6 @@ void MeuhRobotDriver::updateWifiConnectionState(){
     //unsigned long duration = millis() - startTime;
     //CONSOLE.print("updateWifiConnectionState duration: ");
     //CONSOLE.println(duration);
-  #endif
 }
 
 // request MCU motor PWM
@@ -261,8 +224,6 @@ void MeuhRobotDriver::versionResponse(){
   CONSOLE.print(",");
   CONSOLE.println(mcuFirmwareVersion);
 }
-
-
 
 
 void MeuhRobotDriver::run(){
@@ -300,23 +261,92 @@ void MeuhRobotDriver::run(){
 MeuhMotorDriver::MeuhMotorDriver(MeuhRobotDriver &sr): meuhRobot(sr){
 }
 
+// JYQDpusles ISR
+void pulsesMowISR(){
+//todo
+}
+
 void MeuhMotorDriver::begin(){
   lastEncoderTicksLeft=0;
   lastEncoderTicksRight=0;
   lastEncoderTicksMow=0;
+
+  // Mow driver (JYQD)
+  CONSOLE.println("starting JYQD");
+  //pinMode(pin_pwm_jyqd, OUTPUT); // needed by linux pwm driver?
+  pinMode(pin_enable_jyqd, OUTPUT);
+  pinMode(pin_cw_ccw_jyqd, OUTPUT);
+  pinMode(pin_pulses_jyqd, INPUT);
+  attachInterrupt(pin_pulses_jyqd, pulsesMowISR, CHANGE);
+
+  // start TMC5160 stepper drivers (wheels)
+  CONSOLE.println("starting TMC5160");
+  //pinMode(pin_spi_mosi, OUTPUT);
+  //pinMode(pin_spi_miso, OUTPUT);
+  //pinMode(pin_spi_sck, OUTPUT);
+  //pinMode(pin_cs_r_tmc, OUTPUT);
+  //pinMode(pin_cs_l_tmc, OUTPUT);
+  pinMode(pin_enable_tmc, OUTPUT);
+  SPI.begin();
+
+  #define RsensE 0.22f // ohms
+
+  // tmc start sequence macro
+  #define START_TMC_SEQUENCE(x) \
+  x.begin(); \
+  x.XACTUAL(0);       /* Resetet position */ \
+  x.XTARGET(0);       /* Reset target mode position */ \
+  x.rms_current(600); /* Set motor RMS current (mA) */ \
+  x.microsteps(32);   /* Set microsteps */ \
+  x.VMAX(44739);      /* Max speed (5rev/S) @ fck 12Mhz */ \
+  x.AMAX(489);        /* Acceleration (velocity mode) 1Sec -> 0 to VMAX */ \
+  x.hstrt(7);         /* Chopconf param from excel computation */ \
+  x.hend(0);          /* Chopconf param from excel computation */ \
+  x.semin(8);         /* CoolStep low limit (activate) */ \
+  x.semax(8);         /* CoolStep hight limit (desactivate)*/ \
+  x.seup(2);          /* CoolStep increment */ \
+  x.sedn(1);          /* CoolStep current down step speed */ \
+  x.sgt(0);           /* StallGuard2 sensitivity */ \
+  x.sfilt(1);         /* StallGuard2 filter */ \
+  x.TCOOLTHRS(10000); /* CoolStep lower velocity to active StallGuard2 stall flag */ \
+
+  // start TMCs
+  // right
+  TMC5160Stepper R_Stepper = TMC5160Stepper(pin_cs_r_tmc, RsensE);
+  START_TMC_SEQUENCE(R_Stepper); // A lot of todo to switch to speed mode, colldrive, stallguard .... and test
+  // left
+  TMC5160Stepper L_Stepper = TMC5160Stepper(pin_cs_l_tmc, RsensE);
+  START_TMC_SEQUENCE(L_Stepper);
+
 }
 
 void MeuhMotorDriver::run(){
 }
 
 void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm){
-  //meuhRobot.requestMotorPwm(leftPwm, rightPwm, mowPwm);
   meuhRobot.requestLeftPwm = leftPwm;
   meuhRobot.requestRightPwm = rightPwm;
-  // Alfred mowing motor driver seem to start start mowing motor more successfully with full PWM (100%) values...
-  if (mowPwm > 0) mowPwm = 255;
-    else if (mowPwm < 0) mowPwm = -255;
   meuhRobot.requestMowPwm = mowPwm;
+
+  // JYQD
+  if (mowPwm == 0){ // stop
+    digitalWrite(pin_enable_jyqd, 0); // todo test active brake
+    analogWrite(pin_pwm_jyqd, 0);
+  }
+  else{
+      if (mowPwm > 0){
+          digitalWrite(pin_enable_jyqd, 0);
+          analogWrite(PWM1, mowPwm);
+      }
+      else{
+          digitalWrite(pin_enable_jyqd, 1);
+          analogWrite(PWM1, abs(mowPwm));
+      }
+  }
+
+  // TMC 5160
+
+
 }
 
 void MeuhMotorDriver::getMotorFaults(bool &leftFault, bool &rightFault, bool &mowFault){

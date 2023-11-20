@@ -35,7 +35,7 @@ int gpio_export(int gpio)
 	efd = open("/sys/class/gpio/export", O_WRONLY | O_SYNC);
 
 	if(efd != -1) {
-		sprintf(buf, "%d", gpio); 
+		sprintf(buf, "%d", gpio);
 		ret = write(efd, buf, strlen(buf));
 		if(ret < 0) {
 			perror("error: GPIO export failed");
@@ -115,8 +115,8 @@ int gpio_setedge(int gpio, int rising, int falling)
 // ---------------------------------------------------
 
 void pinMode(uint8_t gpio, uint8_t mode){
-  printf("skipping pinMode: %d\n", gpio);
-  return;
+  //printf("skipping pinMode: %d\n", gpio);
+  //return;
   gpio_export(gpio);
   int ret = 0;
 	char buf[50];
@@ -128,14 +128,14 @@ void pinMode(uint8_t gpio, uint8_t mode){
 	}
 	if((mode == OUTPUT) && (gpiofd)){
 		if (4 != write(gpiofd, "out", 4)) {
-			fprintf(stderr, "Couldn't set GPIO %d direction to out: %s\n", 
+			fprintf(stderr, "Couldn't set GPIO %d direction to out: %s\n",
 				gpio,
 				strerror(errno));
 			ret = -2;
 		}
 	}  else if(gpiofd) {
 		if(2 != write(gpiofd, "in", 2)) {
-			fprintf(stderr, "Couldn't set GPIO %d direction to in: %s\n", 
+			fprintf(stderr, "Couldn't set GPIO %d direction to in: %s\n",
 				gpio,
 				strerror(errno));
 			ret = -3;
@@ -169,7 +169,7 @@ void digitalWrite(uint8_t gpio, uint8_t val){
 
 int digitalRead(uint8_t gpio){
   	//printf("skipping digitalRead: %d\n", gpio);
-	//return 0;	
+	//return 0;
   	char in[3] = {0, 0, 0};
 	char buf[50];
 	int nread, gpiofd;
@@ -187,7 +187,7 @@ int digitalRead(uint8_t gpio){
 		perror("GPIO Read failed");
 		return -1;
 	}
-	
+
 	close(gpiofd);
 	return atoi(in);
 }
