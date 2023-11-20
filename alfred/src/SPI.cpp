@@ -21,10 +21,10 @@
 
 
 int SPIClass::fd = 0;
-uint8_t SPIClass::mode=SPI_MODE3;
-uint32_t SPIClass::speed=4000000;
-uint16_t SPIClass::delay=0;
-uint8_t SPIClass::bits=8;
+uint16_t SPIClass::mode = SPI_MODE_3 | SPI_NO_CS;
+uint32_t SPIClass::speed = 4000000;
+uint16_t SPIClass::delay = 0;
+uint8_t SPIClass::bits = 8;
 
 
 void SPIClass::begin() {
@@ -64,7 +64,7 @@ void SPIClass::end() {
   //pinMode(11, INPUT);
 }
 
-void SPIClass::setDataMode(uint32_t amode){
+void SPIClass::setDataMode(uint16_t amode){
   mode = amode;
   //  Set SPI mode to read and write.
   int ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
