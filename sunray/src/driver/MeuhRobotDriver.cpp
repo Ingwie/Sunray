@@ -384,26 +384,37 @@ void MeuhMotorDriver::getMotorFaults(bool &leftFault, bool &rightFault, bool &mo
 
  // TMC 5160
  #define CHECK_AND_COMPUTE_TMC_ERROR(status, stepper, spiStatus, errorBool, current) \
- errorBool = (spiStatus & 0x3 /* error or reset occured*/); \
+ errorBool = (spiStatus & 0x3); /* error or reset occured*/ \
  status.sr = stepper->DRV_STATUS(); /* load satus */ \
- current =  (TMC_RMS_CURRENT / 1000) * (status.cs_actual + 1) / 32; /* compute current */ \
-
+ current = (TMC_RMS_CURRENT / 1000) * (status.cs_actual + 1) / 32; /* compute current (mA) */ \
+ errorBool |= status.stallGuard; /* check stall */ \
+ errorBool |= status.ot; /* check over temperature */ \
+ errorBool |= status.olb; /* check open load b */ \
+ errorBool |= status.ola; /* check open load a */ \
+ errorBool |= status.s2gb; /* check short to ground b */ \
+ errorBool |= status.s2ga; /* check short to ground a */ \
+ errorBool |= status.stst; /* stabdstill in each operation */ \
 
  CHECK_AND_COMPUTE_TMC_ERROR(L_DrvStatus, L_Stepper, L_SpiStatus, L_Error, meuhRobot.motorLeftCurr);
  CHECK_AND_COMPUTE_TMC_ERROR(R_DrvStatus, R_Stepper, R_SpiStatus, R_Error, meuhRobot.motorRightCurr);
 
-// R_DrvStatus.sr = R_Stepper->DRV_STATUS();
-// R_MotorFault = (meuhRobot.R_SpiStatus & 0x3 /* error or reset occured*/);
-
-  if (meuhRobot.motorFault){
-    CONSOLE.print("meuhRobot: motorFault (lefCurr=");
+  if (L_Error){
+    CONSOLE.print("motorFault (lefCurr=");
     CONSOLE.print(meuhRobot.motorLeftCurr);
-    CONSOLE.print(" rightCurr=");
+  }
+  if (R_Error){
+    CONSOLE.print("motorFault (rightCurr=");
     CONSOLE.print(meuhRobot.motorRightCurr);
+  }
+  if (M_Error){ // todo check speed (ana) or pulse (irq)
     CONSOLE.print(" mowCurr=");
     CONSOLE.println(meuhRobot.mowCurr);
   }
-  mowFault = false;
+
+  // send states
+  leftFault = L_Error;
+  rightFault = R_Error;
+  mowFault = M_Error;;
 }
 
 void MeuhMotorDriver::resetMotorFaults(){
