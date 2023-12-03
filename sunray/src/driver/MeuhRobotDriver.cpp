@@ -45,7 +45,6 @@ void MeuhRobotDriver::begin(){
   triggeredRain = false;
   triggeredStopButton = false;
   triggeredLift = false;
-  motorFault = false;
   //mcuCommunicationLost = true;
   nextSummaryTime = 0;
   nextConsoleTime = 0;
@@ -56,7 +55,7 @@ void MeuhRobotDriver::begin(){
   //cmdSummaryResponseCounter = 0;
   //cmdMotorCounter = 0;
   //cmdSummaryCounter = 0;
-  requestLeftPwm = requestRightPwm = requestMowPwm = 0;
+  lastLeftPwm = lastRightPwm = lastMowPwm = 0;
   robotID = "XX";
 
   #ifdef __linux__
@@ -96,7 +95,6 @@ void MeuhRobotDriver::begin(){
       delay(500);
       ///ioExpanderOut(EX2_I2C_ADDR, EX2_BUZZER_PORT, EX2_BUZZER_PIN, false);
     }
-int toto = millis();
     // start ADC
     CONSOLE.println("starting ADC");
     adc = ADS1115_WE(0x48);
@@ -195,9 +193,7 @@ void MeuhRobotDriver::updateWifiConnectionState(){
 }
 
 // request MCU motor PWM
-void MeuhRobotDriver::requestMotorPwm(int leftPwm, int rightPwm, int mowPwm){
-
-}
+//void MeuhRobotDriver::requestMotorPwm(int leftPwm, int rightPwm, int mowPwm){}
 
 
 void MeuhRobotDriver::versionResponse(){
@@ -230,7 +226,7 @@ void MeuhRobotDriver::run(){
   //processComm();
   if (millis() > nextMotorTime){
     nextMotorTime = millis() + 20; // 50 hz
-    requestMotorPwm(requestLeftPwm, requestRightPwm, requestMowPwm);
+    //requestMotorPwm(requestLeftPwm, requestRightPwm, requestMowPwm);
   }
   if (millis() > nextSummaryTime){
     nextSummaryTime = millis() + 500; // 2 hz
@@ -266,10 +262,30 @@ void pulsesMowISR(){
 //todo
 }
 
+// tmc start sequence macro
+#define START_TMC_SEQUENCE(x) \
+x.begin(); \
+x.XACTUAL(0);       /* Resetet position */ \
+x.XTARGET(0);       /* Reset target mode position */ \
+x.rms_current(TMC_RMS_CURRENT); /* Set motor RMS current (mA) */ \
+x.microsteps(32);   /* Set microsteps */ \
+x.VMAX(0);          /* 44739 -> Max speed (5rev/S) @ fck 12Mhz */ \
+x.AMAX(489);        /* Acceleration (velocity mode) 1Sec -> 0 to VMAX */ \
+x.hstrt(7);         /* Chopconf param from excel computation */ \
+x.hend(0);          /* Chopconf param from excel computation */ \
+x.semin(8);         /* CoolStep low limit (activate) */ \
+x.semax(8);         /* CoolStep hight limit (desactivate)*/ \
+x.seup(2);          /* CoolStep increment */ \
+x.sedn(1);          /* CoolStep current down step speed */ \
+x.sgt(0);           /* StallGuard2 sensitivity */ \
+x.sfilt(1);         /* StallGuard2 filter */ \
+x.TCOOLTHRS(10000); /* CoolStep lower velocity to active StallGuard2 stall flag */ \
+
 void MeuhMotorDriver::begin(){
-  lastEncoderTicksLeft=0;
-  lastEncoderTicksRight=0;
-  lastEncoderTicksMow=0;
+  lastEncoderTicksLeft = lastEncoderTicksRight = lastEncoderTicksMow = 0;
+  L_MotorFault = R_MotorFault = M_MotorFault = false;
+  R_DrvStatus.sr = L_DrvStatus.sr = 0;
+  L_SpiStatus, R_SpiStatus = 0;
 
   // Mow driver (JYQD)
   CONSOLE.println("starting JYQD");
@@ -289,34 +305,14 @@ void MeuhMotorDriver::begin(){
   pinMode(pin_enable_tmc, OUTPUT);
   SPI.begin();
 
-  #define RsensE 0.22f // ohms
-
-  // tmc start sequence macro
-  #define START_TMC_SEQUENCE(x) \
-  x.begin(); \
-  x.XACTUAL(0);       /* Resetet position */ \
-  x.XTARGET(0);       /* Reset target mode position */ \
-  x.rms_current(600); /* Set motor RMS current (mA) */ \
-  x.microsteps(32);   /* Set microsteps */ \
-  x.VMAX(44739);      /* Max speed (5rev/S) @ fck 12Mhz */ \
-  x.AMAX(489);        /* Acceleration (velocity mode) 1Sec -> 0 to VMAX */ \
-  x.hstrt(7);         /* Chopconf param from excel computation */ \
-  x.hend(0);          /* Chopconf param from excel computation */ \
-  x.semin(8);         /* CoolStep low limit (activate) */ \
-  x.semax(8);         /* CoolStep hight limit (desactivate)*/ \
-  x.seup(2);          /* CoolStep increment */ \
-  x.sedn(1);          /* CoolStep current down step speed */ \
-  x.sgt(0);           /* StallGuard2 sensitivity */ \
-  x.sfilt(1);         /* StallGuard2 filter */ \
-  x.TCOOLTHRS(10000); /* CoolStep lower velocity to active StallGuard2 stall flag */ \
-
   // start TMCs
-  // right
-  TMC5160Stepper R_Stepper = TMC5160Stepper(pin_cs_r_tmc, RsensE);
+  TMC5160Stepper R_Stepper = TMC5160Stepper(pin_cs_r_tmc, TMC_RsensE);
+  TMC5160Stepper L_Stepper = TMC5160Stepper(pin_cs_l_tmc, TMC_RsensE);
   START_TMC_SEQUENCE(R_Stepper); // A lot of todo to switch to speed mode, colldrive, stallguard .... and test
-  // left
-  TMC5160Stepper L_Stepper = TMC5160Stepper(pin_cs_l_tmc, RsensE);
   START_TMC_SEQUENCE(L_Stepper);
+  // Check spi_status
+  R_SpiStatus = R_Stepper.status_response;
+  L_SpiStatus = L_Stepper.status_response;
 
 }
 
@@ -324,9 +320,6 @@ void MeuhMotorDriver::run(){
 }
 
 void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm){
-  meuhRobot.requestLeftPwm = leftPwm;
-  meuhRobot.requestRightPwm = rightPwm;
-  meuhRobot.requestMowPwm = mowPwm;
 
   // JYQD
   if (mowPwm == 0){ // stop
@@ -345,13 +338,63 @@ void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm){
   }
 
   // TMC 5160
+  if (leftPwm == 0){ // stop
+    L_Stepper->VMAX(0);
+  }
+  else{
+      if (leftPwm > 0){
+          L_Stepper->RAMPMODE(1); // Velocity switch to positive
+          L_Stepper->VMAX(leftPwm * TMC_SPEED_MULT);
+      }
+      else{
+          L_Stepper->RAMPMODE(2); // Velocity switch to negative
+          L_Stepper->VMAX(leftPwm * TMC_SPEED_MULT);
+      }
+  }
+// Check spi_status
+  L_SpiStatus = L_Stepper->status_response;
 
+  if (rightPwm == 0){ // stop
+    R_Stepper->VMAX(0);
+  }
+  else{
+      if (rightPwm > 0){
+          L_Stepper->RAMPMODE(1); // Velocity switch to positive
+          R_Stepper->VMAX(rightPwm * TMC_SPEED_MULT);
+      }
+      else{
+          R_Stepper->RAMPMODE(2); // Velocity switch to negative
+          R_Stepper->VMAX(rightPwm * TMC_SPEED_MULT);
+      }
+  }
+// Check spi_status
+  R_SpiStatus = R_Stepper-> status_response;
+
+  meuhRobot.lastLeftPwm = leftPwm;
+  meuhRobot.lastRightPwm = rightPwm;
+  meuhRobot.lastMowPwm = mowPwm;
 
 }
 
 void MeuhMotorDriver::getMotorFaults(bool &leftFault, bool &rightFault, bool &mowFault){
-  leftFault = meuhRobot.motorFault;
-  rightFault = meuhRobot.motorFault;
+
+ bool M_Error = false;
+ bool L_Error = false;
+ bool R_Error = false;
+
+ // TMC 5160
+ #define CHECK_AND_COMPUTE_TMC_ERROR(status, stepper, spiStatus, errorBool, current) \
+ errorBool = (spiStatus & 0x3 /* error or reset occured*/); \
+ status.sr = stepper->DRV_STATUS(); /* load satus */ \
+ current =  (TMC_RMS_CURRENT / 1000) * (status.cs_actual + 1) / 32; /* compute current */ \
+
+
+ CHECK_AND_COMPUTE_TMC_ERROR(L_DrvStatus, L_Stepper, L_SpiStatus, L_Error, meuhRobot.motorLeftCurr);
+ CHECK_AND_COMPUTE_TMC_ERROR(R_DrvStatus, R_Stepper, R_SpiStatus, R_Error, meuhRobot.motorRightCurr);
+
+// R_DrvStatus.sr = R_Stepper->DRV_STATUS();
+// R_MotorFault = (meuhRobot.R_SpiStatus & 0x3 /* error or reset occured*/);
+
   if (meuhRobot.motorFault){
     CONSOLE.print("meuhRobot: motorFault (lefCurr=");
     CONSOLE.print(meuhRobot.motorLeftCurr);

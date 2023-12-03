@@ -55,23 +55,51 @@
 #define pin_gpio34        34
 #define pin_aisd          5
 #define pin_aosd          6
-//-----
+//----- BPI-M4 hardware alias
 #define PWM1              1 // use pin_pwm_jyqd
-//-----
+
+//----- TMC settings and helper
+#define TMC_RsensE        0.22f // ohms
+#define TMC_RMS_CURRENT   600 // mA
+#define TMC_SPEED_MULT    1 // pwm to tmc mult value
+
+struct TMC5160_DRV_STATUS_t
+{
+  union
+  {
+    uint32_t sr;
+    struct
+    {
+      uint16_t sg_result : 10;
+      uint8_t            : 5;
+      bool fsactive : 1;
+      uint8_t cs_actual : 5,
+              : 3;
+      bool  stallGuard : 1,
+            ot : 1,
+            otpw : 1,
+            s2ga : 1,
+            s2gb : 1,
+            ola : 1,
+            olb : 1,
+            stst : 1;
+    };
+  };
+};
+
 
 class MeuhRobotDriver: public RobotDriver {
   public:
     String robotID;
     String mcuFirmwareName;
     String mcuFirmwareVersion;
-    int requestLeftPwm;
-    int requestRightPwm;
-    int requestMowPwm;
+    int lastLeftPwm;
+    int lastRightPwm;
+    int lastMowPwm;
     unsigned long encoderTicksLeft;
     unsigned long encoderTicksRight;
     unsigned long encoderTicksMow;
     //bool mcuCommunicationLost;
-    bool motorFault;
     float batteryVoltage;
     float chargeVoltage;
     float chargeCurrent;
@@ -83,8 +111,6 @@ class MeuhRobotDriver: public RobotDriver {
     float cpuTemp;
     ADS1115_WE adc;
     PCF8575 pcf8575;
-    TMC5160Stepper *R_Stepper;
-    TMC5160Stepper *L_Stepper;
     bool triggeredLeftBumper;
     bool triggeredRightBumper;
     bool triggeredLift;
@@ -95,7 +121,7 @@ class MeuhRobotDriver: public RobotDriver {
     bool getRobotID(String &id) override;
     bool getMcuFirmwareVersion(String &name, String &ver) override;
     float getCpuTemperature() override;
-    void requestMotorPwm(int leftPwm, int rightPwm, int mowPwm);
+    //void requestMotorPwm(int leftPwm, int rightPwm, int mowPwm);
     void updateCpuTemperature();
     void updateWifiConnectionState();
     bool setFanPowerState(bool state);
@@ -173,8 +199,17 @@ class MeuhMotorDriver: public MotorDriver {
     void resetMotorFaults()  override;
     void getMotorCurrent(float &leftCurrent, float &rightCurrent, float &mowCurrent) override;
     void getMotorEncoderTicks(int &leftTicks, int &rightTicks, int &mowTicks) override;
-  //protected:
+  protected:
     //DriverChip JYQD;
+    TMC5160Stepper *R_Stepper;
+    TMC5160Stepper *L_Stepper;
+    uint8_t L_SpiStatus;
+    uint8_t R_SpiStatus;
+    bool L_MotorFault;
+    bool R_MotorFault;
+    bool M_MotorFault;
+    TMC5160_DRV_STATUS_t L_DrvStatus;
+    TMC5160_DRV_STATUS_t R_DrvStatus;
 };
 
 class MeuhBatteryDriver : public BatteryDriver {

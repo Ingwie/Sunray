@@ -1,856 +1,816 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="6" />
+	<FileVersion major="1" minor="6"/>
 	<Project>
-		<Option title="sunray" />
-		<Option makefile_is_custom="1" />
-		<Option compiler="gcc" />
-		<Option virtualFolders="CMake Files/" />
+		<Option title="sunray"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
-				<Option type="4" />
-				<Option compiler="gcc" />
+				<Option working_dir="/home/christophe/RAMDisk/Sunray-master/alfred/build"/>
+				<Option type="4"/>
 				<MakeCommands>
-					<Build command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 all' />
-					<CompileFile command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;' />
-					<Clean command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean' />
-					<DistClean command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean' />
-					<AskRebuildNeeded command="$make -q -f $makefile $target" />
-					<SilentBuild command="$make -f $makefile $target &gt; $(CMD_NULL)" />
+					<Build command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="sunray">
-				<Option output="/home/christophe/RAMDisk/Sunray-master/alfred/build/sunray" prefix_auto="0" extension_auto="0" />
-				<Option working_dir="/home/christophe/RAMDisk/Sunray-master/alfred/build" />
-				<Option object_output="./" />
-				<Option type="1" />
-				<Option compiler="gcc" />
+				<Option output="/home/christophe/RAMDisk/Sunray-master/alfred/build/sunray" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/christophe/RAMDisk/Sunray-master/alfred/build"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/christophe/RAMDisk/Sunray-master/alfred/src" />
-					<Add directory="/home/christophe/RAMDisk/Sunray-master/alfred/../sunray/src" />
-					<Add directory="/usr/include/c++/11" />
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/11" />
-					<Add directory="/usr/include/c++/11/backward" />
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include" />
-					<Add directory="/usr/local/include" />
-					<Add directory="/usr/include/x86_64-linux-gnu" />
-					<Add directory="/usr/include" />
+					<Add directory="/home/christophe/RAMDisk/Sunray-master/alfred/src"/>
+					<Add directory="/home/christophe/RAMDisk/Sunray-master/alfred/../sunray/src"/>
+					<Add directory="/usr/include/c++/11"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
+					<Add directory="/usr/include/c++/11/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 sunray' />
-					<CompileFile command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;' />
-					<Clean command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean' />
-					<DistClean command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean' />
-					<AskRebuildNeeded command="$make -q -f $makefile $target" />
-					<SilentBuild command="$make -f $makefile $target &gt; $(CMD_NULL)" />
+					<Build command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 sunray"/>
+					<CompileFile command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="sunray/fast">
-				<Option output="/home/christophe/RAMDisk/Sunray-master/alfred/build/sunray" prefix_auto="0" extension_auto="0" />
-				<Option working_dir="/home/christophe/RAMDisk/Sunray-master/alfred/build" />
-				<Option object_output="./" />
-				<Option type="1" />
-				<Option compiler="gcc" />
+				<Option output="/home/christophe/RAMDisk/Sunray-master/alfred/build/sunray" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/christophe/RAMDisk/Sunray-master/alfred/build"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/christophe/RAMDisk/Sunray-master/alfred/src" />
-					<Add directory="/home/christophe/RAMDisk/Sunray-master/alfred/../sunray/src" />
-					<Add directory="/usr/include/c++/11" />
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/11" />
-					<Add directory="/usr/include/c++/11/backward" />
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include" />
-					<Add directory="/usr/local/include" />
-					<Add directory="/usr/include/x86_64-linux-gnu" />
-					<Add directory="/usr/include" />
+					<Add directory="/home/christophe/RAMDisk/Sunray-master/alfred/src"/>
+					<Add directory="/home/christophe/RAMDisk/Sunray-master/alfred/../sunray/src"/>
+					<Add directory="/usr/include/c++/11"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
+					<Add directory="/usr/include/c++/11/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 sunray/fast' />
-					<CompileFile command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;' />
-					<Clean command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean' />
-					<DistClean command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean' />
-					<AskRebuildNeeded command="$make -q -f $makefile $target" />
-					<SilentBuild command="$make -f $makefile $target &gt; $(CMD_NULL)" />
+					<Build command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 sunray/fast"/>
+					<CompileFile command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option type="4" />
-				<Option compiler="gcc" />
+				<Option working_dir="/home/christophe/RAMDisk/Sunray-master/alfred/build"/>
+				<Option type="4"/>
 				<MakeCommands>
-					<Build command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 edit_cache' />
-					<CompileFile command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;' />
-					<Clean command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean' />
-					<DistClean command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean' />
-					<AskRebuildNeeded command="$make -q -f $makefile $target" />
-					<SilentBuild command="$make -f $makefile $target &gt; $(CMD_NULL)" />
+					<Build command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option type="4" />
-				<Option compiler="gcc" />
+				<Option working_dir="/home/christophe/RAMDisk/Sunray-master/alfred/build"/>
+				<Option type="4"/>
 				<MakeCommands>
-					<Build command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 rebuild_cache' />
-					<CompileFile command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;' />
-					<Clean command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean' />
-					<DistClean command='/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean' />
-					<AskRebuildNeeded command="$make -q -f $makefile $target" />
-					<SilentBuild command="$make -f $makefile $target &gt; $(CMD_NULL)" />
+					<Build command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j4 -f &quot;/home/christophe/RAMDisk/Sunray-master/alfred/build/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="../../sunray/ArduinoUniqueID.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/BleUartServer.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/ArduinoUniqueID.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/BleUartServer.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/LineTracker.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/Bridge.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/LineTracker.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/Bridge.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/PubSubClient.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/BridgeClient.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/PubSubClient.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/BridgeClient.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/RingBuffer.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/BridgeServer.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/RingBuffer.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/BridgeServer.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/SparkFunHTU21D.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/BridgeUdp.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/SparkFunHTU21D.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/BridgeUdp.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/StateEstimator.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/Console.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/StateEstimator.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/Console.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/Stats.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/FileIO.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/Stats.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/FileIO.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/Storage.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/IPAddress.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/Storage.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/IPAddress.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/VL53L0X.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/LinuxSerial.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/VL53L0X.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/LinuxSerial.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/battery.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/Print.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/battery.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/Print.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/ble.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/Process.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/ble.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/Process.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/bumper.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/SPI.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/bumper.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/SPI.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/buzzer.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/Stream.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/buzzer.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/Stream.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/comm.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/WMath.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/comm.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/WString.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/cpu.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/WString.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/cpu.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/WiFi.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/helper.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/WiFi.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/helper.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/Wire.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/httpserver.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/Wire.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/httpserver.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/base64.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/i2c.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/base64.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/i2c.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/att.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/ioboard.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/att.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/ioboard.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/crypto.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/map.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/crypto.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/map.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/gatt-db.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/motor.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/gatt-db.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/motor.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/gatt-helpers.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/mqtt.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/gatt-helpers.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/mqtt.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/gatt-server.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/pid.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/gatt-server.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/pid.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/io-mainloop.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/pinman.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/mainloop-notify.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/pinman.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/mainloop-notify.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/rcmodel.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/mainloop.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/rcmodel.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/mainloop.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/reset.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/queue.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/reset.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/queue.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/robot.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/timeout-mainloop.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/robot.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/util.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/sdserial.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/util.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/sdserial.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/uuid.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/sonar.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/ble/uuid.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/sonar.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/cbuf.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/bno/Adafruit_BNO055.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/cbuf.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/bno/Adafruit_BNO055.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/libb64/cdecode.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/driver/AmRobotDriver.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/libb64/cdecode.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/driver/AmRobotDriver.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/libb64/cencode.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/driver/BnoDriver.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/libb64/cencode.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/driver/BnoDriver.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/stdlib_noniso.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/driver/MeuhRobotDriver.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/stdlib_noniso.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/driver/MeuhRobotDriver.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/wiring.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/driver/MpuDriver.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/wiring_digital.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/driver/MpuDriver.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/wiring_int.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/driver/SerialRobotDriver.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/wiring_main.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/driver/SerialRobotDriver.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/wiring_pulse.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/driver/SimRobotDriver.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/wiring_pwm.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/driver/SimRobotDriver.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/wiring_shift.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/linux/linux.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/src/wiring_thread.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/linux/linux.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/ArduinoUniqueID.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/ADS1115/ADS1115_WE.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/ArduinoUniqueID.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/ADS1115/ADS1115_WE.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/LineTracker.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/FusionImu.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/LineTracker.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/FusionImu.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/PubSubClient.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/I2chelper.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/PubSubClient.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/I2chelper.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/RingBuffer.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/Imu.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/RingBuffer.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/Imu.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/SparkFunHTU21D.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/PCF8575/PCF8575.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/SparkFunHTU21D.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/PCF8575/PCF8575.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/StateEstimator.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/TMCStepper.h" />
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/TMCStepper_UTILITY.h" />
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/CHOPCONF.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/StateEstimator.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/COOLCONF.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/Stats.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/DRVCONF.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/Stats.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/DRVCTRL.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/Storage.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/DRVSTATUS.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/Storage.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/DRV_CONF.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/VL53L0X.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/DRV_STATUS.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/VL53L0X.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/ENCMODE.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/battery.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/GCONF.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/battery.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/IHOLD_IRUN.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/ble.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/PWMCONF.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/ble.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/RAMP_STAT.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/bumper.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/SERIAL_SWITCH.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/bumper.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/SERIAL_SWITCH.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/buzzer.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/SGCSCONF.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/buzzer.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/SHORT_CONF.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/comm.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/SMARTEN.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/comm.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/SW_MODE.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/cpu.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/SW_SPI.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/cpu.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/SW_SPI.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/helper.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/TMC2130Stepper.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/helper.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/TMC2160Stepper.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/httpserver.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/TMC2208Stepper.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/httpserver.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/TMC2209Stepper.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/i2c.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/TMC2660Stepper.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/i2c.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/TMC5130Stepper.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/ioboard.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/TMC5160Stepper.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/ioboard.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/TMCStepper.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/map.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/bcm2835_spi.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/map.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/bcm2835_spi.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/motor.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/bcm2835_stream.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/motor.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/TMCStepper-0.7.3/source/bcm2835_stream.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/mqtt.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/fusion/FusionAhrs.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/mqtt.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/fusion/FusionAhrs.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/pid.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/fusion/FusionBias.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/pid.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/fusion/FusionBias.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/pinman.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/fusion/FusionCompass.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/pinman.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/fusion/FusionCompass.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/rcmodel.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/rtc.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/rcmodel.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/meuh/rtc.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/reset.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/mpu/SparkFunMPU9250-DMP.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/reset.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/mpu/SparkFunMPU9250-DMP.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/robot.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/mpu/arduino_mpu9250_clk.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/robot.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/mpu/arduino_mpu9250_clk.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/sdserial.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/mpu/arduino_mpu9250_i2c.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/sdserial.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/mpu/arduino_mpu9250_i2c.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/sonar.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/mpu/arduino_mpu9250_log.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/sonar.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/mpu/arduino_mpu9250_log.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/bno/Adafruit_BNO055.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/mpu/inv_mpu.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/bno/Adafruit_BNO055.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/mpu/inv_mpu.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/driver/AmRobotDriver.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/mpu/inv_mpu_dmp_motion_driver.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/driver/AmRobotDriver.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/mpu/inv_mpu_dmp_motion_driver.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/driver/BnoDriver.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/ntrip/ntripclient.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/driver/BnoDriver.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/ntrip/ntripclient.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/driver/MeuhRobotDriver.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/op/ChargeOp.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/driver/MeuhRobotDriver.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/op/DockOp.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/driver/MpuDriver.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/op/ErrorOp.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/driver/MpuDriver.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/op/EscapeForwardOp.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/driver/SerialRobotDriver.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/op/EscapeReverseOp.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/driver/SerialRobotDriver.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/op/GpsRebootRecoveryOp.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/driver/SimRobotDriver.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/op/GpsWaitFixOp.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/driver/SimRobotDriver.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/op/GpsWaitFloatOp.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/linux/linux.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/op/IdleOp.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/linux/linux.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/op/ImuCalibrationOp.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/ADS1115/ADS1115_WE.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/op/KidnapWait.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/ADS1115/ADS1115_WE.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/op/MowOp.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/FusionImu.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/op/Op.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/FusionImu.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/skytraq/SkyTraqNmeaParser.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/I2chelper.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/skytraq/SkyTraqNmeaParser.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/I2chelper.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/skytraq/skytraq.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/Imu.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/skytraq/skytraq.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/Imu.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/test/PathFinderTest.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/PCF8575/PCF8575.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/test/PathFinderTest.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/PCF8575/PCF8575.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/test/Test.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/CHOPCONF.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/ublox/SparkFun_Ublox_Arduino_Library.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/COOLCONF.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/ublox/SparkFun_Ublox_Arduino_Library.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/DRVCONF.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/ublox/ublox.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/DRVCTRL.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/src/ublox/ublox.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/DRVSTATUS.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/sunray.ino">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/DRV_CONF.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/timetable.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/DRV_STATUS.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/timetable.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/ENCMODE.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/udpserial.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/GCONF.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../../sunray/udpserial.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/IHOLD_IRUN.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../CMakeLists.txt">
-			<Option virtualFolder="CMake Files/" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/PWMCONF.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../config.h">
-			<Option virtualFolder="CMake Files/" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/RAMP_STAT.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/BleUartServer.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/SERIAL_SWITCH.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/BleUartServer.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/SERIAL_SWITCH.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/Bridge.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/SGCSCONF.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/Bridge.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/SHORT_CONF.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/BridgeClient.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/SMARTEN.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/BridgeClient.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/SW_MODE.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/BridgeServer.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/SW_SPI.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/BridgeServer.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/SW_SPI.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/BridgeUdp.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/TMC2130Stepper.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/BridgeUdp.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/TMC2160Stepper.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/Console.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/TMC2208Stepper.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/Console.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/TMC2209Stepper.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/FileIO.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/TMC2660Stepper.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/FileIO.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/TMC5130Stepper.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/IPAddress.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/TMC5160Stepper.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/IPAddress.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/TMCStepper.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/LinuxSerial.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/bcm2835_spi.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/LinuxSerial.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/bcm2835_spi.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/Print.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/bcm2835_stream.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/Print.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/TMCStepper-0.7.3/source/bcm2835_stream.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/Process.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/fusion/FusionAhrs.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/Process.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/fusion/FusionAhrs.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/SPI.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/fusion/FusionBias.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/SPI.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/fusion/FusionBias.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/Stream.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/fusion/FusionCompass.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/Stream.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/fusion/FusionCompass.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/WMath.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/rtc.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/WString.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/meuh/rtc.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/WString.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/mpu/SparkFunMPU9250-DMP.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/WiFi.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/mpu/SparkFunMPU9250-DMP.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/WiFi.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/mpu/arduino_mpu9250_clk.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/Wire.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/mpu/arduino_mpu9250_clk.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/Wire.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/mpu/arduino_mpu9250_i2c.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/base64.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/mpu/arduino_mpu9250_i2c.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/base64.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/mpu/arduino_mpu9250_log.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/att.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/mpu/arduino_mpu9250_log.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/att.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/mpu/inv_mpu.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/crypto.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/mpu/inv_mpu.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/crypto.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/mpu/inv_mpu_dmp_motion_driver.c">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/gatt-db.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/mpu/inv_mpu_dmp_motion_driver.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/gatt-db.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/ntrip/ntripclient.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/gatt-helpers.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/ntrip/ntripclient.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/gatt-helpers.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/op/ChargeOp.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/gatt-server.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/op/DockOp.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/gatt-server.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/op/ErrorOp.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/io-mainloop.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/op/EscapeForwardOp.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/mainloop-notify.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/op/EscapeReverseOp.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/mainloop-notify.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/op/GpsRebootRecoveryOp.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/mainloop.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/op/GpsWaitFixOp.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/mainloop.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/op/GpsWaitFloatOp.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/queue.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/op/IdleOp.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/queue.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/op/ImuCalibrationOp.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/timeout-mainloop.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/op/KidnapWait.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/util.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/op/MowOp.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/util.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/op/Op.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/uuid.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/skytraq/SkyTraqNmeaParser.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/ble/uuid.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/skytraq/SkyTraqNmeaParser.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/cbuf.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/skytraq/skytraq.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/cbuf.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/skytraq/skytraq.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/libb64/cdecode.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/test/PathFinderTest.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/libb64/cdecode.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/test/PathFinderTest.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/libb64/cencode.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/test/Test.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/libb64/cencode.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/ublox/SparkFun_Ublox_Arduino_Library.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/stdlib_noniso.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/ublox/SparkFun_Ublox_Arduino_Library.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/stdlib_noniso.h">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/ublox/ublox.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/wiring.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/src/ublox/ublox.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/wiring_digital.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/sunray.ino">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/wiring_int.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/timetable.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/wiring_main.cpp">
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/timetable.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/wiring_pulse.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/udpserial.cpp">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/wiring_pwm.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/sunray/udpserial.h">
+			<Option target="sunray"/>
 		</Unit>
-		<Unit filename="../src/wiring_shift.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
 		</Unit>
-		<Unit filename="../src/wiring_thread.c">
-			<Option compilerVar="CC" />
-			<Option target="sunray" />
+		<Unit filename="/home/christophe/RAMDisk/Sunray-master/alfred/config.h">
+			<Option virtualFolder="CMake Files\"/>
 		</Unit>
-		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
