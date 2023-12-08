@@ -22,9 +22,15 @@
   #include <Process.h>
 #endif
 
+#include "../meuh/pwm_linux.h"
 #include "../meuh/ADS1115/ADS1115_WE.h"
 #include "../meuh/PCF8575/PCF8575.h"
 #include "../meuh/TMCStepper-0.7.3/TMCStepper.h"
+
+//-----> Mecanics informations
+// Wheel diameter 270 mm
+// pulley/belt reduction 12/80
+// 1572 steps/meter
 
 //-----> BPI-M4 GPIO Pin
 #define pin_i2c_sda       17 // I2C used
@@ -73,6 +79,22 @@
 #define TMC_RsensE           0.22f // ohms
 #define TMC_RMS_CURRENT_MA   600 // mA
 #define TMC_SPEED_MULT       1 // pwm to tmc mult value
+
+//-----> PWM macros used to drive the JYQD
+#define JYQD_PWM_PERIOD      10000000 // 10mS
+
+#define PWM1_INIT() \
+pwmExport(PWM1); \
+pwmSetEnable(PWM1, 0); \
+pwmSetPolarity(PWM1, 0); \
+pwmSetPeriod(PWM1, JYQD_PWM_PERIOD); \
+pwmSetDutyCycle(PWM1, 0); \
+pwmSetEnable(PWM1, 1)
+
+#define SETPWM1DUTYCYCLE(x) \
+uint64_t pwmVal = (JYQD_PWM_PERIOD * x); \
+pwmVal /= 1023; \
+pwmSetDutyCycle(PWM1, (uint32_t)pwmVal)
 
 //-----> level converter module TXS108E macro (security)
 #define TXS108E_OUTPUT_ENABLE()  digitalWrite(pin_oe_txs108e, 1)
@@ -124,9 +146,9 @@ class MeuhRobotDriver: public RobotDriver {
     int lastLeftPwm;
     int lastRightPwm;
     int lastMowPwm;
-    unsigned long encoderTicksLeft;
-    unsigned long encoderTicksRight;
-    unsigned long encoderTicksMow;
+    //unsigned long encoderTicksLeft;
+    //unsigned long encoderTicksRight;
+    //unsigned long encoderTicksMow;
     //bool mcuCommunicationLost;
     float batteryVoltage;
     float chargeVoltage;
@@ -136,7 +158,7 @@ class MeuhRobotDriver: public RobotDriver {
     float mowCurr;
     float motorLeftCurr;
     float motorRightCurr;
-    bool resetMotorTicks;
+    //bool resetMotorTicks;
     float cpuTemp;
     ADS1115_WE adc;
     PCF8575 pcf8575;

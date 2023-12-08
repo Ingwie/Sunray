@@ -2,7 +2,6 @@
   SPI Master library for Linux
 */
 
-//#include "pins_arduino.h"
 #include "SPI.h"
 
 #include <stdint.h>

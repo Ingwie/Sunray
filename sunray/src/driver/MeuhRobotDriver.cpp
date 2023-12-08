@@ -48,7 +48,7 @@ void MeuhRobotDriver::begin(){
   pinMode(pin_pulses_jyqd, INPUT);
   attachInterrupt(pin_pulses_jyqd, pulsesMowISR, CHANGE);
   digitalWrite(pin_enable_jyqd, 0); // disable JYQD
-  analogWrite(pin_pwm_jyqd, 0);
+  //analogWrite(pin_pwm_jyqd, 0);
 
 
 // TMC5160 stepper drivers (wheels)
@@ -60,9 +60,9 @@ void MeuhRobotDriver::begin(){
   pinMode(pin_enable_tmc, OUTPUT); // todo Do i need it ?
 
 
-  encoderTicksLeft = 0;
-  encoderTicksRight = 0;
-  encoderTicksMow = 0;
+  //encoderTicksLeft = 0;
+  //encoderTicksRight = 0;
+  //encoderTicksMow = 0;
   chargeVoltage = 0;
   chargeCurrent = 0;
   batteryVoltage = 28;
@@ -70,7 +70,6 @@ void MeuhRobotDriver::begin(){
   mowCurr = 0;
   motorLeftCurr = 0;
   motorRightCurr = 0;
-  resetMotorTicks = true;
   triggeredLeftBumper = false;
   triggeredRightBumper = false;
   triggeredRain = false;
@@ -316,6 +315,8 @@ void MeuhMotorDriver::begin(){
   R_DrvStatus.sr = L_DrvStatus.sr = 0;
   L_SpiStatus, R_SpiStatus = 0;
 
+  PWM1_INIT(); // Jyqd pwm (maw)
+
   SPI.begin();
 
   // start TMC5160 stepper drivers (wheels)
@@ -351,16 +352,16 @@ void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm){
   // JYQD
   if (mowPwm == 0){ // stop
     digitalWrite(pin_enable_jyqd, 0); // todo test active brake
-    analogWrite(pin_pwm_jyqd, 0);
+    SETPWM1DUTYCYCLE(0);
   }
   else{
       if (mowPwm > 0){
           digitalWrite(pin_enable_jyqd, 0);
-          analogWrite(PWM1, mowPwm);
+          SETPWM1DUTYCYCLE(mowPwm);
       }
       else{
           digitalWrite(pin_enable_jyqd, 1);
-          analogWrite(PWM1, abs(mowPwm));
+          SETPWM1DUTYCYCLE(abs(mowPwm));
       }
   }
 
@@ -460,28 +461,17 @@ void MeuhMotorDriver::getMotorCurrent(float &leftCurrent, float &rightCurrent, f
 }
 
 void MeuhMotorDriver::getMotorEncoderTicks(int &leftTicks, int &rightTicks, int &mowTicks){
-  if (meuhRobot.resetMotorTicks){
-    meuhRobot.resetMotorTicks = false;
-    //CONSOLE.println("getMotorEncoderTicks: resetMotorTicks");
-    lastEncoderTicksLeft = meuhRobot.encoderTicksLeft;
-    lastEncoderTicksRight = meuhRobot.encoderTicksRight;
-    lastEncoderTicksMow = meuhRobot.encoderTicksMow;
-  }
-  leftTicks = meuhRobot.encoderTicksLeft - lastEncoderTicksLeft;
-  rightTicks = meuhRobot.encoderTicksRight - lastEncoderTicksRight;
-  mowTicks = meuhRobot.encoderTicksMow - lastEncoderTicksMow;
-  if (leftTicks > 1000){
-    leftTicks = 0;
-  }
-  if (rightTicks > 1000){
-    rightTicks = 0;
-  }
-  if (mowTicks > 1000){
-    mowTicks = 0;
-  }
-  lastEncoderTicksLeft = meuhRobot.encoderTicksLeft;
-  lastEncoderTicksRight = meuhRobot.encoderTicksRight;
-  lastEncoderTicksMow = meuhRobot.encoderTicksMow;
+
+  int32_t actualTicksLeft = L_Stepper->XACTUAL();
+  int32_t actualTicksRight = R_Stepper->XACTUAL();
+
+  leftTicks = abs(actualTicksLeft - lastEncoderTicksLeft);
+  rightTicks = abs(actualTicksRight - lastEncoderTicksRight);
+  mowTicks = 1;
+
+  lastEncoderTicksLeft = actualTicksLeft;
+  lastEncoderTicksRight = actualTicksRight;
+  lastEncoderTicksMow = 1;
 }
 
 

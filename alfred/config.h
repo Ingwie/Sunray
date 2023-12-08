@@ -102,8 +102,8 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 // NOTE: if using non-default Ardumower chassis and your freewheel is at frontside (gear motors at backside), have may have to swap motor cables,
 // more info here: https://wiki.ardumower.de/index.php?title=Ardumower_Chassis_%27mountain_mod%27)
 #define FREEWHEEL_IS_AT_BACKSIDE   false   // default Ardumower: true   (change to false, if your freewheel is at frontside) - this is used for obstacle avoidance
-#define WHEEL_BASE_CM         39         // wheel-to-wheel distance (cm)
-#define WHEEL_DIAMETER        205        // wheel diameter (mm)
+#define WHEEL_BASE_CM         40         // wheel-to-wheel distance (cm)
+#define WHEEL_DIAMETER        270        // wheel diameter (mm)
 #define MOWER_SIZE            60         // mower / chassis size / length in cm
 
 //#define ENABLE_ODOMETRY_ERROR_DETECTION  true    // use this to detect odometry erros
@@ -125,7 +125,9 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 // ...for the brushless motor april 2021   https://wiki.ardumower.de/index.php?title=Datei:BLUnit.JPG
 //#define TICKS_PER_REVOLUTION  1300 / 2    // 1194/2  odometry ticks per wheel revolution
 
-#define TICKS_PER_REVOLUTION  320     // odometry ticks per wheel revolution (RM24)
+//#define TICKS_PER_REVOLUTION  320     // odometry ticks per wheel revolution (RM24)
+
+#define TICKS_PER_REVOLUTION  1333     // odometry ticks per wheel revolution (RobotMeuh)
 
 
 // ----- gear motors --------------------------------------------------
