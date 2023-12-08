@@ -25,9 +25,41 @@
 
 //#define DEBUG_SERIAL_ROBOT 1
 
+// JYQDpusles ISR
+void pulsesMowISR(){
+//todo
+}
+
 void MeuhRobotDriver::begin(){
   CONSOLE.println("using robot driver: MeuhRobotDriver");
   COMM.begin(ROBOT_BAUDRATE);
+
+// init GPIO
+
+  pinMode(pin_oe_txs108e, OUTPUT);
+  TXS108E_OUTPUT_DISABLE();
+  pinMode(pin_power_relay, OUTPUT);
+  pinMode(pin_charge_relay, OUTPUT);
+  RELAY_STOP_ALL();
+// Mow driver (JYQD)
+  //pinMode(pin_pwm_jyqd, OUTPUT); // needed by linux pwm driver? no
+  pinMode(pin_enable_jyqd, OUTPUT);
+  pinMode(pin_cw_ccw_jyqd, OUTPUT);
+  pinMode(pin_pulses_jyqd, INPUT);
+  attachInterrupt(pin_pulses_jyqd, pulsesMowISR, CHANGE);
+  digitalWrite(pin_enable_jyqd, 0); // disable JYQD
+  analogWrite(pin_pwm_jyqd, 0);
+
+
+// TMC5160 stepper drivers (wheels)
+  //pinMode(pin_spi_mosi, OUTPUT);
+  //pinMode(pin_spi_miso, OUTPUT);
+  //pinMode(pin_spi_sck, OUTPUT);
+  //pinMode(pin_cs_r_tmc, OUTPUT);
+  //pinMode(pin_cs_l_tmc, OUTPUT);
+  pinMode(pin_enable_tmc, OUTPUT); // todo Do i need it ?
+
+
   encoderTicksLeft = 0;
   encoderTicksRight = 0;
   encoderTicksMow = 0;
@@ -39,7 +71,6 @@ void MeuhRobotDriver::begin(){
   motorLeftCurr = 0;
   motorRightCurr = 0;
   resetMotorTicks = true;
-  batteryTemp = 0;
   triggeredLeftBumper = false;
   triggeredRightBumper = false;
   triggeredRain = false;
@@ -64,9 +95,6 @@ void MeuhRobotDriver::begin(){
     p.runShellCommand("ip link show eth0 | grep link/ether | awk '{print $2}'");
 	  robotID = p.readString();
     robotID.trim();
-
-
-    // IMU/fan power-on code (Alfred-PCB-specific)
 
     // start IMU
     CONSOLE.println("starting IMU");
@@ -101,11 +129,11 @@ void MeuhRobotDriver::begin(){
     // test communication
     if (!adc.init()) CONSOLE.println("ADC error");
     // set range
-    adc.setVoltageRange_mV(ADS1115_RANGE_2048);
+    adc.setVoltageRange_mV(ADS1115_RANGE_2048); // 0.0625mV/bit
     // set ref to gnd
     //adc.setCompareChannels(ADS1115_COMP_0_GND | ADS1115_COMP_1_GND | ADS1115_COMP_2_GND | ADS1115_COMP_3_GND);
     // set rate
-    adc.setConvRate(ADS1115_128_SPS);
+    adc.setConvRate(ADS1115_250_SPS);
     // set mode
     adc.setMeasureMode(ADS1115_CONTINOUS);
     // ADC test
@@ -121,10 +149,16 @@ void MeuhRobotDriver::begin(){
         CONSOLE.println(readAdcChannel(ADS1115_COMP_3_GND));
     }
 
+   delay(10);
+   idleCurrent = ACS_VOLTS_TO_AMPS(readAdcChannel(ASD_ACS_CHANNEL));
+   CONSOLE.print("IDLE CURRENT = ");
+   CONSOLE.println(idleCurrent);
+
+
   #endif
 }
 
-float MeuhRobotDriver::readAdcChannel(ADS1115_MUX channel) {
+float MeuhRobotDriver::readAdcChannel(ADS1115_MUX channel) { // 8mS @ ADS1115_250_SPS to verify ... and optimise
   float voltage = 0.0;
   adc.setCompareChannels(channel);
   voltage = adc.getResult_V(); // alternative: getResult_mV for Millivolt
@@ -257,17 +291,12 @@ void MeuhRobotDriver::run(){
 MeuhMotorDriver::MeuhMotorDriver(MeuhRobotDriver &sr): meuhRobot(sr){
 }
 
-// JYQDpusles ISR
-void pulsesMowISR(){
-//todo
-}
-
 // tmc start sequence macro
 #define START_TMC_SEQUENCE(x) \
 x.begin(); \
 x.XACTUAL(0);       /* Resetet position */ \
 x.XTARGET(0);       /* Reset target mode position */ \
-x.rms_current(TMC_RMS_CURRENT); /* Set motor RMS current (mA) */ \
+x.rms_current(TMC_RMS_CURRENT_MA); /* Set motor RMS current (mA) */ \
 x.microsteps(32);   /* Set microsteps */ \
 x.VMAX(0);          /* 44739 -> Max speed (5rev/S) @ fck 12Mhz */ \
 x.AMAX(489);        /* Acceleration (velocity mode) 1Sec -> 0 to VMAX */ \
@@ -287,29 +316,27 @@ void MeuhMotorDriver::begin(){
   R_DrvStatus.sr = L_DrvStatus.sr = 0;
   L_SpiStatus, R_SpiStatus = 0;
 
-  // Mow driver (JYQD)
-  CONSOLE.println("starting JYQD");
-  //pinMode(pin_pwm_jyqd, OUTPUT); // needed by linux pwm driver?
-  pinMode(pin_enable_jyqd, OUTPUT);
-  pinMode(pin_cw_ccw_jyqd, OUTPUT);
-  pinMode(pin_pulses_jyqd, INPUT);
-  attachInterrupt(pin_pulses_jyqd, pulsesMowISR, CHANGE);
+  SPI.begin();
 
   // start TMC5160 stepper drivers (wheels)
   CONSOLE.println("starting TMC5160");
-  //pinMode(pin_spi_mosi, OUTPUT);
-  //pinMode(pin_spi_miso, OUTPUT);
-  //pinMode(pin_spi_sck, OUTPUT);
-  //pinMode(pin_cs_r_tmc, OUTPUT);
-  //pinMode(pin_cs_l_tmc, OUTPUT);
-  pinMode(pin_enable_tmc, OUTPUT);
-  SPI.begin();
-
-  // start TMCs
   TMC5160Stepper R_Stepper = TMC5160Stepper(pin_cs_r_tmc, TMC_RsensE);
   TMC5160Stepper L_Stepper = TMC5160Stepper(pin_cs_l_tmc, TMC_RsensE);
-  START_TMC_SEQUENCE(R_Stepper); // A lot of todo to switch to speed mode, colldrive, stallguard .... and test
+  START_TMC_SEQUENCE(R_Stepper); // A lot of todo to switch to speed mode, collstep, stallguard .... and test
   START_TMC_SEQUENCE(L_Stepper);
+
+  // power on motors
+  TXS108E_OUTPUT_ENABLE();
+  RELAY_POWER_ON();
+  digitalWrite(pin_enable_tmc, 1); // check if needed
+
+  // Check current
+  meuhRobot.stepperCurrent = ACS_VOLTS_TO_AMPS(meuhRobot.readAdcChannel(ASD_ACS_CHANNEL)); // measure actual current steppers actives
+  meuhRobot.stepperCurrent -= meuhRobot.idleCurrent; // remove offset  todo check excess
+  CONSOLE.print("IDLE STEPPERS CURRENT = ");
+  CONSOLE.println(meuhRobot.stepperCurrent);
+
+
   // Check spi_status
   R_SpiStatus = R_Stepper.status_response;
   L_SpiStatus = L_Stepper.status_response;
@@ -384,9 +411,9 @@ void MeuhMotorDriver::getMotorFaults(bool &leftFault, bool &rightFault, bool &mo
 
  // TMC 5160
  #define CHECK_AND_COMPUTE_TMC_ERROR(status, stepper, spiStatus, errorBool, current) \
- errorBool = (spiStatus & 0x3); /* error or reset occured*/ \
  status.sr = stepper->DRV_STATUS(); /* load satus */ \
- current = (TMC_RMS_CURRENT / 1000) * (status.cs_actual + 1) / 32; /* compute current (mA) */ \
+ errorBool = (spiStatus & 0x3); /* error or reset occured*/ \
+ current = (TMC_RMS_CURRENT_MA / 1000) * (status.cs_actual + 1) / 32; /* compute current (mA) */ \
  errorBool |= status.stallGuard; /* check stall */ \
  errorBool |= status.ot; /* check over temperature */ \
  errorBool |= status.olb; /* check open load b */ \
@@ -425,11 +452,10 @@ void MeuhMotorDriver::resetMotorFaults(){
 }
 
 void MeuhMotorDriver::getMotorCurrent(float &leftCurrent, float &rightCurrent, float &mowCurrent) {
-  //leftCurrent = 0.5;
-  //rightCurrent = 0.5;
-  //mowCurrent = 0.8;
   leftCurrent = meuhRobot.motorLeftCurr;
   rightCurrent = meuhRobot.motorRightCurr;
+  meuhRobot.mowCurr = ACS_VOLTS_TO_AMPS(meuhRobot.readAdcChannel(ASD_ACS_CHANNEL)); // measure actual current
+  meuhRobot.mowCurr -= (meuhRobot.stepperCurrent + meuhRobot.idleCurrent); //remove offset
   mowCurrent = meuhRobot.mowCurr;
 }
 

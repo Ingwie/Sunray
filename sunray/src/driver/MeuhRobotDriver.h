@@ -33,9 +33,9 @@
 #define pin_enable_jyqd   9  // was pin_ur1_tx
 #define pin_cw_ccw_jyqd   8  // was pin_ur1_tx
 #define pin_pulses_jyqd   42 // was pin_sdio_d0
-#define pin_aio_bck       3
-#define pin_sdio_d1       43
-#define pin_sdio_d2       44
+#define pin_oe_txs108e     3 // was aio_bck
+#define pin_power_relay   43 // was pin_sdio_d1
+#define pin_charge_relay  44 // was pin_sdio_d2
 #define pin_cs_r_tmc      11 // was pin_ur1_rts
 #define pin_cs_l_tmc      10 // was pin_ur1_cts
 #define pin_spi_mosi      31 // SPI used
@@ -58,10 +58,38 @@
 //----- BPI-M4 hardware alias
 #define PWM1              1 // use pin_pwm_jyqd
 
-//----- TMC settings and helper
-#define TMC_RsensE        0.22f // ohms
-#define TMC_RMS_CURRENT   600 // mA
-#define TMC_SPEED_MULT    1 // pwm to tmc mult value
+//-----> ADS1115 Macro resolution 2048 -> 0.0625mV/bit
+#define ASD_BAT_CHANNEL         ADS1115_COMP_0_GND
+#define ASD_CHARGE_CHANNEL      ADS1115_COMP_1_GND
+#define ASD_ACS_CHANNEL         ADS1115_COMP_2_GND
+#define POT_FACTOR(RMeas, RAds) RAds/(RAds + RMeas)
+#define BAT_POT_FACTOR          POT_FACTOR(22000.0f, 300000.0f)
+#define ACS_POT_FACTOR          POT_FACTOR(4700.0f, 6800.0f)
+// ACS712 30A Sensitivity (66mV/A)
+#define ACS_MID_VOLTAGE         2.5f
+#define ACS_VOLTS_TO_AMPS(x)    (((x/ACS_POT_FACTOR) - ACS_MID_VOLTAGE) / 0.066f)
+
+//-----> TMC settings and helper
+#define TMC_RsensE           0.22f // ohms
+#define TMC_RMS_CURRENT_MA   600 // mA
+#define TMC_SPEED_MULT       1 // pwm to tmc mult value
+
+//-----> level converter module TXS108E macro (security)
+#define TXS108E_OUTPUT_ENABLE()  digitalWrite(pin_oe_txs108e, 1)
+#define TXS108E_OUTPUT_DISABLE() digitalWrite(pin_oe_txs108e, 0)
+
+//-----> relay module HW383 macro
+#define RELAY_STOP_ALL() \
+digitalWrite(pin_power_relay, 0); \
+digitalWrite(pin_charge_relay, 0)
+
+#define RELAY_POWER_ON() \
+digitalWrite(pin_charge_relay, 0); \
+digitalWrite(pin_power_relay, 1)
+
+#define RELAY_CHARGE_ON() \
+digitalWrite(pin_power_relay, 0); \
+digitalWrite(pin_charge_relay, 1)
 
 struct TMC5160_DRV_STATUS_t
 {
@@ -103,11 +131,12 @@ class MeuhRobotDriver: public RobotDriver {
     float batteryVoltage;
     float chargeVoltage;
     float chargeCurrent;
+    float idleCurrent;
+    float stepperCurrent;
     float mowCurr;
     float motorLeftCurr;
     float motorRightCurr;
     bool resetMotorTicks;
-    float batteryTemp;
     float cpuTemp;
     ADS1115_WE adc;
     PCF8575 pcf8575;

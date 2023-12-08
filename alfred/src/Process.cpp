@@ -32,13 +32,13 @@ int shell_write(int fd, void *data, size_t len){
   return write(fd, data, len);
 }
 
-void spclose(int p){ 
+void spclose(int p){
   if (p == -1) {
     //Serial.print("spclose error - no such pipe: ");
     //Serial.println(p);
     return;
   }
-  close(p);  
+  close(p);
 }
 
 void *_shell_exec_thread(void *arg){
@@ -74,10 +74,10 @@ Process::~Process(){
 }
 
 void Process::begin(const String &cmd){
-  //Serial.print("Process::begin cmd=");    
+  //Serial.print("Process::begin cmd=");
   //Serial.println(cmd);
   if(thread_running) {//we are running
-    Serial.println("Process::begin - close");    
+    Serial.println("Process::begin - close");
     close();
   }
   cmd_array.free();
@@ -108,12 +108,12 @@ void Process::execute(){
   //Serial.println("Process::execute");
   size_t arlen = cmd_array.length();
   if(!arlen){
-    Serial.println("Process::execute - error: arlen=0");    
+    Serial.println("Process::execute - error: arlen=0");
     exec_result = -2;
     thread_running = false;
     return;
   }
-  //Serial.println("Process::execute cp1");  
+  //Serial.println("Process::execute cp1");
 
   success = false;
   executed = true;
@@ -128,7 +128,7 @@ void Process::execute(){
   cmd[i] = NULL;
   //Serial.println("Process::execute cp2");
 
-  //Serial.print("Process:execute spclose=");  
+  //Serial.print("Process:execute spclose=");
   //Serial.println(pipes.in.read);
   spclose(pipes.in.read);
   spclose(pipes.in.write);
@@ -136,11 +136,11 @@ void Process::execute(){
   spclose(pipes.out.write);
   spclose(pipes.err.read);
   spclose(pipes.err.write);
-  //Serial.println("Process:execute pipe");    
+  //Serial.println("Process:execute pipe");
   pipe(pipes.in.pipes);
   pipe(pipes.out.pipes);
-  pipe(pipes.err.pipes);  
-  //Serial.println("Process:execute fork");      
+  pipe(pipes.err.pipes);
+  //Serial.println("Process:execute fork");
   exec_pid = fork();
   //Serial.print("Process:execute exec_pid=");
   //Serial.println(exec_pid);
@@ -164,7 +164,7 @@ void Process::execute(){
     spclose(pipes.err.write);
     // Isolate child process from signals to the parent, you have to use setpgrp to create a new process group.
     // This way, a SIGINT or SIGHUP to the parent process won't reach the child anymore.
-    setpgrp(); 
+    setpgrp();
     if(execvp((char *)(cmd[0]), (char * const *)cmd) < 0){
       Serial.println("Process::execute error: exec failed");
       const char * eerr = "Exec Failed\r\n";
@@ -200,7 +200,7 @@ void Process::runAsynchronously(){
   }
   thread_running = pthread_create(&thread, NULL, _shell_exec_thread, (void*)this) == 0;
   if(!thread_running){
-    Serial.println("Process::runAsynchronously error: thread not running");    
+    Serial.println("Process::runAsynchronously error: thread not running");
     exec_result = -5;
     return;
   }
@@ -210,7 +210,7 @@ void Process::runAsynchronously(){
 
 boolean Process::running(){
   if(thread_running)
-    pthread_yield();
+    sched_yield();
   //Serial.println("Process::running - thread finished");
   return thread_running;
 }
@@ -238,7 +238,7 @@ unsigned int Process::runShellCommand(const String &command) {
   runShellCommandAsynchronously(command);
   while (running())
     delay(1);
-  //Serial.println("Process::runShellCommand done");    
+  //Serial.println("Process::runShellCommand done");
   return exitValue();
 }
 

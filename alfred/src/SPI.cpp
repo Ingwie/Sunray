@@ -28,10 +28,6 @@ uint8_t SPIClass::bits = 8;
 
 
 void SPIClass::begin() {
-  //pinMode(9, ALT0);
-  //pinMode(10, ALT0);
-  //pinMode(11, ALT0);
-
   char filename[50];
   int busAddressMajor = 0;
   int busAddressMinor = 0;
