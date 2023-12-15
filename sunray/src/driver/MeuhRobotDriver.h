@@ -87,8 +87,8 @@ x.XACTUAL(0);       /* Resetet position */ \
 x.XTARGET(0);       /* Reset target mode position */ \
 x.rms_current(TMC_RMS_CURRENT_MA); /* Set motor RMS current (mA) */ \
 x.microsteps(32);   /* Set microsteps */ \
-x.VMAX(0);          /* 44739 -> Max speed (5rev/S) @ fck 12Mhz */ \
-x.AMAX(489);        /* Acceleration (velocity mode) 1Sec -> 0 to VMAX */ \
+x.VMAX(0);          /* 44739 . Max speed (5rev/S) @ fck 12Mhz */ \
+x.AMAX(489);        /* Acceleration (velocity mode) 1Sec . 0 to VMAX */ \
 x.hstrt(7);         /* Chopconf param from excel computation */ \
 x.hend(0);          /* Chopconf param from excel computation */ \
 x.semin(8);         /* CoolStep low limit (activate) */ \
@@ -100,7 +100,7 @@ x.sfilt(1);         /* StallGuard2 filter */ \
 x.TCOOLTHRS(10000); /* CoolStep lower velocity to active StallGuard2 stall flag */ \
 // tmc error check macro
 #define CHECK_AND_COMPUTE_TMC_ERROR(status, stepper, spiStatus, errorBool, current) \
- status.sr = stepper->DRV_STATUS(); /* load satus */ \
+ status.sr = stepper.DRV_STATUS(); /* load satus */ \
  errorBool = (spiStatus & 0x3); /* error or reset occured*/ \
  current = (TMC_RMS_CURRENT_MA / 1000) * (status.cs_actual + 1) / 32; /* compute current (mA) */ \
  /*errorBool |= status.stallGuard; /* check stall */ \
@@ -131,11 +131,12 @@ pwmSetDutyCycle(PWM1, pwmVal)
 #define TXS108E_OUTPUT_DISABLE() digitalWrite(pin_oe_txs108e, 0)
 
 //-----> relay module HW383 macro
-enum relayStateEnum{
- ALL_STOP = 0,
- POWER_ON,
- CHARGE_ON
- };
+enum relayStateEnum
+{
+  ALL_STOP = 0,
+  POWER_ON,
+  CHARGE_ON
+};
 
 #define RELAY_STOP_ALL() \
 digitalWrite(pin_power_relay, 0); \
@@ -287,9 +288,6 @@ public:
   void getMotorCurrent(float &leftCurrent, float &rightCurrent, float &mowCurrent) override;
   void getMotorEncoderTicks(int &leftTicks, int &rightTicks, int &mowTicks) override;
 protected:
-  //DriverChip JYQD;
-  TMC5160Stepper *R_Stepper;
-  TMC5160Stepper *L_Stepper;
   uint8_t L_SpiStatus;
   uint8_t R_SpiStatus;
   bool L_MotorFault;
@@ -352,9 +350,9 @@ public:
   void begin() override;
   void run() override;
   bool triggered() override;
-    protected:
-    unsigned long nextControlTime;
-    bool isRaining;
+protected:
+  unsigned long nextControlTime;
+  bool isRaining;
 };
 
 class MeuhLiftSensorDriver: public LiftSensorDriver

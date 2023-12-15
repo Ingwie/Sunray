@@ -25,6 +25,9 @@
 
 //#define DEBUG_SERIAL_ROBOT 1
 
+TMC5160Stepper R_Stepper(pin_cs_r_tmc, TMC_RsensE);
+TMC5160Stepper L_Stepper(pin_cs_l_tmc, TMC_RsensE);
+
 // JYQDpusles ISR
 volatile unsigned long encoderTicksMow = 0;
 void pulsesMowISR()
@@ -328,8 +331,8 @@ void MeuhMotorDriver::begin()
 
   // start TMC5160 stepper drivers (wheels)
   CONSOLE.println("starting TMC5160");
-  TMC5160Stepper R_Stepper = TMC5160Stepper(pin_cs_r_tmc, TMC_RsensE);
-  TMC5160Stepper L_Stepper = TMC5160Stepper(pin_cs_l_tmc, TMC_RsensE);
+  R_Stepper.begin();
+  L_Stepper.begin();
   START_TMC_SEQUENCE(R_Stepper); // A lot of todo to switch to speed mode, collstep, stallguard .... and test
   START_TMC_SEQUENCE(L_Stepper);
 
@@ -380,43 +383,43 @@ void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm)
   // TMC 5160
   if (leftPwm == 0)  // stop
     {
-      L_Stepper->VMAX(0);
+      L_Stepper.VMAX(0);
     }
   else
     {
       if (leftPwm > 0)
         {
-          L_Stepper->RAMPMODE(1); // Velocity switch to positive
-          L_Stepper->VMAX(leftPwm * TMC_SPEED_MULT);
+          L_Stepper.RAMPMODE(1); // Velocity switch to positive
+          L_Stepper.VMAX(leftPwm * TMC_SPEED_MULT);
         }
       else
         {
-          L_Stepper->RAMPMODE(2); // Velocity switch to negative
-          L_Stepper->VMAX(leftPwm * TMC_SPEED_MULT);
+          L_Stepper.RAMPMODE(2); // Velocity switch to negative
+          L_Stepper.VMAX(leftPwm * TMC_SPEED_MULT);
         }
     }
 // Check spi_status
-  L_SpiStatus = L_Stepper->status_response;
+  L_SpiStatus = L_Stepper.status_response;
 
   if (rightPwm == 0)  // stop
     {
-      R_Stepper->VMAX(0);
+      R_Stepper.VMAX(0);
     }
   else
     {
       if (rightPwm > 0)
         {
-          L_Stepper->RAMPMODE(1); // Velocity switch to positive
-          R_Stepper->VMAX(rightPwm * TMC_SPEED_MULT);
+          L_Stepper.RAMPMODE(1); // Velocity switch to positive
+          R_Stepper.VMAX(rightPwm * TMC_SPEED_MULT);
         }
       else
         {
-          R_Stepper->RAMPMODE(2); // Velocity switch to negative
-          R_Stepper->VMAX(rightPwm * TMC_SPEED_MULT);
+          R_Stepper.RAMPMODE(2); // Velocity switch to negative
+          R_Stepper.VMAX(rightPwm * TMC_SPEED_MULT);
         }
     }
 // Check spi_status
-  R_SpiStatus = R_Stepper-> status_response;
+  R_SpiStatus = R_Stepper. status_response;
 
   meuhRobot.lastLeftPwm = leftPwm;
   meuhRobot.lastRightPwm = rightPwm;
@@ -478,8 +481,8 @@ void MeuhMotorDriver::getMotorCurrent(float &leftCurrent, float &rightCurrent, f
 void MeuhMotorDriver::getMotorEncoderTicks(int &leftTicks, int &rightTicks, int &mowTicks)
 {
 
-  int32_t actualTicksLeft = L_Stepper->XACTUAL();
-  int32_t actualTicksRight = R_Stepper->XACTUAL();
+  int32_t actualTicksLeft = L_Stepper.XACTUAL();
+  int32_t actualTicksRight = R_Stepper.XACTUAL();
 
   leftTicks = abs(actualTicksLeft - lastEncoderTicksLeft);
   rightTicks = abs(actualTicksRight - lastEncoderTicksRight);
