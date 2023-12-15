@@ -1,3 +1,5 @@
+# MODDED VERSION !! USE THE ORIGINAL ;-)
+
 # Sunray firmware
 
 # Table of contents
