@@ -19,7 +19,7 @@
 #include <Arduino.h>
 #include "RobotDriver.h"
 #ifdef __linux__
-  #include <Process.h>
+#include <Process.h>
 #endif
 
 #include "../meuh/pwm_linux.h"
@@ -49,8 +49,8 @@
 #define pin_enable_tmc    47 // was pin_gpio47
 #define pin_spi_sck       19 // SPI used
 #define pin_spi_cs        20 // Can be used for other task ??
-#define pin_pwm2          22
-#define pin_sdio_d3       45
+#define pin_rain_sensor   22 // was pin_pwm2
+#define pin_buzzer        45 // was pin_sdio_d3
 #define pin_pwm3          23
 #define pin_sdio_clk      41
 #define pin_sdio_cmd      40
@@ -69,19 +69,50 @@
 #define ASD_CHARGE_CHANNEL      ADS1115_COMP_1_GND
 #define ASD_ACS_CHANNEL         ADS1115_COMP_2_GND
 #define POT_FACTOR(RMeas, RAds) RAds/(RAds + RMeas)
-#define BAT_POT_FACTOR          POT_FACTOR(22000.0f, 300000.0f)
+#define BAT_POT_FACTOR          POT_FACTOR(22000.0f, 300000.0f) // todo measure real values
+#define CHARGE_POT_FACTOR       POT_FACTOR(22000.0f, 300000.0f)
 #define ACS_POT_FACTOR          POT_FACTOR(4700.0f, 6800.0f)
 // ACS712 30A Sensitivity (66mV/A)
 #define ACS_MID_VOLTAGE         2.5f
-#define ACS_VOLTS_TO_AMPS(x)    (((x/ACS_POT_FACTOR) - ACS_MID_VOLTAGE) / 0.066f)
+#define ACS_AMPS_TO_VOLTS(x)    (((x/ACS_POT_FACTOR) - ACS_MID_VOLTAGE) / 0.066f)
 
 //-----> TMC settings and helper
 #define TMC_RsensE           0.22f // ohms
 #define TMC_RMS_CURRENT_MA   600 // mA
 #define TMC_SPEED_MULT       1 // pwm to tmc mult value
+// tmc start sequence macro
+#define START_TMC_SEQUENCE(x) \
+x.begin(); \
+x.XACTUAL(0);       /* Resetet position */ \
+x.XTARGET(0);       /* Reset target mode position */ \
+x.rms_current(TMC_RMS_CURRENT_MA); /* Set motor RMS current (mA) */ \
+x.microsteps(32);   /* Set microsteps */ \
+x.VMAX(0);          /* 44739 -> Max speed (5rev/S) @ fck 12Mhz */ \
+x.AMAX(489);        /* Acceleration (velocity mode) 1Sec -> 0 to VMAX */ \
+x.hstrt(7);         /* Chopconf param from excel computation */ \
+x.hend(0);          /* Chopconf param from excel computation */ \
+x.semin(8);         /* CoolStep low limit (activate) */ \
+x.semax(8);         /* CoolStep hight limit (desactivate)*/ \
+x.seup(2);          /* CoolStep increment */ \
+x.sedn(1);          /* CoolStep current down step speed */ \
+x.sgt(0);           /* StallGuard2 sensitivity */ \
+x.sfilt(1);         /* StallGuard2 filter */ \
+x.TCOOLTHRS(10000); /* CoolStep lower velocity to active StallGuard2 stall flag */ \
+// tmc error check macro
+#define CHECK_AND_COMPUTE_TMC_ERROR(status, stepper, spiStatus, errorBool, current) \
+ status.sr = stepper->DRV_STATUS(); /* load satus */ \
+ errorBool = (spiStatus & 0x3); /* error or reset occured*/ \
+ current = (TMC_RMS_CURRENT_MA / 1000) * (status.cs_actual + 1) / 32; /* compute current (mA) */ \
+ /*errorBool |= status.stallGuard; /* check stall */ \
+ errorBool |= status.ot; /* check over temperature */ \
+ errorBool |= status.olb; /* check open load b */ \
+ errorBool |= status.ola; /* check open load a */ \
+ errorBool |= status.s2gb; /* check short to ground b */ \
+ errorBool |= status.s2ga; /* check short to ground a */ \
+ errorBool |= status.stst; /* stabdstill in each operation */ \
 
 //-----> PWM macros used to drive the JYQD
-#define JYQD_PWM_PERIOD      10000000 // 10mS
+#define JYQD_PWM_PERIOD      1000000 // 1mS
 
 #define PWM1_INIT() \
 pwmExport(PWM1); \
@@ -92,15 +123,20 @@ pwmSetDutyCycle(PWM1, 0); \
 pwmSetEnable(PWM1, 1)
 
 #define SETPWM1DUTYCYCLE(x) \
-uint64_t pwmVal = (JYQD_PWM_PERIOD * x); \
-pwmVal /= 1023; \
-pwmSetDutyCycle(PWM1, (uint32_t)pwmVal)
+uint32_t pwmVal = map(x, 0, 255, 0, JYQD_PWM_PERIOD); \
+pwmSetDutyCycle(PWM1, pwmVal)
 
 //-----> level converter module TXS108E macro (security)
 #define TXS108E_OUTPUT_ENABLE()  digitalWrite(pin_oe_txs108e, 1)
 #define TXS108E_OUTPUT_DISABLE() digitalWrite(pin_oe_txs108e, 0)
 
 //-----> relay module HW383 macro
+enum relayStateEnum{
+ ALL_STOP = 0,
+ POWER_ON,
+ CHARGE_ON
+ };
+
 #define RELAY_STOP_ALL() \
 digitalWrite(pin_power_relay, 0); \
 digitalWrite(pin_charge_relay, 0)
@@ -137,68 +173,67 @@ struct TMC5160_DRV_STATUS_t
   };
 };
 
-
-class MeuhRobotDriver: public RobotDriver {
-  public:
-    String robotID;
-    String mcuFirmwareName;
-    String mcuFirmwareVersion;
-    int lastLeftPwm;
-    int lastRightPwm;
-    int lastMowPwm;
-    //unsigned long encoderTicksLeft;
-    //unsigned long encoderTicksRight;
-    //unsigned long encoderTicksMow;
-    //bool mcuCommunicationLost;
-    float batteryVoltage;
-    float chargeVoltage;
-    float chargeCurrent;
-    float idleCurrent;
-    float stepperCurrent;
-    float mowCurr;
-    float motorLeftCurr;
-    float motorRightCurr;
-    //bool resetMotorTicks;
-    float cpuTemp;
-    ADS1115_WE adc;
-    PCF8575 pcf8575;
-    bool triggeredLeftBumper;
-    bool triggeredRightBumper;
-    bool triggeredLift;
-    bool triggeredRain;
-    bool triggeredStopButton;
-    void begin() override;
-    void run() override;
-    bool getRobotID(String &id) override;
-    bool getMcuFirmwareVersion(String &name, String &ver) override;
-    float getCpuTemperature() override;
-    //void requestMotorPwm(int leftPwm, int rightPwm, int mowPwm);
-    void updateCpuTemperature();
-    void updateWifiConnectionState();
-    bool setFanPowerState(bool state);
-    float readAdcChannel(ADS1115_MUX channel);
-    //bool setImuPowerState(bool state);
-  protected:
-    #ifdef __linux__
-      Process cpuTempProcess;
-      Process wifiStatusProcess;
-    #endif
-    String cmd;
-    String cmdResponse;
-    unsigned long nextMotorTime;
-    unsigned long nextSummaryTime;
-    unsigned long nextConsoleTime;
-    unsigned long nextTempTime;
-    unsigned long nextWifiTime;
-    //int cmdMotorCounter;
-    //int cmdSummaryCounter;
-    //int cmdMotorResponseCounter;
-    //int cmdSummaryResponseCounter;
-    //void processComm();
-    //void processResponse(bool checkCrc);
-    //void motorResponse();
-    //void summaryResponse();
-    void versionResponse();
+class MeuhRobotDriver: public RobotDriver
+{
+public:
+  String robotID;
+  String mcuFirmwareName;
+  String mcuFirmwareVersion;
+  int lastLeftPwm;
+  int lastRightPwm;
+  int lastMowPwm;
+  //unsigned long encoderTicksLeft;
+  //unsigned long encoderTicksRight;
+  //bool mcuCommunicationLost;
+  float batteryVoltage;
+  float chargeVoltage;
+  float chargeCurrent;
+  float idleCurrent;
+  float stepperCurrent;
+  float mowCurr;
+  float motorLeftCurr;
+  float motorRightCurr;
+  //bool resetMotorTicks;
+  float cpuTemp;
+  ADS1115_WE adc;
+  PCF8575 pcf8575;
+  bool triggeredLeftBumper;
+  bool triggeredRightBumper;
+  bool triggeredLift;
+  //bool triggeredRain;
+  bool triggeredStopButton;
+  void begin() override;
+  void run() override;
+  bool getRobotID(String &id) override;
+  bool getMcuFirmwareVersion(String &name, String &ver) override;
+  float getCpuTemperature() override;
+  //void requestMotorPwm(int leftPwm, int rightPwm, int mowPwm);
+  void updateCpuTemperature();
+  void updateWifiConnectionState();
+  bool setFanPowerState(bool state);
+  float readAdcChannel(ADS1115_MUX channel);
+  //bool setImuPowerState(bool state);
+protected:
+#ifdef __linux__
+  Process cpuTempProcess;
+  Process wifiStatusProcess;
+#endif
+  String cmd;
+  String cmdResponse;
+  unsigned long nextMotorTime;
+  unsigned long nextSummaryTime;
+  unsigned long nextConsoleTime;
+  unsigned long nextTempTime;
+  unsigned long nextWifiTime;
+  //int cmdMotorCounter;
+  //int cmdSummaryCounter;
+  //int cmdMotorResponseCounter;
+  //int cmdSummaryResponseCounter;
+  //void processComm();
+  //void processResponse(bool checkCrc);
+  //void motorResponse();
+  //void summaryResponse();
+  void versionResponse();
 };
 
 // struct DriverChip defines logic levels how a motor driver works:
@@ -236,104 +271,111 @@ class MeuhRobotDriver: public RobotDriver {
     //bool drivesMowingMotor; // drives mowing motor?
 };*/
 
-class MeuhMotorDriver: public MotorDriver {
-  public:
-    unsigned long lastEncoderTicksLeft;
-    unsigned long lastEncoderTicksRight;
-    unsigned long lastEncoderTicksMow;
-    MeuhRobotDriver &meuhRobot;
-    MeuhMotorDriver(MeuhRobotDriver &sr);
-    void begin() override;
-    void run() override;
-    void setMotorPwm(int leftPwm, int rightPwm, int mowPwm) override;
-    void getMotorFaults(bool &leftFault, bool &rightFault, bool &mowFault) override;
-    void resetMotorFaults()  override;
-    void getMotorCurrent(float &leftCurrent, float &rightCurrent, float &mowCurrent) override;
-    void getMotorEncoderTicks(int &leftTicks, int &rightTicks, int &mowTicks) override;
-  protected:
-    //DriverChip JYQD;
-    TMC5160Stepper *R_Stepper;
-    TMC5160Stepper *L_Stepper;
-    uint8_t L_SpiStatus;
-    uint8_t R_SpiStatus;
-    bool L_MotorFault;
-    bool R_MotorFault;
-    bool M_MotorFault;
-    TMC5160_DRV_STATUS_t L_DrvStatus;
-    TMC5160_DRV_STATUS_t R_DrvStatus;
+class MeuhMotorDriver: public MotorDriver
+{
+public:
+  unsigned long lastEncoderTicksLeft;
+  unsigned long lastEncoderTicksRight;
+  unsigned long lastEncoderTicksMow;
+  MeuhRobotDriver &meuhRobot;
+  MeuhMotorDriver(MeuhRobotDriver &sr);
+  void begin() override;
+  void run() override;
+  void setMotorPwm(int leftPwm, int rightPwm, int mowPwm) override;
+  void getMotorFaults(bool &leftFault, bool &rightFault, bool &mowFault) override;
+  void resetMotorFaults()  override;
+  void getMotorCurrent(float &leftCurrent, float &rightCurrent, float &mowCurrent) override;
+  void getMotorEncoderTicks(int &leftTicks, int &rightTicks, int &mowTicks) override;
+protected:
+  //DriverChip JYQD;
+  TMC5160Stepper *R_Stepper;
+  TMC5160Stepper *L_Stepper;
+  uint8_t L_SpiStatus;
+  uint8_t R_SpiStatus;
+  bool L_MotorFault;
+  bool R_MotorFault;
+  bool M_MotorFault;
+  TMC5160_DRV_STATUS_t L_DrvStatus;
+  TMC5160_DRV_STATUS_t R_DrvStatus;
 };
 
-class MeuhBatteryDriver : public BatteryDriver {
-  public:
-    float batteryTemp;
-    bool mcuBoardPoweredOn;
-    unsigned long nextTempTime;
-    unsigned long nextADCTime;
-    bool adcTriggered;
-    unsigned long linuxShutdownTime;
-    #ifdef __linux__
-      Process batteryTempProcess;
-    #endif
-    MeuhRobotDriver &meuhRobot;
-    MeuhBatteryDriver(MeuhRobotDriver &sr);
-    void begin() override;
-    void run() override;
-    float getBatteryVoltage() override;
-    float getChargeVoltage() override;
-    float getChargeCurrent() override;
-    float getBatteryTemperature() override;
-    virtual void enableCharging(bool flag) override;
-    virtual void keepPowerOn(bool flag) override;
-    void updateBatteryTemperature();
+class MeuhBatteryDriver : public BatteryDriver
+{
+public:
+  float batteryTemp;
+  unsigned long nextTempTime;
+  unsigned long linuxShutdownTime;
+#ifdef __linux__
+  Process batteryTempProcess;
+#endif
+  MeuhRobotDriver &meuhRobot;
+  MeuhBatteryDriver(MeuhRobotDriver &sr);
+  void begin() override;
+  void run() override;
+  float getBatteryVoltage() override;
+  float getChargeVoltage() override;
+  float getChargeCurrent() override;
+  float getBatteryTemperature() override;
+  virtual void enableCharging(bool flag) override;
+  virtual void keepPowerOn(bool flag) override;
+  void updateBatteryTemperature();
 };
 
-class MeuhBumperDriver: public BumperDriver {
-  public:
-    MeuhRobotDriver &meuhRobot;
-    MeuhBumperDriver(MeuhRobotDriver &sr);
-    void begin() override;
-    void run() override;
-    bool obstacle() override;
-    bool getLeftBumper() override;
-    bool getRightBumper() override;
-    void getTriggeredBumper(bool &leftBumper, bool &rightBumper) override;
+class MeuhBumperDriver: public BumperDriver
+{
+public:
+  MeuhRobotDriver &meuhRobot;
+  MeuhBumperDriver(MeuhRobotDriver &sr);
+  void begin() override;
+  void run() override;
+  bool obstacle() override;
+  bool getLeftBumper() override;
+  bool getRightBumper() override;
+  void getTriggeredBumper(bool &leftBumper, bool &rightBumper) override;
 };
 
-class MeuhStopButtonDriver: public StopButtonDriver {
-  public:
-    MeuhRobotDriver &meuhRobot;
-    MeuhStopButtonDriver(MeuhRobotDriver &sr);
-    void begin() override;
-    void run() override;
-    bool triggered() override;
+class MeuhStopButtonDriver: public StopButtonDriver
+{
+public:
+  MeuhRobotDriver &meuhRobot;
+  MeuhStopButtonDriver(MeuhRobotDriver &sr);
+  void begin() override;
+  void run() override;
+  bool triggered() override;
 };
 
-class MeuhRainSensorDriver: public RainSensorDriver {
-  public:
-    MeuhRobotDriver &meuhRobot;
-    MeuhRainSensorDriver(MeuhRobotDriver &sr);
-    void begin() override;
-    void run() override;
-    bool triggered() override;
+class MeuhRainSensorDriver: public RainSensorDriver
+{
+public:
+  MeuhRobotDriver &meuhRobot;
+  MeuhRainSensorDriver(MeuhRobotDriver &sr);
+  void begin() override;
+  void run() override;
+  bool triggered() override;
+    protected:
+    unsigned long nextControlTime;
+    bool isRaining;
 };
 
-class MeuhLiftSensorDriver: public LiftSensorDriver {
-  public:
-    MeuhRobotDriver &meuhRobot;
-    MeuhLiftSensorDriver(MeuhRobotDriver &sr);
-    void begin() override;
-    void run() override;
-    bool triggered() override;
+class MeuhLiftSensorDriver: public LiftSensorDriver
+{
+public:
+  MeuhRobotDriver &meuhRobot;
+  MeuhLiftSensorDriver(MeuhRobotDriver &sr);
+  void begin() override;
+  void run() override;
+  bool triggered() override;
 };
 
-class MeuhBuzzerDriver: public BuzzerDriver {
-  public:
-    MeuhRobotDriver &meuhRobot;
-    MeuhBuzzerDriver(MeuhRobotDriver &sr);
-    void begin() override;
-    void run() override;
-    void noTone() override;
-    void tone(int freq) override;
+class MeuhBuzzerDriver: public BuzzerDriver
+{
+public:
+  MeuhRobotDriver &meuhRobot;
+  MeuhBuzzerDriver(MeuhRobotDriver &sr);
+  void begin() override;
+  void run() override;
+  void noTone() override;
+  void tone(int freq) override;
 };
 
 
