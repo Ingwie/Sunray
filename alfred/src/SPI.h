@@ -56,6 +56,7 @@ public:
   static void end();
   static void setDataMode(uint16_t);
   static void setClockDivider(uint32_t);
+  static void setBitsPerWord(uint8_t);
   static void setClock(uint32_t);
   static void beginTransaction(SPISettings settings);
   static uint8_t transfer(uint8_t data);
@@ -68,6 +69,8 @@ protected:
   static uint32_t speed;
   static uint16_t delay;
   static uint8_t bits;               //  8 bits per word
+  static uint8_t busAddressMajor;
+  static uint8_t busAddressMinor;
 };
 
 extern SPIClass SPI;
