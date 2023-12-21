@@ -46,13 +46,13 @@
 #define pin_ur1_cts       10
 #define pin_spi_mosi      31 // SPI used
 #define pin_spi_miso      18 // SPI used
-#define pin_gpio47        47
+#define pin_enable_tmc    47 // was pin_gpio47
 #define pin_spi_sck       19 // SPI used
 #define pin_cs_r_tmc      20 // was pin_spi_cs .. Can be used for other task ??
 #define pin_cs_l_tmc      22 // was pin_pwm2
 #define pin_buzzer        45 // was pin_sdio_d3
 #define pin_pwm3          23
-#define pin_enable_tmc    41 // was pin_sdio_clk
+#define pin_sdio_clk      41
 #define pin_sdio_cmd      40
 #define pin_spdif         50
 #define pin_aio_ck        4
