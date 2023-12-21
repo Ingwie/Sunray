@@ -36,23 +36,23 @@
 #define pin_i2c_sda       17 // I2C used
 #define pin_i2c_scl       18 // I2C used
 #define pin_pwm_jyqd      21 // was pin_pwm1
-#define pin_enable_jyqd   9  // was pin_ur1_tx
-#define pin_cw_ccw_jyqd   8  // was pin_ur1_tx
+#define pin_oe_txs108e    9  // was pin_ur1_tx
+#define pin_enable_jyqd   8  // was pin_ur1_tx
 #define pin_pulses_jyqd   42 // was pin_sdio_d0
-#define pin_oe_txs108e     3 // was aio_bck
+#define pin_cw_ccw_jyqd   3  // was aio_bck
 #define pin_power_relay   43 // was pin_sdio_d1
 #define pin_charge_relay  44 // was pin_sdio_d2
-#define pin_cs_r_tmc      11 // was pin_ur1_rts
-#define pin_cs_l_tmc      10 // was pin_ur1_cts
+#define pin_rain_sensor   11 // was pin_ur1_rts
+#define pin_ur1_cts       10
 #define pin_spi_mosi      31 // SPI used
 #define pin_spi_miso      18 // SPI used
-#define pin_enable_tmc    47 // was pin_gpio47
+#define pin_gpio47        47
 #define pin_spi_sck       19 // SPI used
-#define pin_spi_cs        20 // Can be used for other task ??
-#define pin_rain_sensor   22 // was pin_pwm2
+#define pin_cs_r_tmc      20 // was pin_spi_cs .. Can be used for other task ??
+#define pin_cs_l_tmc      22 // was pin_pwm2
 #define pin_buzzer        45 // was pin_sdio_d3
 #define pin_pwm3          23
-#define pin_sdio_clk      41
+#define pin_enable_tmc    41 // was pin_sdio_clk
 #define pin_sdio_cmd      40
 #define pin_spdif         50
 #define pin_aio_ck        4
@@ -115,6 +115,8 @@ x.TCOOLTHRS(10000); /* CoolStep lower velocity to active StallGuard2 stall flag 
 #define JYQD_PWM_PERIOD      1000000 // 1mS
 
 #define PWM1_INIT() \
+pwmUnexport(PWM1); \
+delay(5); \
 pwmExport(PWM1); \
 pwmSetEnable(PWM1, 0); \
 pwmSetPolarity(PWM1, 0); \
