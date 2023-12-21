@@ -134,9 +134,6 @@ float stateTemp = 20; // degreeC
 unsigned long stateInMotionLastTime = 0;
 bool stateChargerConnected = false;
 bool stateInMotionLP = false; // robot is in angular or linear motion? (with motion low-pass filtering)
-float linearSpeedSetLast = 0;
-bool linearSpeedSetDeadTimeIsSet = false;
-unsigned long linearSpeedSetDeadTime = 0;
 
 unsigned long lastFixTime = 0;
 int fixTimeout = 0;
