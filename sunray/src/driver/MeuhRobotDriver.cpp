@@ -143,6 +143,7 @@ void MeuhRobotDriver::begin()
   if (true)
     {
       delay(5);
+      unsigned long startTime = millis();
       CONSOLE.print("ADC S0 = ");
       CONSOLE.println(readAdcChannel(ADS1115_COMP_0_GND));
       CONSOLE.print("ADC S1 = ");
@@ -150,6 +151,9 @@ void MeuhRobotDriver::begin()
       CONSOLE.print("ADC S2 = ");
       CONSOLE.println(readAdcChannel(ADS1115_COMP_2_GND));
       CONSOLE.print("ADC S3 = ");
+      CONSOLE.println(readAdcChannel(ADS1115_COMP_3_GND));
+      CONSOLE.print("Four ADC conversion duration: ");
+      CONSOLE.println((uint32_t) millis() - startTime);
       CONSOLE.println(readAdcChannel(ADS1115_COMP_3_GND));
     }
 
@@ -325,8 +329,10 @@ void MeuhMotorDriver::begin()
   R_DrvStatus.sr = L_DrvStatus.sr = 0;
   L_SpiStatus, R_SpiStatus = 0;
 
+  CONSOLE.println("starting PWM1");
   PWM1_INIT(); // Jyqd pwm (maw)
 
+  CONSOLE.println("starting SPI bus");
   SPI.begin();
 
   // start TMC5160 stepper drivers (wheels)
