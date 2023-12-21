@@ -63,14 +63,14 @@ int pwmSetEnable(int pwmio, int enable)
   pwmfd = open(buf, O_WRONLY);
   if(pwmfd < 0)
     {
-      perror("error opening enable");
+      perror("error opening PWM enable");
       return -1;
     }
   sprintf(buf, "%d", enable);
   ret = write(pwmfd, buf, strlen(buf));
   if(ret < 0)
     {
-      perror("failed to set enable");
+      perror("failed to set PWM enable");
       close(pwmfd);
       return -1;
     }
@@ -86,14 +86,19 @@ int pwmSetPolarity(int pwmio, int polarity)
   pwmfd = open(buf, O_WRONLY);
   if(pwmfd < 0)
     {
-      perror("error opening polarity");
+      perror("error opening PWM polarity");
       return -1;
     }
-  sprintf(buf, "%d", polarity);
-  ret = write(pwmfd, buf, strlen(buf));
+  if (polarity == 0) {
+  char pol[] = "normal";
+  ret = write(pwmfd, pol, strlen(pol));
+  } else {
+  char pol[] = "inversed";
+  ret = write(pwmfd, pol, strlen(pol));
+  }
   if(ret < 0)
     {
-      perror("failed to set polarity");
+      perror("failed to set PWM polarity");
       close(pwmfd);
       return -1;
     }
@@ -109,14 +114,14 @@ int pwmSetPeriod(int pwmio, uint32_t period)
   pwmfd = open(buf, O_WRONLY);
   if(pwmfd < 0)
     {
-      perror("error opening period");
+      perror("error opening PWM period");
       return -1;
     }
   sprintf(buf, "%d", period);
   ret = write(pwmfd, buf, strlen(buf));
   if (ret < 0)
     {
-      perror("failed to set period");
+      perror("failed to set PWM period");
       close(pwmfd);
       return -1;
     }
@@ -132,14 +137,14 @@ int pwmSetDutyCycle(int pwmio, uint32_t duty)
   pwmfd = open(buf, O_WRONLY);
   if(pwmfd < 0)
     {
-      perror("error opening duty_cycle");
+      perror("error opening PWM duty_cycle");
       return -1;
     }
   sprintf(buf, "%d", duty);
   ret = write(pwmfd, buf, strlen(buf));
   if(ret < 0)
     {
-      perror("failed to set duty_cylce");
+      perror("failed to set PWM duty_cylce");
       close(pwmfd);
       return -1;
     }

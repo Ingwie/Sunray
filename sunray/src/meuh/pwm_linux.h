@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 
 int pwmExport(int pwmio);
+void pwmUnexport(int pwmio);
 int pwmSetEnable(int pwmio, int enable);
 int pwmSetPolarity(int pwmio, int polarity);
 int pwmSetPeriod(int pwmio, uint32_t period);
