@@ -22,5 +22,9 @@
 
 void initFusionImu();
 void computeFusionImu(); // load values in ImuValues.xxx
+// Euler angles
+extern FusionEulerAngles eulerAngles;
+// Compas
+extern float fusionHeading;
 
 #endif // FUSIONIMU_H_INCLUDED

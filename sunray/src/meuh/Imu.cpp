@@ -60,7 +60,7 @@ void initGyro()
  i2c_writeRegByte(GYRO_ADRESS, 0x3E, CLK_SEL); // frequency source
 }
 
-bool readGyro() // return 0 on success
+bool readGyro() // return 0 if fail
 {
  bool tmp = i2c_readReg(GYRO_ADRESS, GYRO_XOUT_H, (uint8_t*)&imuGyro, 6);
 // swap bytes
@@ -75,7 +75,7 @@ bool readGyro() // return 0 on success
  return tmp;
 }
 
-void readGyroTemp() // return 0 on success
+void readGyroTemp() // return 0if fail
 {
  i2c_readReg(GYRO_ADRESS, TEMP_OUT_H, (uint8_t*)&gyroTemp, 2);
  gyroTemp = htons(gyroTemp);
@@ -122,7 +122,7 @@ void initAcc()
  i2c_writeRegByte(ACC_ADRESS, DATA_FORMAT, FULL_RES | SET16G);
 }
 
-bool readAcc() // return 0 on success
+bool readAcc() // return 0 if fail
 {
  bool tmp = i2c_readReg(ACC_ADRESS, DATAX0, (uint8_t*)&imuAcc, 6);
 // offset correction (manually)
@@ -156,7 +156,7 @@ void initMag()
  i2c_writeRegByte(MAG_ADRESS, SETRESETREG, SETRESETREGVAL);
 }
 
-bool readMag() // return 0 on success
+bool readMag() // return 0 if fail
 {
  return i2c_readReg(MAG_ADRESS, 0x00, (uint8_t*)&imuMag, 6);
 }

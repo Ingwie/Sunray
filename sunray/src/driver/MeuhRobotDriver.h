@@ -24,7 +24,7 @@
 
 #include "../meuh/pwm_linux.h"
 #include "../meuh/ADS1115/ADS1115_WE.h"
-#include "../meuh/PCF8575/PCF8575.h"
+//#include "../meuh/PCF8575/PCF8575.h"
 #include "../meuh/TMCStepper-0.7.3/TMCStepper.h"
 
 //-----> Mecanics informations
@@ -146,10 +146,12 @@ digitalWrite(pin_charge_relay, 0)
 
 #define RELAY_POWER_ON() \
 digitalWrite(pin_charge_relay, 0); \
+delay(100); \
 digitalWrite(pin_power_relay, 1)
 
 #define RELAY_CHARGE_ON() \
 digitalWrite(pin_power_relay, 0); \
+delay(100); \
 digitalWrite(pin_charge_relay, 1)
 
 struct TMC5160_DRV_STATUS_t
@@ -199,7 +201,7 @@ public:
   //bool resetMotorTicks;
   float cpuTemp;
   ADS1115_WE adc;
-  PCF8575 pcf8575;
+  //PCF8575 pcf8575;
   bool triggeredLeftBumper;
   bool triggeredRightBumper;
   bool triggeredLift;

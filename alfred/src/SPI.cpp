@@ -13,7 +13,6 @@
 #include <errno.h>
 #include <sys/select.h>
 #include <sys/stat.h>
-
 #include <sys/ioctl.h>
 #include <linux/types.h>
 

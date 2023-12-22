@@ -11,7 +11,7 @@
 
 class SPISettings {
 public:
-  SPISettings():freq(4000000),mode(SPI_MODE_3){}
+  SPISettings():freq(4000000),mode(SPI_MODE_3 | SPI_NO_CS){}
   SPISettings(uint32_t clockFreq, uint8_t bitOrder, uint8_t dataMode) {
     freq = clockFreq;
     mode = dataMode;

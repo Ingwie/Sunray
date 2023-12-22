@@ -53,9 +53,9 @@ void initFusionImu()
 void computeFusionImu()
 {
 // Measure
- if (readGyro()) CONSOLE.println("GYROSCOPE error");
- if (readAcc()) CONSOLE.println("ACCELEROMETER error");
- if (readMag()) CONSOLE.println("MAGNETIC SENSOR error");
+ if (!readGyro()) CONSOLE.println("GYROSCOPE error");
+ if (!readAcc()) CONSOLE.println("ACCELEROMETER error");
+ if (!readMag()) CONSOLE.println("MAGNETIC SENSOR error");
 
 // Calibrate gyroscope
  calibratedGyroscope = FusionCalibrationInertial(uncalibratedGyroscope, FUSION_ROTATION_MATRIX_IDENTITY, gyroscopeSensitivity, FUSION_VECTOR3_ZERO);

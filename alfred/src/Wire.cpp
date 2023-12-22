@@ -57,7 +57,7 @@ bool WireDebug = false;
 
 TwoWire::TwoWire(){}
 
-void TwoWire::begin(){  
+void TwoWire::begin(){
   begin(1);
 }
 
@@ -84,7 +84,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop
     return 0;
   }
   uint8_t ret = ::read(busFd, rxBuffer, quantity);
-  if (WireDebug) ::printf("TwoWire read addr=%x, len=%d ret=%d\n", address, quantity, quantity);  
+  if (WireDebug) ::printf("TwoWire read addr=%x, len=%d ret=%d\n", address, quantity, quantity);
   //uint8_t ret = twi_readFrom(address, rxBuffer, quantity, sendStop);
   rxBufferIndex = 0;
   rxBufferLength = (ret == quantity)?quantity:0;
@@ -92,23 +92,23 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop
 }
 
 void TwoWire::beginTransmission(uint8_t address){
-  if (WireDebug) ::printf("TwoWire beginTransmission addr=%x\n", address);    
+  if (WireDebug) ::printf("TwoWire beginTransmission addr=%x\n", address);
   if (ioctl(busFd, I2C_SLAVE, address) < 0) {
 		perror("error: I2C ioctl failed");
     return;
   }
   txAddress = address;
   txBufferIndex = 0;
-  txBufferLength = 0;  
+  txBufferLength = 0;
 }
 
-uint8_t TwoWire::endTransmission(uint8_t sendStop){  
+uint8_t TwoWire::endTransmission(uint8_t sendStop){
   if (busFd < 0) {
 		perror("endTransmission error: no such I2C bus");
     return 4; // other error;
   }
   uint8_t ret = ::write(busFd, txBuffer, txBufferLength);
-  if (WireDebug) ::printf("TwoWire write len: %d, ret=%d\n", txBufferLength, ret);  
+  if (WireDebug) ::printf("TwoWire write len: %d, ret=%d\n", txBufferLength, ret);
   //uint8_t ret = twi_writeTo(txAddress, txBuffer, txBufferLength, 0, sendStop);
   txBufferIndex = 0;
   txBufferLength = 0;
@@ -163,16 +163,16 @@ void TwoWire::begin(uint8_t address){
     close(busFd);
     busFd = -1;
   }
-  if (WireDebug) ::printf("TwoWire begin bus=%d\n", address);  
+  if (WireDebug) ::printf("TwoWire begin bus=%d\n", address);
   rxBufferIndex = 0;
   rxBufferLength = 0;
 
   txBufferIndex = 0;
   txBufferLength = 0;
-  
+
   //pinMode(2, ALT0);
   //pinMode(3, ALT0);
-  busAddress = address; 
+  busAddress = address;
 
 	// Open the given I2C bus filename.
  	char filename[50];

@@ -105,15 +105,26 @@ void MeuhRobotDriver::begin()
   // init fusion computation
   initFusionImu();
   // and read first values to test I2C communications
+  unsigned long startTime = millis();
   computeFusionImu();
+  CONSOLE.print("Fusion imu computation duration: ");
+  CONSOLE.println((uint32_t) millis() - startTime);
+  CONSOLE.print("ROLL: ");
+  CONSOLE.println(eulerAngles.angle.roll);
+  CONSOLE.print("PITCH: ");
+  CONSOLE.println(eulerAngles.angle.pitch);
+  CONSOLE.print("YAW: ");
+  CONSOLE.println(eulerAngles.angle.yaw);
+  CONSOLE.print("Heading: ");
+  CONSOLE.println(fusionHeading);
 
   // start IO Expander
-  CONSOLE.println("starting IO Expander");
+  //CONSOLE.println("starting IO Expander");
   // init PCF8575
-  pcf8575 = PCF8575(0x38);
-  if (!pcf8575.isConnected()) CONSOLE.println("IO Expander error");
+  //pcf8575 = PCF8575(0x38);
+  //if (!pcf8575.isConnected()) CONSOLE.println("IO Expander error");
   // set all pin to input TODO check I/O pin needed and write macros
-  pcf8575.write16(0xFFFF);
+  //pcf8575.write16(0xFFFF);
 
   // switch-on fan
   //setFanPowerState(true);
@@ -154,7 +165,6 @@ void MeuhRobotDriver::begin()
       CONSOLE.println(readAdcChannel(ADS1115_COMP_3_GND));
       CONSOLE.print("Four ADC conversion duration: ");
       CONSOLE.println((uint32_t) millis() - startTime);
-      CONSOLE.println(readAdcChannel(ADS1115_COMP_3_GND));
     }
 
   delay(10);

@@ -23,11 +23,11 @@ uint8_t i2c_readRegByte(uint8_t address, uint8_t reg) // Return 0 if success
   Wire.write(reg);
   Wire.endTransmission(false);
   Wire.requestFrom(address, 1);
-  Wire.endTransmission();
+  //Wire.endTransmission();
   return Wire.read();
 }
 
-uint8_t i2c_readReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len) // Return 0 if success
+uint8_t i2c_readReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len) // Return 0 if fail
 {
   Wire.beginTransmission(address);
   Wire.write((uint8_t)reg);
@@ -37,7 +37,7 @@ uint8_t i2c_readReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len) 
     {
       buffer[i] = Wire.read();
     }
-  Wire.endTransmission();
+  //Wire.endTransmission();
   return ret;
 }
 
@@ -57,5 +57,5 @@ uint8_t i2c_writeReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len)
     {
       Wire.write(buffer[i]);
     }
-  return Wire.endTransmission();;
+  return Wire.endTransmission();
 }
