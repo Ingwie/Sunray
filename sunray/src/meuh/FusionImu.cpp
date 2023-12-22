@@ -50,12 +50,13 @@ void initFusionImu()
  FusionAhrsSetMagneticField(&fusionAhrs, 20.0f, 70.0f); // valid magnetic field range = 20 uT to 70 uT
 }
 
-void computeFusionImu()
+bool computeFusionImu() // return false if fail
 {
+ bool ret = true;
 // Measure
- if (!readGyro()) CONSOLE.println("GYROSCOPE error");
- if (!readAcc()) CONSOLE.println("ACCELEROMETER error");
- if (!readMag()) CONSOLE.println("MAGNETIC SENSOR error");
+ if (!readGyro()) { CONSOLE.println("GYROSCOPE error"); ret = false; }
+ if (!readAcc()) { CONSOLE.println("ACCELEROMETER error"); ret = false; }
+ if (!readMag()) { CONSOLE.println("MAGNETIC SENSOR error"); ret = false; }
 
 // Calibrate gyroscope
  calibratedGyroscope = FusionCalibrationInertial(uncalibratedGyroscope, FUSION_ROTATION_MATRIX_IDENTITY, gyroscopeSensitivity, FUSION_VECTOR3_ZERO);
@@ -78,10 +79,6 @@ void computeFusionImu()
 // Calculate heading
  fusionHeading = FusionCompassCalculateHeading(calibratedAccelerometer, calibratedMagnetometer);
 
-// Convert to s16
-/* ImuValues.roll = eulerAngles.angle.roll * 10;
- ImuValues.pitch = eulerAngles.angle.pitch * 10;
- ImuValues.yaw = eulerAngles.angle.yaw * 10;
- ImuValues.heading = fusionHeading * 10;*/
+ return ret;
 }
 

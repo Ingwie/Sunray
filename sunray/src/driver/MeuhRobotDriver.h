@@ -380,5 +380,17 @@ public:
   void tone(int freq) override;
 };
 
+class MeuhImuDriver: public ImuDriver {
+  public:
+    MeuhRobotDriver &meuhRobot;
+    MeuhImuDriver(MeuhRobotDriver &sr);
+    void detect() override;
+    bool begin() override;
+    void run() override;
+    bool isDataAvail() override;
+    void resetData() override;
+  protected:
+    unsigned long nextUpdateTime;
+};
 
 #endif

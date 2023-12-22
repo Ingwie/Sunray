@@ -145,6 +145,8 @@ extern int motorErrorCounter;
 
 #ifdef DRV_SIM_ROBOT
   extern SimImuDriver imuDriver;
+#elif defined(DRV_MEUH_ROBOT)
+  extern MeuhImuDriver imuDriver;
 #elif defined(BNO055)
   extern BnoDriver imuDriver;
 #else

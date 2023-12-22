@@ -21,7 +21,7 @@
 #include "fusion/Fusion.h"
 
 void initFusionImu();
-void computeFusionImu(); // load values in ImuValues.xxx
+bool computeFusionImu(); // load values in ImuValues.xxx
 // Euler angles
 extern FusionEulerAngles eulerAngles;
 // Compas

@@ -98,26 +98,6 @@ void MeuhRobotDriver::begin()
   robotID = p.readString();
   robotID.trim();
 
-  // start IMU
-  CONSOLE.println("starting IMU");
-  // switch-on and configure IMU GY85
-  initImusGY85();
-  // init fusion computation
-  initFusionImu();
-  // and read first values to test I2C communications
-  unsigned long startTime = millis();
-  computeFusionImu();
-  CONSOLE.print("Fusion imu computation duration: ");
-  CONSOLE.println((uint32_t) millis() - startTime);
-  CONSOLE.print("ROLL: ");
-  CONSOLE.println(eulerAngles.angle.roll);
-  CONSOLE.print("PITCH: ");
-  CONSOLE.println(eulerAngles.angle.pitch);
-  CONSOLE.print("YAW: ");
-  CONSOLE.println(eulerAngles.angle.yaw);
-  CONSOLE.print("Heading: ");
-  CONSOLE.println(fusionHeading);
-
   // start IO Expander
   //CONSOLE.println("starting IO Expander");
   // init PCF8575
@@ -744,5 +724,59 @@ void MeuhBuzzerDriver::tone(int freq)
   digitalWrite(pin_buzzer, HIGH);
 }
 
+// ------------------------------------------------------------------------------------
+
+MeuhImuDriver::MeuhImuDriver(MeuhRobotDriver &sr): meuhRobot(sr){
+  nextUpdateTime = 0;
+}
+
+void MeuhImuDriver::detect(){
+  imuFound = true;
+}
+
+bool MeuhImuDriver::begin(){
+  CONSOLE.println("using imu driver: GY85 + FUSION code");
+  // switch-on and configure IMU GY85
+  initImusGY85();
+  // init fusion computation
+  initFusionImu();
+  // and read first values to test I2C communications
+  unsigned long startTime = millis();
+  bool ret = computeFusionImu();
+  CONSOLE.print("Fusion imu read and computation duration: ");
+  CONSOLE.println((uint32_t) millis() - startTime);
+  CONSOLE.print("ROLL: ");
+  CONSOLE.println(eulerAngles.angle.roll);
+  CONSOLE.print("PITCH: ");
+  CONSOLE.println(eulerAngles.angle.pitch);
+  CONSOLE.print("YAW: ");
+  CONSOLE.println(eulerAngles.angle.yaw);
+  CONSOLE.print("Heading: ");
+  CONSOLE.println(fusionHeading);
+  return ret;
+}
+
+void MeuhImuDriver::run(){
+}
+
+bool MeuhImuDriver::isDataAvail(){
+    if (millis() < nextUpdateTime) return false;
+    nextUpdateTime = millis() + 200; // 5 Hz
+    bool ret = computeFusionImu();
+    //quatW = ?; not used
+    //quatX = ?;
+    //quatY = ?;
+    //quatZ = ?;
+    //roll = event.orientation.z / 180.0 * PI;
+    //pitch = event.orientation.y / 180.0 * PI;
+    //yaw = -event.orientation.x / 180.0 * PI;
+    roll = eulerAngles.angle.roll / 180.0 * PI;
+    pitch = eulerAngles.angle.pitch / 180.0 * PI;
+    yaw = eulerAngles.angle.yaw / 180.0 * PI;
+    //heading = fusionHeading;
+}
+
+void MeuhImuDriver::resetData(){
+}
 
 
