@@ -18,7 +18,7 @@ extern "C"{
 
 #include "Stream.h"
 
-#define BUFFER_LENGTH 40 // needed for TMC5160
+#define BUFFER_LENGTH 32
 
 class TwoWire : public Stream {
   private:

@@ -17,7 +17,7 @@
 
 FusionBias fusionBias;
 FusionAhrs fusionAhrs;
-#define FUSIONPERIOD 0.032f // sample period in seconde
+#define FUSIONPERIOD 0.02f // sample period in seconde
 
 // gyroscope
 #define gyroscopeSensitivity    {GYRO_RATE_XYZ, GYRO_RATE_XYZ, GYRO_RATE_XYZ} // sensitivity in degrees per second per lsb

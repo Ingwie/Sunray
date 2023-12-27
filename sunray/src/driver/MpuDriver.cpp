@@ -1,4 +1,4 @@
-// Ardumower Sunray 
+// Ardumower Sunray
 // Copyright (c) 2013-2020 by Alexander Grau, Grau GmbH
 // Licensed GPLv3 for open source use
 // or Grau GmbH Commercial License for commercial use (http://grauonline.de/cms2/?page_id=153)
@@ -10,20 +10,20 @@
 
 
 
-MpuDriver::MpuDriver(){    
+MpuDriver::MpuDriver(){
 }
 
 void MpuDriver::selectChip(){
 }
 
 void MpuDriver::detect(){
-  // detect MPUxxxx  
+  // detect MPUxxxx
   uint8_t data = 0;
   selectChip();
   I2CreadFrom(MPU_ADDR, 0x75, 1, &data, 1); // whoami register
   CONSOLE.print(F("MPU ID=0x"));
-  CONSOLE.println(data, HEX);     
-  #if defined MPU6050 || defined MPU9150       
+  CONSOLE.println(data, HEX);
+  #if defined MPU6050 || defined MPU9150
     if (data == 0x68) {
         CONSOLE.println("MPU6050/9150 found");
         imuFound = true;
@@ -34,7 +34,7 @@ void MpuDriver::detect(){
         return;
     }
   #endif
-  #if defined MPU9250 
+  #if defined MPU9250
     if (data == 0x73) {
         CONSOLE.println("MPU9255 found");
         imuFound = true;
@@ -46,24 +46,24 @@ void MpuDriver::detect(){
     }
   #endif
   imuFound = false;
-  CONSOLE.println(F("MPU6050/9150/9250/9255 not found - Did you connect AD0 to 3.3v and choose it in config.h?"));          
+  CONSOLE.println(F("MPU6050/9150/9250/9255 not found - Did you connect AD0 to 3.3v and choose it in config.h?"));
 }
 
 
-bool MpuDriver::begin(){ 
+bool MpuDriver::begin(){
     CONSOLE.println("using imu driver: MpuDriver");
     //selectChip();
     if (mpu.begin() != INV_SUCCESS){
         return false;
     }
-    //mpu.setAccelFSR(2);	      
+    //mpu.setAccelFSR(2);
     mpu.dmpBegin(DMP_FEATURE_6X_LP_QUAT  // Enable 6-axis quat
                |  DMP_FEATURE_GYRO_CAL // Use gyro calibration
              //  | DMP_FEATURE_SEND_RAW_ACCEL
               , 5); // Set DMP FIFO rate to 5 Hz
-    // DMP_FEATURE_LP_QUAT can also be used. It uses the 
+    // DMP_FEATURE_LP_QUAT can also be used. It uses the
     // accelerometer in low-power mode to estimate quat's.
-    // DMP_FEATURE_LP_QUAT and 6X_LP_QUAT are mutually exclusive    
+    // DMP_FEATURE_LP_QUAT and 6X_LP_QUAT are mutually exclusive
     //mpu.dmpSetOrientation(orientationMatrix);
     return true;
 }
@@ -75,7 +75,7 @@ void MpuDriver::run(){
 
 bool MpuDriver::isDataAvail(){
     //selectChip();
-    bool avail = (mpu.fifoAvailable() > 0);    
+    bool avail = (mpu.fifoAvailable() > 0);
     if (!avail) return false;
     //CONSOLE.println("fifoAvailable");
     // Use dmpUpdateFifo to update the ax, gx, mx, etc. values
@@ -87,7 +87,7 @@ bool MpuDriver::isDataAvail(){
     quatX = mpu.qx;
     quatY = mpu.qy;
     quatZ = mpu.qz;
-    mpu.computeEulerAngles(false);      
+    mpu.computeEulerAngles(false);
     //CONSOLE.print(imu.ax);
     //CONSOLE.print(",");
     //CONSOLE.print(imu.ay);
@@ -95,10 +95,10 @@ bool MpuDriver::isDataAvail(){
     //CONSOLE.println(imu.az);
     roll = mpu.roll;
     pitch = mpu.pitch;
-    yaw = mpu.yaw;    
+    yaw = mpu.yaw;
     return true;
-}         
-    
+}
+
 void MpuDriver::resetData(){
     //selectChip();
     mpu.resetFifo();

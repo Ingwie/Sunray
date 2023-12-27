@@ -761,15 +761,12 @@ void MeuhImuDriver::run(){
 
 bool MeuhImuDriver::isDataAvail(){
     if (millis() < nextUpdateTime) return false;
-    nextUpdateTime = millis() + 200; // 5 Hz
+    nextUpdateTime = millis() + 200; // 5 Hz update FUSIONPERIOD if changed
     bool ret = computeFusionImu();
     //quatW = ?; not used
     //quatX = ?;
     //quatY = ?;
     //quatZ = ?;
-    //roll = event.orientation.z / 180.0 * PI;
-    //pitch = event.orientation.y / 180.0 * PI;
-    //yaw = -event.orientation.x / 180.0 * PI;
     roll = eulerAngles.angle.roll / 180.0 * PI;
     pitch = eulerAngles.angle.pitch / 180.0 * PI;
     yaw = eulerAngles.angle.yaw / 180.0 * PI;
