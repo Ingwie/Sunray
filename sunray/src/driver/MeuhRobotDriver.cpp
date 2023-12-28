@@ -42,8 +42,8 @@ void MeuhRobotDriver::begin()
 
 // init GPIO
 
-  pinMode(pin_oe_txs108e, OUTPUT);
-  TXS108E_OUTPUT_DISABLE();
+  pinMode(pin_oe_74HCT541, OUTPUT);
+  SET_74HCT541_OUTPUT_DISABLE();
   pinMode(pin_power_relay, OUTPUT);
   pinMode(pin_charge_relay, OUTPUT);
   RELAY_STOP_ALL();
@@ -333,7 +333,7 @@ void MeuhMotorDriver::begin()
   START_TMC_SEQUENCE(L_Stepper);
 
   // power on motors
-  TXS108E_OUTPUT_ENABLE();
+  SET_74HCT541_OUTPUT_ENABLE();
   RELAY_POWER_ON();
   digitalWrite(pin_enable_tmc, 1); // check if needed
 

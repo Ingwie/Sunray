@@ -35,14 +35,14 @@
 //-----> BPI-M4 GPIO Pin
 #define pin_i2c_sda       17 // I2C used
 #define pin_i2c_scl       18 // I2C used
-#define pin_pwm_jyqd      21 // was pin_pwm1
-#define pin_oe_txs108e    9  // was pin_ur1_tx
-#define pin_enable_jyqd   8  // was pin_ur1_tx
-#define pin_pulses_jyqd   42 // was pin_sdio_d0
-#define pin_cw_ccw_jyqd   3  // was aio_bck
-#define pin_power_relay   43 // was pin_sdio_d1
-#define pin_charge_relay  44 // was pin_sdio_d2
-#define pin_rain_sensor   11 // was pin_ur1_rts
+#define pin_pwm_jyqd      21 // 5V 74HCT541 output was pin_pwm1
+#define pin_oe_74HCT541   9  // 5V 74HCT541 output was pin_ur1_tx
+#define pin_enable_jyqd   8  // 5V 74HCT541 output was pin_ur1_rx
+#define pin_cw_ccw_jyqd   42 // 5V 74HCT541 output was pin_sdio_d0
+#define pin_power_relay   3  // 5V 74HCT541 output was aio_bck
+#define pin_charge_relay  43 // 5V 74HCT541 output was pin_sdio_d1
+#define pin_buzzer        44 // 5V 74HCT541 output was pin_sdio_d2
+#define pin_ur1_rts       11 // 5V 74HCT541 output
 #define pin_ur1_cts       10
 #define pin_spi_mosi      31 // SPI used
 #define pin_spi_miso      18 // SPI used
@@ -50,17 +50,17 @@
 #define pin_spi_sck       19 // SPI used
 #define pin_cs_r_tmc      20 // was pin_spi_cs .. Can be used for other task ??
 #define pin_cs_l_tmc      22 // was pin_pwm2
-#define pin_buzzer        45 // was pin_sdio_d3
+#define pin_sdio_d3       45
 #define pin_pwm3          23
 #define pin_sdio_clk      41
 #define pin_sdio_cmd      40
-#define pin_spdif         50
-#define pin_aio_ck        4
+#define pin_spdif         50 // 5V -> 3.3V input
+#define pin_aio_ck        4  // 5V -> 3.3V input
 #define pin_aio_lrsk      2
 #define pin_gpio53        53
 #define pin_gpio34        34
-#define pin_aisd          5
-#define pin_aosd          6
+#define pin_pulses_jyqd   5 // 5V -> 3.3V input was pin_aisd
+#define pin_rain_sensor   6 // 5V -> 3.3V input was pin_aosd
 //----- BPI-M4 hardware alias
 #define PWM1              1 // use pin_pwm_jyqd
 
@@ -116,8 +116,9 @@ x.TCOOLTHRS(10000); /* CoolStep lower velocity to active StallGuard2 stall flag 
 
 #define PWM1_INIT() \
 pwmUnexport(PWM1); \
-delay(5); \
+delay(10); \
 pwmExport(PWM1); \
+delay(5); \
 pwmSetEnable(PWM1, 0); \
 pwmSetPolarity(PWM1, 0); \
 pwmSetPeriod(PWM1, JYQD_PWM_PERIOD); \
@@ -125,12 +126,11 @@ pwmSetDutyCycle(PWM1, 0); \
 pwmSetEnable(PWM1, 1)
 
 #define SETPWM1DUTYCYCLE(x) \
-uint32_t pwmVal = map(x, 0, 255, 0, JYQD_PWM_PERIOD); \
-pwmSetDutyCycle(PWM1, pwmVal)
+pwmSetDutyCycle(PWM1, map(x, 0, 255, 0, JYQD_PWM_PERIOD)) \
 
-//-----> level converter module TXS108E macro (security)
-#define TXS108E_OUTPUT_ENABLE()  digitalWrite(pin_oe_txs108e, 1)
-#define TXS108E_OUTPUT_DISABLE() digitalWrite(pin_oe_txs108e, 0)
+//-----> level converter ship 74HCT541 macro (security)
+#define SET_74HCT541_OUTPUT_ENABLE()  digitalWrite(pin_oe_74HCT541, 0)
+#define SET_74HCT541_OUTPUT_DISABLE() digitalWrite(pin_oe_74HCT541, 1)
 
 //-----> relay module HW383 macro
 enum relayStateEnum
