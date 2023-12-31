@@ -327,6 +327,7 @@ void MeuhMotorDriver::begin()
 
   // start TMC5160 stepper drivers (wheels)
   CONSOLE.println("starting TMC5160");
+  digitalWrite(pin_enable_tmc, 1); // check if needed
   R_Stepper.begin();
   L_Stepper.begin();
   START_TMC_SEQUENCE(R_Stepper); // A lot of todo to switch to speed mode, collstep, stallguard .... and test
@@ -335,14 +336,12 @@ void MeuhMotorDriver::begin()
   // power on motors
   SET_74HCT541_OUTPUT_ENABLE();
   RELAY_POWER_ON();
-  digitalWrite(pin_enable_tmc, 1); // check if needed
 
   // Check current
   meuhRobot.stepperCurrent = ACS_AMPS_TO_VOLTS(meuhRobot.readAdcChannel(ASD_ACS_CHANNEL)); // measure actual current steppers actives
   meuhRobot.stepperCurrent -= meuhRobot.idleCurrent; // remove offset  todo check excess
   CONSOLE.print("IDLE STEPPERS CURRENT = ");
   CONSOLE.println(meuhRobot.stepperCurrent);
-
 
   // Check spi_status
   R_SpiStatus = R_Stepper.status_response;
@@ -578,7 +577,7 @@ void MeuhBatteryDriver::keepPowerOn(bool flag)
   else
     {
       // shutdown linux - request could be for two reasons:
-      // 1. battery voltage sent by MUC-PCB seem to be too low
+      // 1. battery voltage seem to be too low
       // 2. MCU-PCB is powered-off
       if (millis() > linuxShutdownTime)
         {
@@ -586,6 +585,10 @@ void MeuhBatteryDriver::keepPowerOn(bool flag)
           CONSOLE.println("LINUX will SHUTDOWN!");
           // switch-off fan via port-expander PCA9555
           meuhRobot.setFanPowerState(false);
+          digitalWrite(pin_enable_tmc, 0); // check if needed
+          RELAY_STOP_ALL();
+          SET_74HCT541_OUTPUT_DISABLE();
+
           Process p;
           p.runShellCommand("shutdown now");
         }
@@ -726,15 +729,18 @@ void MeuhBuzzerDriver::tone(int freq)
 
 // ------------------------------------------------------------------------------------
 
-MeuhImuDriver::MeuhImuDriver(MeuhRobotDriver &sr): meuhRobot(sr){
+MeuhImuDriver::MeuhImuDriver(MeuhRobotDriver &sr): meuhRobot(sr)
+{
   nextUpdateTime = 0;
 }
 
-void MeuhImuDriver::detect(){
+void MeuhImuDriver::detect()
+{
   imuFound = true;
 }
 
-bool MeuhImuDriver::begin(){
+bool MeuhImuDriver::begin()
+{
   CONSOLE.println("using imu driver: GY85 + FUSION code");
   // switch-on and configure IMU GY85
   initImusGY85();
@@ -756,24 +762,27 @@ bool MeuhImuDriver::begin(){
   return ret;
 }
 
-void MeuhImuDriver::run(){
+void MeuhImuDriver::run()
+{
 }
 
-bool MeuhImuDriver::isDataAvail(){
-    if (millis() < nextUpdateTime) return false;
-    nextUpdateTime = millis() + 200; // 5 Hz update FUSIONPERIOD if changed
-    bool ret = computeFusionImu();
-    //quatW = ?; not used
-    //quatX = ?;
-    //quatY = ?;
-    //quatZ = ?;
-    roll = eulerAngles.angle.roll / 180.0 * PI;
-    pitch = eulerAngles.angle.pitch / 180.0 * PI;
-    yaw = eulerAngles.angle.yaw / 180.0 * PI;
-    //heading = fusionHeading;
+bool MeuhImuDriver::isDataAvail()
+{
+  if (millis() < nextUpdateTime) return false;
+  nextUpdateTime = millis() + 200; // 5 Hz update FUSIONPERIOD if changed
+  bool ret = computeFusionImu();
+  //quatW = ?; not used
+  //quatX = ?;
+  //quatY = ?;
+  //quatZ = ?;
+  roll = eulerAngles.angle.roll / 180.0 * PI;
+  pitch = eulerAngles.angle.pitch / 180.0 * PI;
+  yaw = eulerAngles.angle.yaw / 180.0 * PI;
+  //heading = fusionHeading;
 }
 
-void MeuhImuDriver::resetData(){
+void MeuhImuDriver::resetData()
+{
 }
 
 

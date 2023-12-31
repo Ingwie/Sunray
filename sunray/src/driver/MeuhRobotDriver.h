@@ -133,12 +133,6 @@ pwmSetDutyCycle(PWM1, map(x, 0, 255, 0, JYQD_PWM_PERIOD)) \
 #define SET_74HCT541_OUTPUT_DISABLE() digitalWrite(pin_oe_74HCT541, 1)
 
 //-----> relay module HW383 macro
-enum relayStateEnum
-{
-  ALL_STOP = 0,
-  POWER_ON,
-  CHARGE_ON
-};
 
 #define RELAY_STOP_ALL() \
 digitalWrite(pin_power_relay, 0); \
