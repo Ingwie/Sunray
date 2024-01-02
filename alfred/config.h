@@ -591,7 +591,7 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 
 #define SERIAL_BUFFER_SIZE 4096
 
-#if defined (BNO055 || GY85)
+#if defined(BNO055) || defined(GY85)
   #define MPU9250   // just to make mpu driver happy to compile something
 #endif
 

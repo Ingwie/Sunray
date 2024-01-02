@@ -77,6 +77,32 @@
 #define ACS_AMPS_TO_VOLTS(x)    (((x/ACS_POT_FACTOR) - ACS_MID_VOLTAGE) / 0.066f)
 
 //-----> TMC settings and helper
+struct TMC5160_DRV_STATUS_t
+{
+  union
+  {
+    uint32_t sr;
+    struct
+    {
+      uint16_t sg_result : 10;
+      uint8_t            : 2;
+      bool s2vsa : 1;
+      bool s2vsb : 1;
+      bool stealth : 1;
+      bool fsactive : 1;
+      uint8_t cs_actual : 5,
+              : 3;
+      bool  stallGuard : 1,
+            ot : 1,
+            otpw : 1,
+            s2ga : 1,
+            s2gb : 1,
+            ola : 1,
+            olb : 1,
+            stst : 1;
+    };
+  };
+};
 #define TMC_RsensE           0.22f // ohms
 #define TMC_RMS_CURRENT_MA   600 // mA
 #define TMC_SPEED_MULT       1 // pwm to tmc mult value
@@ -95,29 +121,30 @@ x.semin(8);         /* CoolStep low limit (activate) */ \
 x.semax(8);         /* CoolStep hight limit (desactivate)*/ \
 x.seup(2);          /* CoolStep increment */ \
 x.sedn(1);          /* CoolStep current down step speed */ \
-x.sgt(0);           /* StallGuard2 sensitivity */ \
+x.sgt(0);           /* StallGuard2 sensitivity to tune */ \
 x.sfilt(1);         /* StallGuard2 filter */ \
 x.TCOOLTHRS(10000); /* CoolStep lower velocity to active StallGuard2 stall flag */ \
 // tmc error check macro
 #define CHECK_AND_COMPUTE_TMC_ERROR(status, stepper, spiStatus, errorBool, current) \
  status.sr = stepper.DRV_STATUS(); /* load satus */ \
  errorBool = (spiStatus & 0x3); /* error or reset occured*/ \
- current = (TMC_RMS_CURRENT_MA / 1000) * (status.cs_actual + 1) / 32; /* compute current (mA) */ \
- /*errorBool |= status.stallGuard; /* check stall */ \
- errorBool |= status.ot; /* check over temperature */ \
- errorBool |= status.olb; /* check open load b */ \
- errorBool |= status.ola; /* check open load a */ \
- errorBool |= status.s2gb; /* check short to ground b */ \
- errorBool |= status.s2ga; /* check short to ground a */ \
- errorBool |= status.stst; /* stabdstill in each operation */ \
+ /*current = (TMC_RMS_CURRENT_MA / 1000) * (status.cs_actual + 1) / 32; /* compute current (mA) */ \
+ current = stepper.cs2rms(status.cs_actual) * 1000; \
+errorBool |= status.stallGuard; /* check stall */ \
+errorBool |= status.ot; /* check over temperature */ \
+errorBool |= status.olb; /* check open load b */ \
+errorBool |= status.ola; /* check open load a */ \
+errorBool |= status.s2gb; /* check short to ground b */ \
+errorBool |= status.s2ga; /* check short to ground a */ \
+errorBool |= status.stst; /* stabdstill in each operation */ \
 
 //-----> PWM macros used to drive the JYQD
-#define JYQD_PWM_PERIOD      1000000 // 1mS
+#define JYQD_PWM_PERIOD      1000000 // 1mS-1KHz
 
 #define PWM1_INIT() \
 pwmUnexport(PWM1); \
 delay(10); \
-pwmExport(PWM1); \
+if (pwmExport(PWM1) != 0) meuhRobot.exitApp(); /* close Sunray on error */ \
 delay(5); \
 pwmSetEnable(PWM1, 0); \
 pwmSetPolarity(PWM1, 0); \
@@ -136,41 +163,24 @@ pwmSetDutyCycle(PWM1, map(x, 0, 255, 0, JYQD_PWM_PERIOD)) \
 
 #define RELAY_STOP_ALL() \
 digitalWrite(pin_power_relay, 0); \
-digitalWrite(pin_charge_relay, 0)
+relayPower = false; \
+digitalWrite(pin_charge_relay, 0); \
+relayCharge = false
 
 #define RELAY_POWER_ON() \
 digitalWrite(pin_charge_relay, 0); \
+relayCharge = false; \
 delay(100); \
-digitalWrite(pin_power_relay, 1)
+digitalWrite(pin_power_relay, 1); \
+relayPower = true
 
 #define RELAY_CHARGE_ON() \
 digitalWrite(pin_power_relay, 0); \
+relayPower = false; \
 delay(100); \
-digitalWrite(pin_charge_relay, 1)
+digitalWrite(pin_charge_relay, 1); \
+relayCharge = true
 
-struct TMC5160_DRV_STATUS_t
-{
-  union
-  {
-    uint32_t sr;
-    struct
-    {
-      uint16_t sg_result : 10;
-      uint8_t            : 5;
-      bool fsactive : 1;
-      uint8_t cs_actual : 5,
-              : 3;
-      bool  stallGuard : 1,
-            ot : 1,
-            otpw : 1,
-            s2ga : 1,
-            s2gb : 1,
-            ola : 1,
-            olb : 1,
-            stst : 1;
-    };
-  };
-};
 
 class MeuhRobotDriver: public RobotDriver
 {
@@ -211,6 +221,7 @@ public:
   void updateWifiConnectionState();
   bool setFanPowerState(bool state);
   float readAdcChannel(ADS1115_MUX channel);
+  void exitApp();
   //bool setImuPowerState(bool state);
 protected:
 #ifdef __linux__
@@ -234,41 +245,6 @@ protected:
   //void summaryResponse();
   void versionResponse();
 };
-
-// struct DriverChip defines logic levels how a motor driver works:
-// example logic:
-//   IN1 PinPWM         IN2 PinDir
-//   PWM                L     Forward
-//   nPWM               H     Reverse
-// 1) if pwm pin is normal (PWM) or inverted (nPWM) for forward
-// 2) if pwm pin is normal (PWM) or inverted (nPWM) for reverse
-// 3) if direction pin is LOW (or HIGH) for forward
-// 4) if direction pin is LOW (or HIGH) for reverse
-// 5) if fault signal is active high (or low)
-// 6) if enable signal is active high (or low)
-// 7) if there is a minimum PWM speed to ensure (or zero)
-// 8) the PWM frequency it can work with
-
-/*struct DriverChip {
-    char const *driverName;       // name of driver (MC33926 etc.)
-    bool forwardPwmInvert;  // forward pin uses inverted pwm?
-    bool forwardDirLevel;   // forward pin level
-    bool reversePwmInvert;  // reverse pin uses inverted pwm?
-    bool reverseDirLevel;   // reverse pin level
-    bool usePwmRamp;        // use a ramp to get to PWM value?
-    bool faultActive;       // level for fault active (LOW/HIGH)
-    bool resetFaultByToggleEnable; // reset a fault by toggling enable?
-    bool enableActive;      // level for enable active (LOW/HIGH)
-    bool disableAtPwmZeroSpeed; // disable driver at PWM zero speed? (brake function)
-    bool keepPwmZeroSpeed;  // keep zero PWM value (disregard minPwmSpeed at zero speed)?
-    int minPwmSpeed;        // minimum PWM speed to ensure
-    int maxPwmSpeed;        // maximum PWM speed to ensure
-    byte pwmFreq;           // PWM frequency (PWM_FREQ_3900 or PWM_FREQ_29300)
-    float adcVoltToAmpOfs;  // ADC voltage to amps (offset)     // current (amps)= ((ADCvoltage + ofs)^pow) * scale
-    float adcVoltToAmpScale; // ADC voltage to amps (scale)
-    float adcVoltToAmpPow;   // ADC voltage to amps (power of number)
-    //bool drivesMowingMotor; // drives mowing motor?
-};*/
 
 class MeuhMotorDriver: public MotorDriver
 {
@@ -374,17 +350,18 @@ public:
   void tone(int freq) override;
 };
 
-class MeuhImuDriver: public ImuDriver {
-  public:
-    MeuhRobotDriver &meuhRobot;
-    MeuhImuDriver(MeuhRobotDriver &sr);
-    void detect() override;
-    bool begin() override;
-    void run() override;
-    bool isDataAvail() override;
-    void resetData() override;
-  protected:
-    unsigned long nextUpdateTime;
+class MeuhImuDriver: public ImuDriver
+{
+public:
+  MeuhRobotDriver &meuhRobot;
+  MeuhImuDriver(MeuhRobotDriver &sr);
+  void detect() override;
+  bool begin() override;
+  void run() override;
+  bool isDataAvail() override;
+  void resetData() override;
+protected:
+  unsigned long nextUpdateTime;
 };
 
 #endif

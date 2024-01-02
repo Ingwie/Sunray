@@ -27,12 +27,20 @@
 
 TMC5160Stepper R_Stepper(pin_cs_r_tmc, TMC_RsensE);
 TMC5160Stepper L_Stepper(pin_cs_l_tmc, TMC_RsensE);
+bool relayCharge;
+bool relayPower;
+
 
 // JYQDpusles ISR
 volatile unsigned long encoderTicksMow = 0;
 void pulsesMowISR()
 {
   ++encoderTicksMow;
+}
+
+void MeuhRobotDriver::exitApp() // Close sunray
+{
+  exit(1);
 }
 
 void MeuhRobotDriver::begin()
@@ -67,7 +75,7 @@ void MeuhRobotDriver::begin()
 
   //encoderTicksLeft = 0;
   //encoderTicksRight = 0;
-  //encoderTicksMow = 0;
+  encoderTicksMow = 0;
   chargeVoltage = 0;
   chargeCurrent = 0;
   batteryVoltage = 28;
@@ -75,6 +83,9 @@ void MeuhRobotDriver::begin()
   mowCurr = 0;
   motorLeftCurr = 0;
   motorRightCurr = 0;
+  relayCharge = false;
+  relayPower = false;
+
   triggeredLeftBumper = false;
   triggeredRightBumper = false;
   triggeredStopButton = false;
@@ -329,19 +340,20 @@ void MeuhMotorDriver::begin()
   CONSOLE.println("starting TMC5160");
   digitalWrite(pin_enable_tmc, 1); // check if needed
   R_Stepper.begin();
+  uint8_t rVers = R_Stepper.version();
   L_Stepper.begin();
+  uint8_t lVers = L_Stepper.version();
+  CONSOLE.print("TMC versions:");
+  CONSOLE.print(rVers);
+  CONSOLE.print(" - ");
+  CONSOLE.println(lVers);
+  if ((rVers == 0xFF) || (lVers == 0xFF))
+  {
+    CONSOLE.println("No TMC communication - Sunray close ");
+    meuhRobot.exitApp();
+  }
   START_TMC_SEQUENCE(R_Stepper); // A lot of todo to switch to speed mode, collstep, stallguard .... and test
   START_TMC_SEQUENCE(L_Stepper);
-
-  // power on motors
-  SET_74HCT541_OUTPUT_ENABLE();
-  RELAY_POWER_ON();
-
-  // Check current
-  meuhRobot.stepperCurrent = ACS_AMPS_TO_VOLTS(meuhRobot.readAdcChannel(ASD_ACS_CHANNEL)); // measure actual current steppers actives
-  meuhRobot.stepperCurrent -= meuhRobot.idleCurrent; // remove offset  todo check excess
-  CONSOLE.print("IDLE STEPPERS CURRENT = ");
-  CONSOLE.println(meuhRobot.stepperCurrent);
 
   // Check spi_status
   R_SpiStatus = R_Stepper.status_response;
@@ -355,22 +367,36 @@ void MeuhMotorDriver::run()
 
 void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm)
 {
+  if (!relayPower)
+    {
+      // power on motors
+      SET_74HCT541_OUTPUT_ENABLE();
+      RELAY_POWER_ON();
+      // Check current
+      meuhRobot.stepperCurrent = ACS_AMPS_TO_VOLTS(meuhRobot.readAdcChannel(ASD_ACS_CHANNEL)); // measure actual current steppers actives
+      meuhRobot.stepperCurrent -= meuhRobot.idleCurrent; // remove offset  todo check excess
+      CONSOLE.print("IDLE STEPPERS CURRENT = ");
+      CONSOLE.println(meuhRobot.stepperCurrent);
+    }
+
   // JYQD
   if (mowPwm == 0)  // stop
     {
-      digitalWrite(pin_enable_jyqd, 0); // todo test active brake
       SETPWM1DUTYCYCLE(0);
+      // delay(300); // todo test active brake
+      digitalWrite(pin_enable_jyqd, 0);
     }
   else
     {
+      digitalWrite(pin_enable_jyqd, 1);
       if (mowPwm > 0)
         {
-          digitalWrite(pin_enable_jyqd, 0);
+          digitalWrite(pin_cw_ccw_jyqd, 0);
           SETPWM1DUTYCYCLE(mowPwm);
         }
       else
         {
-          digitalWrite(pin_enable_jyqd, 1);
+          digitalWrite(pin_cw_ccw_jyqd, 1);
           SETPWM1DUTYCYCLE(abs(mowPwm));
         }
     }
@@ -414,7 +440,7 @@ void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm)
         }
     }
 // Check spi_status
-  R_SpiStatus = R_Stepper. status_response;
+  R_SpiStatus = R_Stepper.status_response;
 
   meuhRobot.lastLeftPwm = leftPwm;
   meuhRobot.lastRightPwm = rightPwm;
@@ -425,43 +451,59 @@ void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm)
 void MeuhMotorDriver::getMotorFaults(bool &leftFault, bool &rightFault, bool &mowFault)
 {
 
-  bool M_Error = false;
-  bool L_Error = false;
-  bool R_Error = false;
+  CHECK_AND_COMPUTE_TMC_ERROR(L_DrvStatus, L_Stepper, L_SpiStatus, L_MotorFault, meuhRobot.motorLeftCurr);
+  CHECK_AND_COMPUTE_TMC_ERROR(R_DrvStatus, R_Stepper, R_SpiStatus, R_MotorFault, meuhRobot.motorRightCurr);
 
-  CHECK_AND_COMPUTE_TMC_ERROR(L_DrvStatus, L_Stepper, L_SpiStatus, L_Error, meuhRobot.motorLeftCurr);
-  CHECK_AND_COMPUTE_TMC_ERROR(R_DrvStatus, R_Stepper, R_SpiStatus, R_Error, meuhRobot.motorRightCurr);
+  if ((meuhRobot.lastMowPwm != 0) && (encoderTicksMow == lastEncoderTicksMow))
+    {
+      M_MotorFault = true;
+    }
+  lastEncoderTicksMow = encoderTicksMow; // store last value
 
-  if (encoderTicksMow == 0) M_Error = true;
-
-  if (L_Error)
+  if (L_MotorFault)
     {
       CONSOLE.print("motorFault (lefCurr=");
       CONSOLE.print(meuhRobot.motorLeftCurr);
     }
-  if (R_Error)
+  if (R_MotorFault)
     {
       CONSOLE.print("motorFault (rightCurr=");
       CONSOLE.print(meuhRobot.motorRightCurr);
     }
-  if (M_Error)
+  if (M_MotorFault)
     {
       CONSOLE.print(" mowCurr=");
       CONSOLE.println(meuhRobot.mowCurr);
     }
 
   // send states
-  leftFault = L_Error;
-  rightFault = R_Error;
-  mowFault = M_Error;;
+  leftFault = L_MotorFault;
+  rightFault = R_MotorFault;
+  mowFault = M_MotorFault;;
 }
 
 void MeuhMotorDriver::resetMotorFaults()
 {
   CONSOLE.println("meuhRobot: resetting motor fault");
-  digitalWrite(pin_enable_jyqd, 0); // disable JYQD
-  delay(500);
-  digitalWrite(pin_enable_jyqd, 10); // enable JYQD
+  if (M_MotorFault)
+    {
+      SETPWM1DUTYCYCLE(0);
+      digitalWrite(pin_enable_jyqd, 0); // disable JYQD
+      delay(500);
+      digitalWrite(pin_enable_jyqd, 10); // enable JYQD
+    }
+
+  if (L_MotorFault)
+    {
+      if (L_DrvStatus.stallGuard) L_MotorFault = false;
+      else meuhRobot.exitApp(); // prefer stop all
+    }
+
+  if (R_MotorFault)
+    {
+      if (R_DrvStatus.stallGuard) R_MotorFault = false;
+      else meuhRobot.exitApp();
+    }
 }
 
 void MeuhMotorDriver::getMotorCurrent(float &leftCurrent, float &rightCurrent, float &mowCurrent)
@@ -779,6 +821,7 @@ bool MeuhImuDriver::isDataAvail()
   pitch = eulerAngles.angle.pitch / 180.0 * PI;
   yaw = eulerAngles.angle.yaw / 180.0 * PI;
   //heading = fusionHeading;
+  return ret;
 }
 
 void MeuhImuDriver::resetData()
