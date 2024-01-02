@@ -454,11 +454,10 @@ void MeuhMotorDriver::getMotorFaults(bool &leftFault, bool &rightFault, bool &mo
   CHECK_AND_COMPUTE_TMC_ERROR(L_DrvStatus, L_Stepper, L_SpiStatus, L_MotorFault, meuhRobot.motorLeftCurr);
   CHECK_AND_COMPUTE_TMC_ERROR(R_DrvStatus, R_Stepper, R_SpiStatus, R_MotorFault, meuhRobot.motorRightCurr);
 
-  if ((meuhRobot.lastMowPwm != 0) && (encoderTicksMow == lastEncoderTicksMow))
+  if ((meuhRobot.lastMowPwm != 0) && (encoderTicksMow != 0))
     {
       M_MotorFault = true;
     }
-  lastEncoderTicksMow = encoderTicksMow; // store last value
 
   if (L_MotorFault)
     {
@@ -574,7 +573,7 @@ void MeuhBatteryDriver::updateBatteryTemperature()
 
 float MeuhBatteryDriver::getBatteryTemperature()
 {
-  return -9999; //batteryTemp; // linux reported bat temp not useful as seem to be constant 31 degree
+  return batteryTemp; // linux reported bat temp not useful as seem to be constant 31 degree
 }
 
 float MeuhBatteryDriver::getBatteryVoltage()
@@ -591,7 +590,7 @@ float MeuhBatteryDriver::getChargeVoltage()
 
 float MeuhBatteryDriver::getChargeCurrent()
 {
-  meuhRobot.chargeCurrent = ACS_AMPS_TO_VOLTS(meuhRobot.readAdcChannel(ASD_ACS_CHANNEL));
+  meuhRobot.chargeCurrent = ACS_AMPS_TO_VOLTS(meuhRobot.readAdcChannel(ASD_ACS_CHANNEL)) + meuhRobot.idleCurrent;
   return meuhRobot.chargeCurrent;
 }
 
@@ -655,7 +654,7 @@ void MeuhBumperDriver::run()
 
 bool MeuhBumperDriver::obstacle()
 {
-  return (meuhRobot.triggeredLeftBumper || meuhRobot.triggeredRightBumper);
+  return (meuhRobot.triggeredLeftBumper || meuhRobot.triggeredRightBumper); // todo use stallguard
 }
 
 bool MeuhBumperDriver::getLeftBumper()
