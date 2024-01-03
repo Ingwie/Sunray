@@ -10,11 +10,13 @@
 // http://wiki.ardumower.de/images/e/e0/Pwm_490hz.png
 // http://wiki.ardumower.de/images/8/84/Pwm_20khz.png
 
+#ifndef __linux__
+
 #include "pinman.h"
 #include "config.h"
 #ifdef __SAMD51__
   #include "wiring_private.h"
-#endif  
+#endif
 
 
 
@@ -120,30 +122,30 @@ void PinManager::analogWrite(uint32_t ulPin, uint32_t ulValue, byte pwmFreq) {
 
 // --- pwm frequency ---
 #if defined(_SAM3XA_)
-  int pwmFrequency = 3900;  
+  int pwmFrequency = 3900;
   int tcFrequency = 3900;
-  switch(pwmFreq){    
+  switch(pwmFreq){
     case PWM_FREQ_3900:
       pwmFrequency = 3900;
-      tcFrequency = 3900;      
+      tcFrequency = 3900;
       break;
     case PWM_FREQ_29300:
       pwmFrequency = 29300;
       tcFrequency = 29300;
-      break;    
+      break;
   }
 #elif defined(__SAMD51__)
   int tcc_ctrla_prescaler = TCC_CTRLA_PRESCALER_DIV64;  // PWM base frequency
   byte tccTop = 0xFF;  // PWM resolution
-  switch(pwmFreq){    
+  switch(pwmFreq){
     case PWM_FREQ_3900:
       tcc_ctrla_prescaler = TCC_CTRLA_PRESCALER_DIV64;
-      tccTop = 0xFF;  
+      tccTop = 0xFF;
       break;
     case PWM_FREQ_29300:
       tcc_ctrla_prescaler = TCC_CTRLA_PRESCALER_DIV16;
-      tccTop = 0xFF;  
-      break;    
+      tccTop = 0xFF;
+      break;
   }
 #endif
 
@@ -339,7 +341,7 @@ void PinManager::analogWrite(uint32_t ulPin, uint32_t ulValue, byte pwmFreq) {
               while (DAC->SYNCBUSY.bit.DATA1);
               DAC->DATA[1].reg = ulValue;  // DAC on 10 bits.
             }
-      #else  
+      #else
             syncDAC();
             DAC->DATA.reg = ulValue & 0x3FF;  // DAC on 10 bits.
             syncDAC();
@@ -407,7 +409,7 @@ void PinManager::analogWrite(uint32_t ulPin, uint32_t ulValue, byte pwmFreq) {
         TCCx->CC[tcChannel].reg = (uint32_t) ulValue;
         while (TCCx->SYNCBUSY.bit.CC0 || TCCx->SYNCBUSY.bit.CC1);
         // Set PER to maximum counter value (resolution : 0xFF)
-        TCCx->PER.reg = tccTop;   
+        TCCx->PER.reg = tccTop;
         while (TCCx->SYNCBUSY.bit.PER);
         // Enable TCCx
         TCCx->CTRLA.bit.ENABLE = 1;
@@ -431,7 +433,7 @@ void PinManager::analogWrite(uint32_t ulPin, uint32_t ulValue, byte pwmFreq) {
     }
     return;
   }
-#else  
+#else
   if ((attr & PIN_ATTR_PWM) == PIN_ATTR_PWM)
   {
     ulValue = mapResolution(ulValue, _writeResolution, 16);
@@ -536,3 +538,4 @@ void PinManager::analogWrite(uint32_t ulPin, uint32_t ulValue, byte pwmFreq) {
 
 #endif   // _SAM3XA_
 }
+#endif

@@ -558,7 +558,9 @@ void outputConfig(){
 
 // robot start routine
 void start(){
+#ifndef __linux__
   pinMan.begin();
+#endif // __linux__
   // keep battery switched ON
   batteryDriver.begin();
   CONSOLE.begin(CONSOLE_BAUDRATE);
@@ -566,6 +568,7 @@ void start(){
   buzzer.begin();
 
   Wire.begin();
+#ifndef __linux__
   analogReadResolution(12);  // configure ADC 12 bit resolution
   unsigned long timeout = millis() + 2000;
   while (millis() < timeout){
@@ -580,9 +583,9 @@ void start(){
   }
 
   // give Arduino IDE users some time to open serial console to actually see very first console messages
-  #ifndef __linux__
+
     delay(1500);
-  #endif
+#endif
 
   #if defined(ENABLE_SD)
     #ifdef __linux__
@@ -591,12 +594,12 @@ void start(){
       bool res = SD.begin(SDCARD_SS_PIN);
     #endif
     if (res){
-      CONSOLE.println("SD card found!");
+      CONSOLE.println("File storage found!");
       #if defined(ENABLE_SD_LOG)
         sdSerial.beginSD();
       #endif
     } else {
-      CONSOLE.println("no SD card found");
+      CONSOLE.println("no file storage found");
     }
   #endif
 
