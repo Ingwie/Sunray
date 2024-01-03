@@ -40,6 +40,8 @@ void pulsesMowISR()
 
 void MeuhRobotDriver::exitApp() // Close sunray
 {
+  RELAY_STOP_ALL(); // turn OFF power boards before quit
+  SET_74HCT541_OUTPUT_DISABLE();
   exit(1);
 }
 
@@ -454,7 +456,7 @@ void MeuhMotorDriver::getMotorFaults(bool &leftFault, bool &rightFault, bool &mo
   CHECK_AND_COMPUTE_TMC_ERROR(L_DrvStatus, L_Stepper, L_SpiStatus, L_MotorFault, meuhRobot.motorLeftCurr);
   CHECK_AND_COMPUTE_TMC_ERROR(R_DrvStatus, R_Stepper, R_SpiStatus, R_MotorFault, meuhRobot.motorRightCurr);
 
-  if ((meuhRobot.lastMowPwm != 0) && (encoderTicksMow != 0))
+  if ((meuhRobot.lastMowPwm != 0) && (encoderTicksMow == 0))
     {
       M_MotorFault = true;
     }
