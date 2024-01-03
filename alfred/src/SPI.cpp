@@ -17,7 +17,7 @@
 #include <linux/types.h>
 
 int SPIClass::fd = 0;
-uint16_t SPIClass::mode = SPI_MODE_3 | SPI_NO_CS;
+uint16_t SPIClass::mode = SPI_MODE_3;
 uint32_t SPIClass::speed = 4000000;
 uint16_t SPIClass::delay = 0;
 uint8_t SPIClass::bits = 8;
