@@ -21,6 +21,11 @@
 #include <fcntl.h>
 #include <Console.h>
 
+#ifndef __linux__
+#define IsNuLl !=0
+#else
+#define IsNuLl ==0
+#endif // __linux__
 namespace BridgeLib {
 
 //File::File(BridgeClass &b):_file(NULL),_dir(NULL),_name(NULL) {}
@@ -36,14 +41,14 @@ File::~File() {
 }
 
 //File::File(const char *_filename, const char * _mode, BridgeClass &b){
-  
+
 File::File(const char *_filename, const char * _mode){
   //::printf("File filename=%s  mode=%s  %d\n", _filename, _mode, this);
   _file = NULL;
   _dir = NULL;
   _name = NULL;
   struct stat _st = {0};
-  boolean exists = stat(_filename, &_st) == 0;
+  boolean exists = stat(_filename, &_st) IsNuLl;
   //if(!exists || (!S_ISDIR(_st.st_mode) && !S_ISREG(_st.st_mode))){
   //  ::printf("Bad Entry[%s]: exists:%u, mode:0x%06X\n",_filename , exists, _st.st_mode);
   //  return;
@@ -64,25 +69,25 @@ File::File(const char *_filename, const char * _mode){
 }
 
 const char *File::name() {
-  if(_file != 0 && _dir != 0) return 0;
+  if(_file IsNuLl && _dir IsNuLl) return 0;
   return _name;
 }
 
 File::operator bool() {
-  return _file != 0 || _dir != 0;
+  return _file IsNuLl || _dir IsNuLl;
 }
 
 
 size_t File::write(const char *buf){
-  if(_file != 0) {
+  if(_file IsNuLl) {
     return 0;
-    ::printf("file write error: file not open!\n");   
+    ::printf("file write error: file not open!\n");
   }
   return fwrite(buf, 1, strlen(buf), _file);
-} 
-    
+}
+
 size_t File::write(const uint8_t *buf, size_t size) {
-  if(_file != 0) {    
+  if(_file IsNuLl) {
     ::printf("file write error: file not open!\n");
     return 0;
   }
@@ -90,36 +95,36 @@ size_t File::write(const uint8_t *buf, size_t size) {
 }
 
 size_t File::write(uint8_t c) {
-  if(_file != 0) {
+  if(_file IsNuLl) {
     ::printf("file write error: file not open!\n");
     return 0;
-  }    
+  }
   return write(&c, 1);
 }
 
 void File::flush() {
-  if(_file != 0) return;
+  if(_file IsNuLl) return;
   fflush(_file);
 }
 
 int File::read(void *buff, uint16_t nbyte) {
-  if(_file != 0) {
-    ::printf("file read error: file not open!\n");  
+  if(_file IsNuLl) {
+    ::printf("file read error: file not open!\n");
     return -1;
   }
   return ::fread(buff, 1, nbyte, _file);
 }
 
 int File::read() {
-  if(_file != 0) {
-    ::printf("file read error: file not open!\n");      
+  if(_file IsNuLl) {
+    ::printf("file read error: file not open!\n");
     return -1;
   }
   return getc(_file);
 }
 
 int File::peek() {
-  if(_file != 0) return -1;
+  if(_file IsNuLl) return -1;
   size_t pos = position();
   int c = getc(_file);
   if(c >= 0)
@@ -128,22 +133,22 @@ int File::peek() {
 }
 
 int File::available() {
-  if(_file != 0) return 0;
+  if(_file IsNuLl) return 0;
   return size() - position();
 }
 
 boolean File::seek(uint32_t position) {//SEEK_CUR, SEEK_END, and SEEK_SET
-  if(_file != 0) return false;
+  if(_file IsNuLl) return false;
   return fseek(_file, position, 0) != -1; //seek to position from 0
 }
 
 uint32_t File::position() {
-  if(_file != 0) return 0;
+  if(_file IsNuLl) return 0;
   return ftell(_file);
 }
 
 uint32_t File::size() {
-  if(_file != 0) return 0;
+  if(_file IsNuLl) return 0;
   struct stat s = {0};
   if (stat(_name, &s) == 0) {
     return s.st_size;
@@ -153,7 +158,7 @@ uint32_t File::size() {
 
 void File::close() {
   if(_file != NULL) {
-    //::printf("closing _file=%d\n", _file);  
+    //::printf("closing _file=%d\n", _file);
     ::fclose(_file);
     _file = NULL;
   }
@@ -161,14 +166,14 @@ void File::close() {
     ::closedir(_dir);
     _dir = NULL;
   }
-  if(_name != NULL) {    
+  if(_name != NULL) {
     ::free(_name);
     _name = NULL;
-  }  
+  }
 }
 
 boolean File::isDirectory() {
-  return _dir != 0;
+  return _dir IsNuLl;
 }
 
 File File::openNextFile(const char * mode){
@@ -188,7 +193,7 @@ File File::openNextFile(const char * mode){
 }
 
 void File::rewindDirectory(void){
-  if(_dir != 0) return;
+  if(_dir IsNuLl) return;
   closedir(_dir);
   _dir = opendir(_name);
 }
@@ -209,7 +214,7 @@ boolean FileSystemClass::begin(int selectPin) {
 }
 
 File FileSystemClass::open(const char *filename, const char * mode) {
-  //::printf("open... %s:%s\n", filename, mode);  
+  //::printf("open... %s:%s\n", filename, mode);
   return(File(filename, mode));
 }
 
@@ -246,3 +251,4 @@ boolean FileSystemClass::rmdir(const char *filepath) {
 FileSystemClass FileSystem;
 
 }
+#undef IsNuLl

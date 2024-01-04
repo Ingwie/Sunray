@@ -1,4 +1,4 @@
-// Ardumower Sunray 
+// Ardumower Sunray
 // Copyright (c) 2013-2020 by Alexander Grau, Grau GmbH
 // Licensed GPLv3 for open source use
 // or Grau GmbH Commercial License for commercial use (http://grauonline.de/cms2/?page_id=153)
@@ -18,9 +18,9 @@ double stateCRC = 0;
 
 
 double calcStateCRC(){
- return (stateOp *10 + maps.mowPointsIdx + maps.dockPointsIdx + maps.freePointsIdx + ((byte)maps.wayMode) 
+ return (stateOp *10 + maps.mowPointsIdx + maps.dockPointsIdx + maps.freePointsIdx + ((byte)maps.wayMode)
    + sonar.enabled + fixTimeout + setSpeed + ((byte)sonar.enabled)
-   + ((byte)absolutePosSource) + absolutePosSourceLon + absolutePosSourceLat + motor.pwmMaxMow 
+   + ((byte)absolutePosSource) + absolutePosSourceLon + absolutePosSourceLat + motor.pwmMaxMow
    + ((byte)finishAndRestart) + ((byte)motor.motorMowForwardSet) + ((byte)battery.docked)
    + timetable.crc() );
 }
@@ -63,7 +63,7 @@ void dumpState(){
   CONSOLE.print(" finishAndRestart=");
   CONSOLE.print(finishAndRestart);
   CONSOLE.print(" motorMowForwardSet=");
-  CONSOLE.println(motor.motorMowForwardSet);  
+  CONSOLE.println(motor.motorMowForwardSet);
 }
 
 void updateStateOpText(){
@@ -71,12 +71,12 @@ void updateStateOpText(){
     case OP_IDLE: stateOpText = "idle"; break;
     case OP_MOW: stateOpText = "mow"; break;
     case OP_CHARGE: stateOpText = "charge"; break;
-    case OP_ERROR: 
+    case OP_ERROR:
       stateOpText = "error (";
       switch (stateSensor){
         case SENS_NONE: stateOpText += "none)"; break;
-        case SENS_BAT_UNDERVOLTAGE: stateOpText += "unvervoltage)"; break;            
-        case SENS_OBSTACLE: stateOpText += "obstacle)"; break;      
+        case SENS_BAT_UNDERVOLTAGE: stateOpText += "unvervoltage)"; break;
+        case SENS_OBSTACLE: stateOpText += "obstacle)"; break;
         case SENS_GPS_FIX_TIMEOUT: stateOpText += "fix timeout)"; break;
         case SENS_IMU_TIMEOUT: stateOpText += "imu timeout)"; break;
         case SENS_IMU_TILT: stateOpText += "imu tilt)"; break;
@@ -102,7 +102,7 @@ void updateStateOpText(){
     case SOL_INVALID: gpsSolText = "invalid"; break;
     case SOL_FLOAT: gpsSolText = "float"; break;
     case SOL_FIXED: gpsSolText ="fixed"; break;
-    default: gpsSolText = "unknown";      
+    default: gpsSolText = "unknown";
   }
 }
 
@@ -116,7 +116,7 @@ bool loadState(){
     return false;
   }
   stateFile = SD.open("state.bin", FILE_READ);
-  if (!stateFile){        
+  if (!stateFile){
     CONSOLE.println("ERROR opening file for reading");
     return false;
   }
@@ -154,11 +154,11 @@ bool loadState(){
   res &= (stateFile.read((uint8_t*)&absolutePosSourceLon, sizeof(absolutePosSourceLon)) != 0);
   res &= (stateFile.read((uint8_t*)&absolutePosSourceLat, sizeof(absolutePosSourceLat)) != 0);
   res &= (stateFile.read((uint8_t*)&motor.pwmMaxMow, sizeof(motor.pwmMaxMow)) != 0);
-  res &= (stateFile.read((uint8_t*)&finishAndRestart, sizeof(finishAndRestart)) != 0); 
-  res &= (stateFile.read((uint8_t*)&motor.motorMowForwardSet, sizeof(motor.motorMowForwardSet)) != 0); 
+  res &= (stateFile.read((uint8_t*)&finishAndRestart, sizeof(finishAndRestart)) != 0);
+  res &= (stateFile.read((uint8_t*)&motor.motorMowForwardSet, sizeof(motor.motorMowForwardSet)) != 0);
   res &= (stateFile.read((uint8_t*)&timetable.timetable, sizeof(timetable.timetable)) != 0);
-  res &= (stateFile.read((uint8_t*)&battery.docked, sizeof(battery.docked)) != 0);  
-  stateFile.close();  
+  res &= (stateFile.read((uint8_t*)&battery.docked, sizeof(battery.docked)) != 0);
+  stateFile.close();
   CONSOLE.println("ok");
   stateCRC = calcStateCRC();
   dumpState();
@@ -173,7 +173,7 @@ bool loadState(){
 }
 
 
-bool saveState(){   
+bool saveState(){
   bool res = true;
 #if defined(ENABLE_SD_RESUME)
   double crc = calcStateCRC();
@@ -186,13 +186,13 @@ bool saveState(){
   dumpState();
   CONSOLE.print("save state... ");
   stateFile = SD.open("state.bin",  FILE_CREATE); // O_WRITE | O_CREAT);
-  if (!stateFile){        
+  if (!stateFile){
     CONSOLE.println("ERROR opening file for writing");
     return false;
   }
   uint32_t marker = 0x10001007;
-  res &= (stateFile.write((uint8_t*)&marker, sizeof(marker)) != 0); 
-  res &= (stateFile.write((uint8_t*)&maps.mapCRC, sizeof(maps.mapCRC)) != 0); 
+  res &= (stateFile.write((uint8_t*)&marker, sizeof(marker)) != 0);
+  res &= (stateFile.write((uint8_t*)&maps.mapCRC, sizeof(maps.mapCRC)) != 0);
 
   res &= (stateFile.write((uint8_t*)&stateX, sizeof(stateX)) != 0);
   res &= (stateFile.write((uint8_t*)&stateY, sizeof(stateY)) != 0);
@@ -209,11 +209,11 @@ bool saveState(){
   res &= (stateFile.write((uint8_t*)&absolutePosSource, sizeof(absolutePosSource)) != 0);
   res &= (stateFile.write((uint8_t*)&absolutePosSourceLon, sizeof(absolutePosSourceLon)) != 0);
   res &= (stateFile.write((uint8_t*)&absolutePosSourceLat, sizeof(absolutePosSourceLat)) != 0);
-  res &= (stateFile.write((uint8_t*)&motor.pwmMaxMow, sizeof(motor.pwmMaxMow)) != 0);  
-  res &= (stateFile.write((uint8_t*)&finishAndRestart, sizeof(finishAndRestart)) != 0);  
+  res &= (stateFile.write((uint8_t*)&motor.pwmMaxMow, sizeof(motor.pwmMaxMow)) != 0);
+  res &= (stateFile.write((uint8_t*)&finishAndRestart, sizeof(finishAndRestart)) != 0);
   res &= (stateFile.write((uint8_t*)&motor.motorMowForwardSet, sizeof(motor.motorMowForwardSet)) != 0);
-  res &= (stateFile.write((uint8_t*)&timetable.timetable, sizeof(timetable.timetable)) != 0);  
-  res &= (stateFile.write((uint8_t*)&battery.docked, sizeof(battery.docked)) != 0);  
+  res &= (stateFile.write((uint8_t*)&timetable.timetable, sizeof(timetable.timetable)) != 0);
+  res &= (stateFile.write((uint8_t*)&battery.docked, sizeof(battery.docked)) != 0);
   if (res){
     CONSOLE.println("ok");
   } else {
@@ -222,7 +222,7 @@ bool saveState(){
   stateFile.flush();
   stateFile.close();
 #endif
-  return res; 
+  return res;
 }
 
 

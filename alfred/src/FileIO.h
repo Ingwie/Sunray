@@ -16,7 +16,7 @@
 //#define O_WRITE  FILE_WRITE
 //#define O_APPEND FILE_APPEND
 //#define O_READ   FILE_READ
-//#define O_CREAT  FILE_CREATE 
+//#define O_CREAT  FILE_CREATE
 
 namespace BridgeLib {
 
@@ -27,14 +27,14 @@ class File : public Stream {
     char *_name;
 
   public:
-    //File(BridgeClass &b = Bridge);    
-    File();        
+    //File(BridgeClass &b = Bridge);
+    File();
     //File(const char *_filename, const char * _mode, BridgeClass &b = Bridge);
-    File(const char *_filename, const char * _mode);    
+    File(const char *_filename, const char * _mode);
     virtual ~File();
 
     virtual size_t write(uint8_t);
-    virtual size_t write(const char *buf); 
+    virtual size_t write(const char *buf);
     virtual size_t write(const uint8_t *buf, size_t size);
     virtual int read();
     virtual int peek();
@@ -66,9 +66,9 @@ class FileSystemClass {
     // Note that currently only one file can be open at a time.
     File open(const char *filename, const char * mode = FILE_READ);
     File open(const String filename, const char * mode = FILE_READ){ return open(filename.c_str()); }
-    
 
-    // Methods to determine if the requested file path exists.    
+
+    // Methods to determine if the requested file path exists.
     boolean exists(const char *filepath);
     boolean exists(const String filepath){ return exists(filepath.c_str()); }
 
