@@ -47,8 +47,8 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 
 //#define DRV_SERIAL_ROBOT  1     // Linux (Alfred)
 //#define DRV_ARDUMOWER     1   // keep this for Ardumower
-#define DRV_MEUH_ROBOT  1     // Linux (moded)
-//#define DRV_SIM_ROBOT     1   // simulation
+//#define DRV_MEUH_ROBOT  1     // Linux (moded)
+#define DRV_SIM_ROBOT     1   // simulation
 
 // ------- Bluetooth4.0/BLE module -----------------------------------
 // see Wiki on how to install the BLE module and configure the jumpers:
@@ -85,7 +85,7 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 //  via 'File->Preferences->Full output during compile') - detailed steps here:
 // https://wiki.ardumower.de/index.php?title=Ardumower_Sunray#SD_card_module
 // https://wiki.ardumower.de/index.php?title=Ardumower_Sunray#SD_card_logging
-//#define ENABLE_SD      1                 // enable SD card services (resuming, logging)? (uncomment to activate)
+#define ENABLE_SD      1                 // enable SD card services (resuming, logging)? (uncomment to activate)
 //#define ENABLE_SD_LOG  1                 // enable SD card logging? uncomment to activate (not recommended - WARNING: may slow down system!)
 #define ENABLE_SD_RESUME  1              // enable SD card map load/resume on reset? (uncomment to activate)
 
@@ -233,11 +233,11 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 // robot1/gps/pos       (current gps position as text)
 //#define ENABLE_MQTT  true                           // start MQTT client?  (true for yes, false for no)
 #define ENABLE_MQTT  false
-#define MQTT_TOPIC_PREFIX  "robot1"                 // the MQTT topic prefix for your robot
-#define MQTT_SERVER  "192.168.2.27"                 // your MQTT broker IP or hostname (e.g. "broker.mqtt-dashboard.com")
+#define MQTT_TOPIC_PREFIX  "RTMH"                 // the MQTT topic prefix for your robot
+#define MQTT_SERVER  "127.0.0.1"                 // your MQTT broker IP or hostname (e.g. "broker.mqtt-dashboard.com")
 #define MQTT_PORT  1883
-#define MQTT_USER "user"
-#define MQTT_PASS "pass"
+#define MQTT_USER "meuh"
+#define MQTT_PASS "Meuh"
 
 // ------ ultrasonic sensor -----------------------------
 // see Wiki on how to install the ultrasonic sensors:
