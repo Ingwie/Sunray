@@ -81,7 +81,7 @@ void processWifiMqttClient()
 
 
       // online
-        MQTT_PUBLISH("true", "%s", "/online/firmware");
+        MQTT_PUBLISH("true", "%s", "/online/");
 
       // props
         String mcuFwName = "";
@@ -105,7 +105,7 @@ void processWifiMqttClient()
         MQTT_PUBLISH(gps.chksumErrorCounter, "%lu" , "/stats/counter_gps_chk_sum_errors");
         MQTT_PUBLISH(gps.dgpsChecksumErrorCounter, "%lu" , "/stats/counter_dgps_chk_sum_errors");
         static float statMaxControlCycleTime = max(statMaxControlCycleTime, (1.0 / (((float)controlLoops)/5.0)));
-        MQTT_PUBLISH(statMaxControlCycleTime, "%f.3" , "/stats/time_max_cycle");
+        MQTT_PUBLISH(statMaxControlCycleTime, "%.3f" , "/stats/time_max_cycle");
         MQTT_PUBLISH(SERIAL_BUFFER_SIZE, "%u" , "/stats/serial_buffer_size");
         MQTT_PUBLISH(statMowDurationInvalid, "%lu" , "/stats/duration_mow_invalid");
         MQTT_PUBLISH(statMowInvalidRecoveries, "%lu" , "/stats/counter_invalid_recoveries");
