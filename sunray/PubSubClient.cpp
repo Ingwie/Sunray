@@ -581,7 +581,7 @@ size_t PubSubClient::buildHeader(uint8_t header, uint8_t* buf, uint16_t length) 
 boolean PubSubClient::write(uint8_t header, uint8_t* buf, uint16_t length) {
     uint16_t rc;
     uint8_t hlen = buildHeader(header, buf, length);
-#define MQTT_MAX_TRANSFER_SIZE 30
+#define MQTT_MAX_TRANSFER_SIZE 30 // max request size
 #ifdef MQTT_MAX_TRANSFER_SIZE
     uint8_t* writeBuf = buf+(MQTT_MAX_HEADER_SIZE-hlen);
     uint16_t bytesRemaining = length+hlen;  //Match the length type

@@ -14,6 +14,7 @@
 char mqttMsg[MSG_BUFFER_SIZE];
 unsigned long nextMQTTPublishTime = 0;
 unsigned long nextMQTTLoopTime = 0;
+uint8_t mqttRequestTopic = MQTT_REQUEST_ONLINE;
 
 
 
@@ -53,15 +54,29 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   }
   CONSOLE.println(cmd);
 
+    if (cmd == "start")
+      {
+        cmd = "AT+C,-1,1,0.2,100,0,-1,-1,1";
+      }
+    else if (cmd == "stop")
+      {
+        cmd = "AT+C,-1,0,-1,-1,-1,-1,-1,-1";
+      }
+    else if (cmd == "dock")
+      {
+        cmd = "AT+C,-1,4,-1,-1,-1,-1,-1,1";
+      }
+    else if (cmd == "reboot")
+      {
+        cmd = "AT+Y";
+      }
+    else if (cmd == "shutdown")
+      {
+        cmd = "AT+Y3";
+      }
+
   processCmd(false, false);
 
-  /*if (cmd == "dock") {
-    setOperation(OP_DOCK, false);
-  } else if (cmd ==  "stop") {
-    setOperation(OP_IDLE, false);
-  } else if (cmd == "start"){
-    setOperation(OP_MOW, false);
-  }*/
 }
 
 // define a macro so avoid repetitive code lines for sending single values via MQTT
@@ -75,22 +90,29 @@ void processWifiMqttClient()
 {
   if (!ENABLE_MQTT) return;
   if (millis() >= nextMQTTPublishTime){
-    nextMQTTPublishTime = millis() + 20000;
+    nextMQTTPublishTime = millis() + 500;
     if (mqttClient.connected()) {
-      updateStateOpText();
+      //updateStateOpText(); unused function
 
 
       // online
+      if ((mqttRequestTopic & MQTT_REQUEST_ONLINE) == MQTT_REQUEST_ONLINE) {
         MQTT_PUBLISH("true", "%s", "/online/");
+        mqttRequestTopic &= ~MQTT_REQUEST_ONLINE;
+      }
 
       // props
+      if ((mqttRequestTopic & MQTT_REQUEST_PROPS) == MQTT_REQUEST_PROPS) {
         String mcuFwName = "";
         String mcuFwVer = "";
         robotDriver.getMcuFirmwareVersion(mcuFwName, mcuFwVer);
         MQTT_PUBLISH(mcuFwName.c_str(), "%s", "/props/firmware");
         MQTT_PUBLISH(mcuFwVer.c_str(), "%s", "/props/version");
+        mqttRequestTopic &= ~MQTT_REQUEST_PROPS;
+      }
 
       // stats
+      if ((mqttRequestTopic & MQTT_REQUEST_STATS) == MQTT_REQUEST_STATS) {
         MQTT_PUBLISH(statIdleDuration, "%lu" , "/stats/duration_idle");
         MQTT_PUBLISH(statChargeDuration, "%lu" , "/stats/duration_charge");
         MQTT_PUBLISH(statMowDuration, "%lu" , "/stats/duration_mow");
@@ -117,8 +139,11 @@ void processWifiMqttClient()
         MQTT_PUBLISH(statMowBumperCounter, "%lu" , "/stats/counter_bumper_triggered");
         MQTT_PUBLISH(statMowGPSMotionTimeoutCounter, "%lu" , "/stats/counter_gps_motion_timeout");
         MQTT_PUBLISH(statMowDurationMotorRecovery, "%lu" , "/stats/duration_mow_motor_recovery");
+        mqttRequestTopic &= ~MQTT_REQUEST_STATS;
+      }
 
       // state
+      if ((mqttRequestTopic & MQTT_REQUEST_STATE) == MQTT_REQUEST_STATE) {
         MQTT_PUBLISH(battery.batteryVoltage, "%.2f", "/state/battery_voltage");
         MQTT_PUBLISH(stateX, "%f" , "/state/position_x");
         MQTT_PUBLISH(stateY, "%f" , "/state/position_y");
@@ -139,7 +164,8 @@ void processWifiMqttClient()
         //MQTT_PUBLISH(timetable.autostopTime.dayOfWeek,, "/state/timetable_autostartstop_dayofweek");
         //MQTT_PUBLISH(timetable.autostartTime.hour,, "/state/timetabel_autostartstop_hour");
         //MQTT_PUBLISH(??,, "/state/timestamp");
-
+        mqttRequestTopic &= ~MQTT_REQUEST_STATE;
+      }
 
         /*      // operational state
       //CONSOLE.println("MQTT: publishing " MQTT_TOPIC_PREFIX "/status");
