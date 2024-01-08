@@ -92,9 +92,9 @@ void processWifiMqttClient()
   if (millis() >= nextMQTTPublishTime){
     nextMQTTPublishTime = millis() + 500;
     if (mqttClient.connected()) {
-      //updateStateOpText(); unused function
-
-
+      updateStateOpText();
+// test to remove
+mqttRequestTopic = MQTT_REQUEST_ONLINE|MQTT_REQUEST_PROPS|MQTT_REQUEST_STATE|MQTT_REQUEST_STATS;
       // online
       if ((mqttRequestTopic & MQTT_REQUEST_ONLINE) == MQTT_REQUEST_ONLINE) {
         MQTT_PUBLISH("true", "%s", "/online/");
@@ -106,60 +106,61 @@ void processWifiMqttClient()
         String mcuFwName = "";
         String mcuFwVer = "";
         robotDriver.getMcuFirmwareVersion(mcuFwName, mcuFwVer);
-        MQTT_PUBLISH(mcuFwName.c_str(), "%s", "/props/firmware");
-        MQTT_PUBLISH(mcuFwVer.c_str(), "%s", "/props/version");
+        MQTT_PUBLISH(mcuFwName.c_str(), "%s", "/props/firmware/");
+        MQTT_PUBLISH(mcuFwVer.c_str(), "%s", "/props/version/");
         mqttRequestTopic &= ~MQTT_REQUEST_PROPS;
       }
 
       // stats
       if ((mqttRequestTopic & MQTT_REQUEST_STATS) == MQTT_REQUEST_STATS) {
-        MQTT_PUBLISH(statIdleDuration, "%lu" , "/stats/duration_idle");
-        MQTT_PUBLISH(statChargeDuration, "%lu" , "/stats/duration_charge");
-        MQTT_PUBLISH(statMowDuration, "%lu" , "/stats/duration_mow");
-        MQTT_PUBLISH(statMowDurationFloat, "%lu" , "/stats/duration_mow_float");
-        MQTT_PUBLISH(statMowDurationFix, "%lu" , "/stats/duration_mow_fix");
-        MQTT_PUBLISH(statMowFloatToFixRecoveries, "%lu" , "/stats/counter_float_recoveries");
-        MQTT_PUBLISH(statMowDistanceTraveled, "%.1f" , "/stats/distance_mow_traveled");
-        MQTT_PUBLISH(statMowMaxDgpsAge, "%.2f" , "/stats/time_max_dpgs_age");
-        MQTT_PUBLISH(statImuRecoveries, "%lu" , "/stats/counter_imu_triggered");
-        MQTT_PUBLISH(statTempMin, "%.1f" , "/stats/temp_min");
-        MQTT_PUBLISH(statTempMax, "%.1f" , "/stats/temp_max");
-        MQTT_PUBLISH(gps.chksumErrorCounter, "%lu" , "/stats/counter_gps_chk_sum_errors");
-        MQTT_PUBLISH(gps.dgpsChecksumErrorCounter, "%lu" , "/stats/counter_dgps_chk_sum_errors");
+        MQTT_PUBLISH(statIdleDuration, "%lu" , "/stats/duration_idle/");
+        MQTT_PUBLISH(statChargeDuration, "%lu" , "/stats/duration_charge/");
+        MQTT_PUBLISH(statMowDuration, "%lu" , "/stats/duration_mow/");
+        MQTT_PUBLISH(statMowDurationFloat, "%lu" , "/stats/duration_mow_float/");
+        MQTT_PUBLISH(statMowDurationFix, "%lu" , "/stats/duration_mow_fix/");
+        MQTT_PUBLISH(statMowFloatToFixRecoveries, "%lu" , "/stats/counter_float_recoveries/");
+        MQTT_PUBLISH(statMowDistanceTraveled, "%.1f" , "/stats/distance_mow_traveled/");
+        MQTT_PUBLISH(statMowMaxDgpsAge, "%.2f" , "/stats/time_max_dpgs_age/");
+        MQTT_PUBLISH(statImuRecoveries, "%lu" , "/stats/counter_imu_triggered/");
+        MQTT_PUBLISH(statTempMin, "%.1f" , "/stats/temp_min/");
+        MQTT_PUBLISH(statTempMax, "%.1f" , "/stats/temp_max/");
+        MQTT_PUBLISH(gps.chksumErrorCounter, "%lu" , "/stats/counter_gps_chk_sum_errors/");
+        MQTT_PUBLISH(gps.dgpsChecksumErrorCounter, "%lu" , "/stats/counter_dgps_chk_sum_errors/");
         static float statMaxControlCycleTime = max(statMaxControlCycleTime, (1.0 / (((float)controlLoops)/5.0)));
-        MQTT_PUBLISH(statMaxControlCycleTime, "%.3f" , "/stats/time_max_cycle");
-        MQTT_PUBLISH(SERIAL_BUFFER_SIZE, "%u" , "/stats/serial_buffer_size");
-        MQTT_PUBLISH(statMowDurationInvalid, "%lu" , "/stats/duration_mow_invalid");
-        MQTT_PUBLISH(statMowInvalidRecoveries, "%lu" , "/stats/counter_invalid_recoveries");
-        MQTT_PUBLISH(statMowObstacles, "%lu" , "/stats/counter_obstacles");
-        MQTT_PUBLISH(freeMemory(), "%i" , "/stats/free_memory");
-        MQTT_PUBLISH(getResetCause(), "%u" , "/stats/reset_cause");
-        MQTT_PUBLISH(statGPSJumps, "%lu" , "/stats/counter_gps_jumps");
-        MQTT_PUBLISH(statMowSonarCounter, "%lu" , "/stats/counter_sonar_triggered");
-        MQTT_PUBLISH(statMowBumperCounter, "%lu" , "/stats/counter_bumper_triggered");
-        MQTT_PUBLISH(statMowGPSMotionTimeoutCounter, "%lu" , "/stats/counter_gps_motion_timeout");
-        MQTT_PUBLISH(statMowDurationMotorRecovery, "%lu" , "/stats/duration_mow_motor_recovery");
+        MQTT_PUBLISH(statMaxControlCycleTime, "%.3f" , "/stats/time_max_cycle/");
+        MQTT_PUBLISH(SERIAL_BUFFER_SIZE, "%u" , "/stats/serial_buffer_size/");
+        MQTT_PUBLISH(statMowDurationInvalid, "%lu" , "/stats/duration_mow_invalid/");
+        MQTT_PUBLISH(statMowInvalidRecoveries, "%lu" , "/stats/counter_invalid_recoveries/");
+        MQTT_PUBLISH(statMowObstacles, "%lu" , "/stats/counter_obstacles/");
+        MQTT_PUBLISH(freeMemory(), "%i" , "/stats/free_memory/");
+        MQTT_PUBLISH(getResetCause(), "%u" , "/stats/reset_cause/");
+        MQTT_PUBLISH(statGPSJumps, "%lu" , "/stats/counter_gps_jumps/");
+        MQTT_PUBLISH(statMowSonarCounter, "%lu" , "/stats/counter_sonar_triggered/");
+        MQTT_PUBLISH(statMowBumperCounter, "%lu" , "/stats/counter_bumper_triggered/");
+        MQTT_PUBLISH(statMowGPSMotionTimeoutCounter, "%lu" , "/stats/counter_gps_motion_timeout/");
+        MQTT_PUBLISH(statMowDurationMotorRecovery, "%lu" , "/stats/duration_mow_motor_recovery/");
         mqttRequestTopic &= ~MQTT_REQUEST_STATS;
       }
 
       // state
       if ((mqttRequestTopic & MQTT_REQUEST_STATE) == MQTT_REQUEST_STATE) {
-        MQTT_PUBLISH(battery.batteryVoltage, "%.2f", "/state/battery_voltage");
-        MQTT_PUBLISH(stateX, "%f" , "/state/position_x");
-        MQTT_PUBLISH(stateY, "%f" , "/state/position_y");
-        MQTT_PUBLISH(stateDelta, "%f" , "/state/position_delta");
-        MQTT_PUBLISH(gps.solution, "%i", "/state/position_solution");
-        MQTT_PUBLISH(stateOp, "%i", "/state/job");
-        MQTT_PUBLISH(maps.mowPointsIdx, "%i", "/state/position_mow_point_index");
-        MQTT_PUBLISH((millis() - gps.dgpsAge)/1000.0, "%f" , "/state/position_age");
-        MQTT_PUBLISH(stateSensor, "%i", "/state/sensor");
-        MQTT_PUBLISH(maps.targetPoint.x() , "%f" , "/state/target_x");
-        MQTT_PUBLISH(maps.targetPoint.y() , "%f" , "/state/target_y");
-        MQTT_PUBLISH(gps.accuracy, "%f" , "/state/position_accuracy");
-        MQTT_PUBLISH(gps.numSV, "%i", "/state/position_visible_satellites");
-        MQTT_PUBLISH((stateOp == OP_CHARGE)? -battery.chargingCurrent : motor.motorsSenseLP, "%f" , "/state/amps");
-        MQTT_PUBLISH(gps.numSVdgps, "%i", "/state/position_visible_satellites_dgps");
-        MQTT_PUBLISH(maps.mapCRC, "%li", "/state/map_crc");
+        MQTT_PUBLISH(battery.batteryVoltage, "%.2f", "/state/battery_voltage/");
+        MQTT_PUBLISH(stateX, "%f" , "/state/position/x/");
+        MQTT_PUBLISH(stateY, "%f" , "/state/position/y/");
+        MQTT_PUBLISH(stateDelta, "%f" , "/state/position/delta/");
+        MQTT_PUBLISH(gps.solution, "%i", "/state/position/solution/");
+        MQTT_PUBLISH(stateOpText.c_str(), "%s", "state/job/");
+        //MQTT_PUBLISH(stateOp, "%i", "/state/job/");
+        MQTT_PUBLISH(maps.mowPointsIdx, "%i", "/state/position/mow_point_index/");
+        MQTT_PUBLISH((millis() - gps.dgpsAge)/1000.0, "%f" , "/state/position/age/");
+        MQTT_PUBLISH(stateSensor, "%i", "/state/sensor/");
+        MQTT_PUBLISH(maps.targetPoint.x() , "%f" , "/state/target/x/");
+        MQTT_PUBLISH(maps.targetPoint.y() , "%f" , "/state/target/y/");
+        MQTT_PUBLISH(gps.accuracy, "%f" , "/state/position/accuracy/");
+        MQTT_PUBLISH(gps.numSV, "%i", "/state/position/visible_satellites/");
+        MQTT_PUBLISH((stateOp == OP_CHARGE)? -battery.chargingCurrent : motor.motorsSenseLP, "%f" , "/state/amps/");
+        MQTT_PUBLISH(gps.numSVdgps, "%i", "/state/position/visible_satellites_dgps/");
+        MQTT_PUBLISH(maps.mapCRC, "%li", "/state/map_crc/");
         //MQTT_PUBLISH(lateralError,, "/state/lateral_error");
         //MQTT_PUBLISH(timetable.autostopTime.dayOfWeek,, "/state/timetable_autostartstop_dayofweek");
         //MQTT_PUBLISH(timetable.autostartTime.hour,, "/state/timetabel_autostartstop_hour");
