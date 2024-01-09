@@ -344,7 +344,7 @@ void startWIFI(){
   if (ENABLE_MQTT){
     CONSOLE.println("MQTT: enabled");
     mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
-    mqttClient.setCallback(mqttCallback);
+    mqttClient.setCallback(&mqttCallback);
   }
 }
 

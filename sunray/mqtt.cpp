@@ -89,15 +89,19 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 void processWifiMqttClient()
 {
   if (!ENABLE_MQTT) return;
-  if (millis() >= nextMQTTPublishTime){
+  unsigned long milli = millis();
+  if (milli >= nextMQTTPublishTime){
     nextMQTTPublishTime = millis() + 500;
     if (mqttClient.connected()) {
       updateStateOpText();
+
 // test to remove
 mqttRequestTopic = MQTT_REQUEST_ONLINE|MQTT_REQUEST_PROPS|MQTT_REQUEST_STATE|MQTT_REQUEST_STATS;
+
       // online
       if ((mqttRequestTopic & MQTT_REQUEST_ONLINE) == MQTT_REQUEST_ONLINE) {
         MQTT_PUBLISH("true", "%s", "/online/");
+        MQTT_PUBLISH(milli, "%lus", "/online");
         mqttRequestTopic &= ~MQTT_REQUEST_ONLINE;
       }
 
@@ -108,6 +112,7 @@ mqttRequestTopic = MQTT_REQUEST_ONLINE|MQTT_REQUEST_PROPS|MQTT_REQUEST_STATE|MQT
         robotDriver.getMcuFirmwareVersion(mcuFwName, mcuFwVer);
         MQTT_PUBLISH(mcuFwName.c_str(), "%s", "/props/firmware/");
         MQTT_PUBLISH(mcuFwVer.c_str(), "%s", "/props/version/");
+        MQTT_PUBLISH(milli, "%lus", "/props");
         mqttRequestTopic &= ~MQTT_REQUEST_PROPS;
       }
 
@@ -139,6 +144,7 @@ mqttRequestTopic = MQTT_REQUEST_ONLINE|MQTT_REQUEST_PROPS|MQTT_REQUEST_STATE|MQT
         MQTT_PUBLISH(statMowBumperCounter, "%lu" , "/stats/counter_bumper_triggered/");
         MQTT_PUBLISH(statMowGPSMotionTimeoutCounter, "%lu" , "/stats/counter_gps_motion_timeout/");
         MQTT_PUBLISH(statMowDurationMotorRecovery, "%lu" , "/stats/duration_mow_motor_recovery/");
+        MQTT_PUBLISH(milli, "%lus", "/stats");
         mqttRequestTopic &= ~MQTT_REQUEST_STATS;
       }
 
@@ -149,8 +155,8 @@ mqttRequestTopic = MQTT_REQUEST_ONLINE|MQTT_REQUEST_PROPS|MQTT_REQUEST_STATE|MQT
         MQTT_PUBLISH(stateY, "%f" , "/state/position/y/");
         MQTT_PUBLISH(stateDelta, "%f" , "/state/position/delta/");
         MQTT_PUBLISH(gps.solution, "%i", "/state/position/solution/");
-        MQTT_PUBLISH(stateOpText.c_str(), "%s", "state/job/");
-        //MQTT_PUBLISH(stateOp, "%i", "/state/job/");
+        //MQTT_PUBLISH(stateOpText.c_str(), "%s", "state/job/");
+        MQTT_PUBLISH(stateOp, "%i", "/state/job/");
         MQTT_PUBLISH(maps.mowPointsIdx, "%i", "/state/position/mow_point_index/");
         MQTT_PUBLISH((millis() - gps.dgpsAge)/1000.0, "%f" , "/state/position/age/");
         MQTT_PUBLISH(stateSensor, "%i", "/state/sensor/");
@@ -165,6 +171,7 @@ mqttRequestTopic = MQTT_REQUEST_ONLINE|MQTT_REQUEST_PROPS|MQTT_REQUEST_STATE|MQT
         //MQTT_PUBLISH(timetable.autostopTime.dayOfWeek,, "/state/timetable_autostartstop_dayofweek");
         //MQTT_PUBLISH(timetable.autostartTime.hour,, "/state/timetabel_autostartstop_hour");
         //MQTT_PUBLISH(??,, "/state/timestamp");
+        MQTT_PUBLISH(milli, "%lus", "/state");
         mqttRequestTopic &= ~MQTT_REQUEST_STATE;
       }
 
