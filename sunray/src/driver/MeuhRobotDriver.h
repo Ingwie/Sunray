@@ -186,8 +186,8 @@ class MeuhRobotDriver: public RobotDriver
 {
 public:
   String robotID;
-  String mcuFirmwareName;
-  String mcuFirmwareVersion;
+  String mcuFirmwareName = "RobotMeuh";
+  String mcuFirmwareVersion = "0.00";
   int lastLeftPwm;
   int lastRightPwm;
   int lastMowPwm;
