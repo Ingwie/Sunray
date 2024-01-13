@@ -13,9 +13,7 @@
 char mqttTxPayload[MQTT_MAX_PACKET_SIZE];
 unsigned long nextMQTTPublishTime = 0;
 unsigned long nextMQTTLoopTime = 0;
-uint8_t mqttRequestTopic = MQTT_REQUEST_ONLINE;
-
-
+uint8_t mqttRequestTopic = 0;
 
 void mqttReconnect()
 {
@@ -89,6 +87,8 @@ void mqttCallback(char* topic, byte* payload, unsigned int length)
 // process MQTT input/output (subcriber/publisher)
 void processWifiMqttClient()
 {
+  static uint8_t metronom = 0;
+
   if (!ENABLE_MQTT) return;
   unsigned long milli = millis();
   if (milli >= nextMQTTPublishTime)
@@ -97,9 +97,14 @@ void processWifiMqttClient()
       if (mqttClient.connected())
         {
           //updateStateOpText();
+          ++metronom;
 
-// test to remove
-          mqttRequestTopic = MQTT_REQUEST_ONLINE|MQTT_REQUEST_STATE|MQTT_REQUEST_STATS|MQTT_REQUEST_PROPS;
+          if (metronom & 1) mqttRequestTopic |= MQTT_REQUEST_STATE; // fastest
+          if ((metronom & 7) == 4) mqttRequestTopic |= MQTT_REQUEST_STATS;
+          if ((metronom & 15) == 8) mqttRequestTopic |= MQTT_REQUEST_PROPS;
+          if (metronom == 16) { mqttRequestTopic |= MQTT_REQUEST_ONLINE; metronom = 0; }// slowest
+
+  //unsigned long startTime = millis();
 
           // online
           if ((mqttRequestTopic & MQTT_REQUEST_ONLINE) == MQTT_REQUEST_ONLINE)
@@ -124,9 +129,9 @@ void processWifiMqttClient()
           if ((mqttRequestTopic & MQTT_REQUEST_STATE) == MQTT_REQUEST_STATE)
             {
               snprintf (mqttTxPayload, MQTT_MAX_PACKET_SIZE, \
-                        "{\"battery_voltage\":%.2f,\"position\":{\"x\":%f,\"y\":%f,\"delta\":%.2f,\"solution\":%i,\"age\":%f,\
-              \"accuracy\":%.2f,\"visible_satellites\":%i,\"visible_satellites_dgps\":%i,\"mow_point_index\":%i},\
-              \"target\":{\"x\":%f,\"y\":%f},\"job\":%i,\"sensor\":%i,\"amps\":%.2f,\"map_crc\":%li}", \
+"{\"battery_voltage\":%.2f,\"position\":{\"x\":%f,\"y\":%f,\"delta\":%.2f,\"solution\":%i,\"age\":%.2f,\
+\"accuracy\":%.2f,\"visible_satellites\":%i,\"visible_satellites_dgps\":%i,\"mow_point_index\":%i},\
+\"target\":{\"x\":%f,\"y\":%f},\"job\":%i,\"sensor\":%i,\"amps\":%.2f,\"map_crc\":%li}", \
                         battery.batteryVoltage, stateX, stateY, stateDelta, gps.solution, ((millis() - gps.dgpsAge)/1000.0), \
                         gps.accuracy, gps.numSV, gps.numSVdgps, maps.mowPointsIdx, maps.targetPoint.x(), maps.targetPoint.y(), \
                         stateOp, stateSensor, (stateOp == OP_CHARGE)? -battery.chargingCurrent : motor.motorsSenseLP, \
@@ -141,21 +146,25 @@ void processWifiMqttClient()
             {
               static float statMaxControlCycleTime = max(statMaxControlCycleTime, (1.0 / (((float)controlLoops)/5.0)));
               snprintf (mqttTxPayload, MQTT_MAX_PACKET_SIZE, \
-                        "{\"duration_idle\":%lu,\"duration_charge\":%lu,\"duration_mow\":%lu,\"duration_mow_float\":%lu,\"duration_mow_fix\":%lu,\
-              \"counter_float_recoveries\":%lu,\"distance_mow_traveled\":%.1f,\"time_max_dpgs_age\":%.2f,\"counter_imu_triggered\":%lu,\
-              \"temp_min\":%.1f,\"temp_max\":%.1f,\"counter_gps_chk_sum_errors\":%lu,\"counter_dgps_chk_sum_errors\":%lu,\"time_max_cycle\":%.3f,\
-              \"serial_buffer_size\":%u,\"duration_mow_invalid\":%lu,\"counter_invalid_recoveries\":%lu,\"counter_obstacles\":%lu,\"free_memory\":%i,\
-              \"reset_cause\":%u,\"counter_gps_jumps\":%lu,\"counter_sonar_triggered\":%lu,\"counter_bumper_triggered\":%lu,\
-              \"counter_gps_motion_timeout\":%lu,\"duration_mow_motor_recovery\":%lu}",\
+"{\"duration_idle\":%lu,\"duration_charge\":%lu,\"duration_mow\":%lu,\"duration_mow_float\":%lu,\"duration_mow_fix\":%lu,\
+\"counter_float_recoveries\":%lu,\"distance_mow_traveled\":%.1f,\"time_max_dpgs_age\":%.2f,\"counter_imu_triggered\":%lu,\
+\"temp_min\":%.1f,\"temp_max\":%.1f,\"counter_gps_chk_sum_errors\":%lu,\"counter_dgps_chk_sum_errors\":%lu,\"time_max_cycle\":%.3f,\
+\"serial_buffer_size\":%u,\"duration_mow_invalid\":%lu,\"counter_invalid_recoveries\":%lu,\"counter_obstacles\":%lu,\"free_memory\":%i,\
+\"reset_cause\":%u,\"counter_gps_jumps\":%lu,\"counter_sonar_triggered\":%lu,\"counter_bumper_triggered\":%lu,\
+\"counter_gps_motion_timeout\":%lu,\"duration_mow_motor_recovery\":%lu}",\
                         statIdleDuration, statChargeDuration, statMowDuration, statMowDurationFloat, statMowDurationFix, statMowFloatToFixRecoveries, \
                         statMowDistanceTraveled, statMowMaxDgpsAge, statImuRecoveries, statTempMin, statTempMax, gps.chksumErrorCounter, \
                         gps.dgpsChecksumErrorCounter, statMaxControlCycleTime, SERIAL_BUFFER_SIZE, \
-                        statMowDurationInvalid, statMowInvalidRecoveries, statMowObstacles, freeMemory, getResetCause(), statGPSJumps, \
+                        statMowDurationInvalid, statMowInvalidRecoveries, statMowObstacles, freeMemory(), getResetCause(), statGPSJumps, \
                         statMowSonarCounter, statMowBumperCounter, statMowGPSMotionTimeoutCounter, statMowDurationMotorRecovery);
 
               mqttClient.publish(MQTT_TOPIC_PREFIX "/stats", mqttTxPayload);
               mqttRequestTopic &= ~MQTT_REQUEST_STATS;
             }
+  //unsigned long duration = millis() - startTime;
+  //CONSOLE.print("MQTT build and send duration: ");
+  //CONSOLE.println(duration);
+
         }
       else
         {
@@ -164,7 +173,7 @@ void processWifiMqttClient()
     }
   if (millis() > nextMQTTLoopTime)
     {
-      nextMQTTLoopTime = millis() + 20000;
+      nextMQTTLoopTime = millis() + 1000;
       mqttClient.loop();
     }
 }
