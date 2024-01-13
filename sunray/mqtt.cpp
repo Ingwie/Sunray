@@ -128,14 +128,19 @@ void processWifiMqttClient()
           // state
           if ((mqttRequestTopic & MQTT_REQUEST_STATE) == MQTT_REQUEST_STATE)
             {
+              float amps = (stateOp == OP_CHARGE)? -battery.chargingCurrent : motor.motorsSenseLP;
+              int timetable_autostartstop_dayofweek = (stateOp == OP_MOW)? timetable.autostopTime.dayOfWeek : timetable.autostartTime.dayOfWeek;
+              int timetabel_autostartstop_hour = (stateOp == OP_CHARGE)? timetable.autostopTime.hour : timetable.autostartTime.hour;
+              if ((stateOp != OP_MOW) && (stateOp != OP_CHARGE)) timetable_autostartstop_dayofweek = timetabel_autostartstop_hour = 0;
               snprintf (mqttTxPayload, MQTT_MAX_PACKET_SIZE, \
 "{\"battery_voltage\":%.2f,\"position\":{\"x\":%f,\"y\":%f,\"delta\":%.2f,\"solution\":%i,\"age\":%.2f,\
 \"accuracy\":%.2f,\"visible_satellites\":%i,\"visible_satellites_dgps\":%i,\"mow_point_index\":%i},\
-\"target\":{\"x\":%f,\"y\":%f},\"job\":%i,\"sensor\":%i,\"amps\":%.2f,\"map_crc\":%li}", \
+\"target\":{\"x\":%f,\"y\":%f},\"job\":%i,\"sensor\":%i,\"amps\":%.2f,\"map_crc\":%li,\"lateral_error\":%.2f,\
+\"timetable_autostartstop_dayofweek\":%.i,\"timetabel_autostartstop_hour\":%.i}", \
                         battery.batteryVoltage, stateX, stateY, stateDelta, gps.solution, ((millis() - gps.dgpsAge)/1000.0), \
                         gps.accuracy, gps.numSV, gps.numSVdgps, maps.mowPointsIdx, maps.targetPoint.x(), maps.targetPoint.y(), \
-                        stateOp, stateSensor, (stateOp == OP_CHARGE)? -battery.chargingCurrent : motor.motorsSenseLP, \
-                        maps.mapCRC);
+                        stateOp, stateSensor, amps, \
+                        maps.mapCRC, lateralError);
 
               mqttClient.publish(MQTT_TOPIC_PREFIX "/state", mqttTxPayload);
               mqttRequestTopic &= ~MQTT_REQUEST_STATE;
@@ -151,7 +156,7 @@ void processWifiMqttClient()
 \"temp_min\":%.1f,\"temp_max\":%.1f,\"counter_gps_chk_sum_errors\":%lu,\"counter_dgps_chk_sum_errors\":%lu,\"time_max_cycle\":%.3f,\
 \"serial_buffer_size\":%u,\"duration_mow_invalid\":%lu,\"counter_invalid_recoveries\":%lu,\"counter_obstacles\":%lu,\"free_memory\":%i,\
 \"reset_cause\":%u,\"counter_gps_jumps\":%lu,\"counter_sonar_triggered\":%lu,\"counter_bumper_triggered\":%lu,\
-\"counter_gps_motion_timeout\":%lu,\"duration_mow_motor_recovery\":%lu}",\
+\"counter_gps_motion_timeout\":%lu,\"duration_mow_motor_recovery\":%lu}", \
                         statIdleDuration, statChargeDuration, statMowDuration, statMowDurationFloat, statMowDurationFix, statMowFloatToFixRecoveries, \
                         statMowDistanceTraveled, statMowMaxDgpsAge, statImuRecoveries, statTempMin, statTempMax, gps.chksumErrorCounter, \
                         gps.dgpsChecksumErrorCounter, statMaxControlCycleTime, SERIAL_BUFFER_SIZE, \
