@@ -817,6 +817,7 @@ void cmdFirmwareUpdate(){
 void processCmd(bool checkCrc, bool decrypt){
   cmdResponse = "";
   if (cmd.length() < 4) return;
+#if !defined(ENABLE_MQTT) && defined(__linux__) // MQTT without crc
 #ifdef ENABLE_PASS
   if (decrypt){
     String s = cmd.substring(0,4);
@@ -868,6 +869,7 @@ void processCmd(bool checkCrc, bool decrypt){
       //CONSOLE.println(cmd);
     }
   }
+  #endif // MQTT
   if (cmd[0] != 'A') return;
   if (cmd[1] != 'T') return;
   if (cmd[2] != '+') return;
