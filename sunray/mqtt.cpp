@@ -136,11 +136,10 @@ void processWifiMqttClient()
 "{\"battery_voltage\":%.2f,\"position\":{\"x\":%f,\"y\":%f,\"delta\":%.2f,\"solution\":%i,\"age\":%.2f,\
 \"accuracy\":%.2f,\"visible_satellites\":%i,\"visible_satellites_dgps\":%i,\"mow_point_index\":%i},\
 \"target\":{\"x\":%f,\"y\":%f},\"job\":%i,\"sensor\":%i,\"amps\":%.2f,\"map_crc\":%li,\"lateral_error\":%.2f,\
-\"timetable_autostartstop_dayofweek\":%.i,\"timetabel_autostartstop_hour\":%.i}", \
+\"timetable_autostartstop_dayofweek\":%i,\"timetabel_autostartstop_hour\":%i}", \
                         battery.batteryVoltage, stateX, stateY, stateDelta, gps.solution, ((millis() - gps.dgpsAge)/1000.0), \
                         gps.accuracy, gps.numSV, gps.numSVdgps, maps.mowPointsIdx, maps.targetPoint.x(), maps.targetPoint.y(), \
-                        stateOp, stateSensor, amps, \
-                        maps.mapCRC, lateralError);
+                        stateOp, stateSensor, amps, maps.mapCRC, lateralError, timetable_autostartstop_dayofweek, timetabel_autostartstop_hour);
 
               mqttClient.publish(MQTT_TOPIC_PREFIX "/state", mqttTxPayload);
               mqttRequestTopic &= ~MQTT_REQUEST_STATE;
@@ -182,5 +181,3 @@ void processWifiMqttClient()
       mqttClient.loop();
     }
 }
-
-
