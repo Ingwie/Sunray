@@ -202,8 +202,8 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 #define WIFI_PASS "pass"      // choose WiFi network password
 
 // client (app) --->  server (robot)
-//#define ENABLE_SERVER true          // must be enabled if robot should act as server (recommended)
-#define ENABLE_SERVER false           // must be disabled if robot should act as client (requires external relay server)
+#define ENABLE_SERVER true          // must be enabled if robot should act as server (recommended)
+//#define ENABLE_SERVER false           // must be disabled if robot should act as client (requires external relay server)
 
 // a relay server allows to access the robot via the Internet by transferring data from app to robot and vice versa (not available yet, highly experimental)
 // client (app) --->  relay server  <--- client (robot)
@@ -231,8 +231,8 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 // robot1/op            (current robot operation as text)
 // robot1/gps/sol       (current gps solution as text)
 // robot1/gps/pos       (current gps position as text)
-#define ENABLE_MQTT  true                           // start MQTT client?  (true for yes, false for no)
-//#define ENABLE_MQTT  false
+//#define ENABLE_MQTT  true                           // start MQTT client?  (true for yes, false for no)
+#define ENABLE_MQTT  false
 #define MQTT_TOPIC_PREFIX  "RTMH"                 // the MQTT topic prefix for your robot
 #define MQTT_SERVER  "127.0.0.1"                 // your MQTT broker IP or hostname (e.g. "broker.mqtt-dashboard.com")
 #define MQTT_PORT  1883

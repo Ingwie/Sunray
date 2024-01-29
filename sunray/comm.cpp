@@ -407,7 +407,7 @@ void cmdPosMode(){
 
 // request version
 void cmdVersion(){
-#if defined(ENABLE_MQTT) && defined(__linux__) // No ESP needed
+#if (ENABLE_MQTT == true) && defined(__linux__) // No ESP needed
 mqttRequestTopic |= MQTT_REQUEST_PROPS; // Poll datas -> processWifiMqttClient
 return;
 #endif // ENABLE_MQTT
@@ -571,7 +571,7 @@ void cmdObstacles(){
 
 // request summary
 void cmdSummary(){
-#if defined(ENABLE_MQTT) && defined(__linux__) // No ESP needed
+#if (ENABLE_MQTT == true) && defined(__linux__) // No ESP needed
 mqttRequestTopic |= MQTT_REQUEST_STATE; // Poll datas -> processWifiMqttClient
 return;
 #endif // ENABLE_MQTT
@@ -631,7 +631,7 @@ return;
 
 // request statistics
 void cmdStats(){
-#if defined(ENABLE_MQTT) && defined(__linux__) // No ESP needed
+#if (ENABLE_MQTT == true) && defined(__linux__) // No ESP needed
 mqttRequestTopic |= MQTT_REQUEST_STATS; // Poll datas -> processWifiMqttClient
 return;
 #endif // ENABLE_MQTT
@@ -817,7 +817,7 @@ void cmdFirmwareUpdate(){
 void processCmd(bool checkCrc, bool decrypt){
   cmdResponse = "";
   if (cmd.length() < 4) return;
-#if !defined(ENABLE_MQTT) && defined(__linux__) // MQTT without crc
+#if (ENABLE_MQTT == false) && defined(__linux__) // MQTT without crc
 #ifdef ENABLE_PASS
   if (decrypt){
     String s = cmd.substring(0,4);
