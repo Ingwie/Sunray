@@ -29,6 +29,7 @@ TMC5160Stepper R_Stepper(pin_cs_r_tmc, TMC_RsensE);
 TMC5160Stepper L_Stepper(pin_cs_l_tmc, TMC_RsensE);
 bool relayCharge;
 bool relayPower;
+bool tmc3V3Powered;
 
 
 // JYQDpusles ISR
@@ -41,6 +42,7 @@ void pulsesMowISR()
 void MeuhRobotDriver::exitApp() // Close sunray
 {
   RELAY_STOP_ALL(); // turn OFF power boards before quit
+  TMC_LOGIC_OFF();
   SET_74HCT541_OUTPUT_DISABLE();
   exit(1);
 }
@@ -52,11 +54,14 @@ void MeuhRobotDriver::begin()
 
 // init GPIO
 
+  pinMode(pin_tmc_3V3, OUTPUT);
+  TMC_LOGIC_OFF();
   pinMode(pin_oe_74HCT541, OUTPUT);
   SET_74HCT541_OUTPUT_DISABLE();
   pinMode(pin_power_relay, OUTPUT);
   pinMode(pin_charge_relay, OUTPUT);
   RELAY_STOP_ALL();
+
 // Mow driver (JYQD)
   //pinMode(pin_pwm_jyqd, OUTPUT); // needed by linux pwm driver? no
   pinMode(pin_enable_jyqd, OUTPUT);
@@ -72,7 +77,6 @@ void MeuhRobotDriver::begin()
   //pinMode(pin_spi_sck, OUTPUT);
   //pinMode(pin_cs_r_tmc, OUTPUT);
   //pinMode(pin_cs_l_tmc, OUTPUT);
-  pinMode(pin_enable_tmc, OUTPUT); // todo Do i need it ?
 
 
   //encoderTicksLeft = 0;
@@ -85,8 +89,6 @@ void MeuhRobotDriver::begin()
   mowCurr = 0;
   motorLeftCurr = 0;
   motorRightCurr = 0;
-  relayCharge = false;
-  relayPower = false;
 
   triggeredLeftBumper = false;
   triggeredRightBumper = false;
@@ -340,7 +342,7 @@ void MeuhMotorDriver::begin()
 
   // start TMC5160 stepper drivers (wheels)
   CONSOLE.println("starting TMC5160");
-  digitalWrite(pin_enable_tmc, 1); // check if needed
+  TMC_LOGIC_ON();
   R_Stepper.begin();
   uint8_t rVers = R_Stepper.version();
   L_Stepper.begin();
@@ -628,8 +630,8 @@ void MeuhBatteryDriver::keepPowerOn(bool flag)
           CONSOLE.println("LINUX will SHUTDOWN!");
           // switch-off fan via port-expander PCA9555
           meuhRobot.setFanPowerState(false);
-          digitalWrite(pin_enable_tmc, 0); // check if needed
           RELAY_STOP_ALL();
+          TMC_LOGIC_OFF();
           SET_74HCT541_OUTPUT_DISABLE();
 
           Process p;

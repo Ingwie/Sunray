@@ -46,7 +46,7 @@
 #define pin_ur1_cts       10
 #define pin_spi_mosi      31 // SPI used
 #define pin_spi_miso      18 // SPI used
-#define pin_enable_tmc    47 // was pin_gpio47
+#define pin_tmc_3V3       47 // was pin_gpio47
 #define pin_spi_sck       19 // SPI used
 #define pin_cs_r_tmc      20 // was pin_spi_cs .. Can be used for other task ??
 #define pin_cs_l_tmc      22 // was pin_pwm2
@@ -77,6 +77,19 @@
 #define ACS_AMPS_TO_VOLTS(x)    (((x/ACS_POT_FACTOR) - ACS_MID_VOLTAGE) / 0.066f)
 
 //-----> TMC settings and helper
+
+#define TMC_LOGIC_ON() \
+digitalWrite(pin_tmc_3V3, 0); \
+tmc3V3Powered = true
+
+#define TMC_LOGIC_OFF() \
+/* 24V must be off before turning logic off */ \
+digitalWrite(pin_power_relay, 0); \
+relayPower = false; \
+delay(100); \
+digitalWrite(pin_tmc_3V3, 1); \
+tmc3V3Powered = false
+
 struct TMC5160_DRV_STATUS_t
 {
   union
@@ -171,8 +184,10 @@ relayCharge = false
 digitalWrite(pin_charge_relay, 0); \
 relayCharge = false; \
 delay(100); \
-digitalWrite(pin_power_relay, 1); \
-relayPower = true
+if (tmc3V3Powered == true) { \
+  digitalWrite(pin_power_relay, 1); \
+  relayPower = true; } \
+else CONSOLE.println("TMC logic supply is missing !")
 
 #define RELAY_CHARGE_ON() \
 digitalWrite(pin_power_relay, 0); \
