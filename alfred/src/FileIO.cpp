@@ -21,11 +21,6 @@
 #include <fcntl.h>
 #include <Console.h>
 
-#ifndef __linux__
-#define IsNuLl !=0
-#else
-#define IsNuLl ==0
-#endif // __linux__
 namespace BridgeLib {
 
 //File::File(BridgeClass &b):_file(NULL),_dir(NULL),_name(NULL) {}
@@ -48,7 +43,7 @@ File::File(const char *_filename, const char * _mode){
   _dir = NULL;
   _name = NULL;
   struct stat _st = {0};
-  boolean exists = stat(_filename, &_st) IsNuLl;
+  boolean exists = stat(_filename, &_st) == 0;
   //if(!exists || (!S_ISDIR(_st.st_mode) && !S_ISREG(_st.st_mode))){
   //  ::printf("Bad Entry[%s]: exists:%u, mode:0x%06X\n",_filename , exists, _st.st_mode);
   //  return;
@@ -87,7 +82,7 @@ size_t File::write(const char *buf){
 }
 
 size_t File::write(const uint8_t *buf, size_t size) {
-  if( ((long)_file) <= 0) {    
+  if( ((long)_file) <= 0) {
     ::printf("file write error: file not open!\n");
     return 0;
   }
@@ -109,7 +104,7 @@ void File::flush() {
 
 int File::read(void *buff, uint16_t nbyte) {
   if( ((long)_file) <= 0) {
-    ::printf("file read error: file not open!\n");  
+    ::printf("file read error: file not open!\n");
     return -1;
   }
   return ::fread(buff, 1, nbyte, _file);
@@ -117,7 +112,7 @@ int File::read(void *buff, uint16_t nbyte) {
 
 int File::read() {
   if( ((long)_file) <= 0) {
-    ::printf("file read error: file not open!\n");      
+    ::printf("file read error: file not open!\n");
     return -1;
   }
   return getc(_file);
