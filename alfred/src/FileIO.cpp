@@ -69,17 +69,17 @@ File::File(const char *_filename, const char * _mode){
 }
 
 const char *File::name() {
-  if(_file IsNuLl && _dir IsNuLl) return 0;
+  if( ((long)_file) <= 0 && ((long)_dir <= 0) ) return 0;
   return _name;
 }
 
 File::operator bool() {
-  return _file IsNuLl || _dir IsNuLl;
+  return ((long)_file > 0) || ((long)_dir > 0);
 }
 
 
 size_t File::write(const char *buf){
-  if(_file IsNuLl) {
+  if( ((long)_file) <= 0) {
     return 0;
     ::printf("file write error: file not open!\n");
   }
@@ -87,7 +87,7 @@ size_t File::write(const char *buf){
 }
 
 size_t File::write(const uint8_t *buf, size_t size) {
-  if(_file IsNuLl) {
+  if( ((long)_file) <= 0) {    
     ::printf("file write error: file not open!\n");
     return 0;
   }
@@ -95,7 +95,7 @@ size_t File::write(const uint8_t *buf, size_t size) {
 }
 
 size_t File::write(uint8_t c) {
-  if(_file IsNuLl) {
+  if( ((long)_file) <= 0) {
     ::printf("file write error: file not open!\n");
     return 0;
   }
@@ -103,28 +103,28 @@ size_t File::write(uint8_t c) {
 }
 
 void File::flush() {
-  if(_file IsNuLl) return;
+  if( ((long)_file) <= 0) return;
   fflush(_file);
 }
 
 int File::read(void *buff, uint16_t nbyte) {
-  if(_file IsNuLl) {
-    ::printf("file read error: file not open!\n");
+  if( ((long)_file) <= 0) {
+    ::printf("file read error: file not open!\n");  
     return -1;
   }
   return ::fread(buff, 1, nbyte, _file);
 }
 
 int File::read() {
-  if(_file IsNuLl) {
-    ::printf("file read error: file not open!\n");
+  if( ((long)_file) <= 0) {
+    ::printf("file read error: file not open!\n");      
     return -1;
   }
   return getc(_file);
 }
 
 int File::peek() {
-  if(_file IsNuLl) return -1;
+  if( ((long)_file) <= 0) return -1;
   size_t pos = position();
   int c = getc(_file);
   if(c >= 0)
@@ -133,22 +133,22 @@ int File::peek() {
 }
 
 int File::available() {
-  if(_file IsNuLl) return 0;
+  if( ((long)_file) <= 0) return 0;
   return size() - position();
 }
 
 boolean File::seek(uint32_t position) {//SEEK_CUR, SEEK_END, and SEEK_SET
-  if(_file IsNuLl) return false;
+  if( ((long)_file) <= 0) return false;
   return fseek(_file, position, 0) != -1; //seek to position from 0
 }
 
 uint32_t File::position() {
-  if(_file IsNuLl) return 0;
+  if( ((long)_file) <= 0) return 0;
   return ftell(_file);
 }
 
 uint32_t File::size() {
-  if(_file IsNuLl) return 0;
+  if( ((long)_file)  <= 0) return 0;
   struct stat s = {0};
   if (stat(_name, &s) == 0) {
     return s.st_size;
@@ -173,7 +173,7 @@ void File::close() {
 }
 
 boolean File::isDirectory() {
-  return _dir IsNuLl;
+  return ((long)_dir) > 0;
 }
 
 File File::openNextFile(const char * mode){
@@ -193,7 +193,7 @@ File File::openNextFile(const char * mode){
 }
 
 void File::rewindDirectory(void){
-  if(_dir IsNuLl) return;
+  if( ((long)_dir) <= 0) return;
   closedir(_dir);
   _dir = opendir(_name);
 }
