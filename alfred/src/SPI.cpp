@@ -86,6 +86,33 @@ void SPIClass::setClock(uint32_t rate)
 
 uint8_t SPIClass::transfer(uint8_t data)
 {
+#if defined(BB_SPI)
+{
+ uint8_t result = 0;
+
+ for (uint8_t mask=0x80; (mask); mask>>=1)
+  {
+   if(data & mask)
+    {
+     PIN_MOSI_ON();
+    }
+   else
+    {
+     PIN_MOSI_OFF();
+    }
+   if(IS_PIN_MOSI_ON)
+    {
+     result |= mask;
+    }
+
+   PIN_XCK_ON();
+   //_NOP(); // add a delay
+   PIN_XCK_OFF();
+  }
+  return result;
+}
+#else
+
   uint8_t res = 0;
 
   struct spi_ioc_transfer spi;
@@ -106,6 +133,7 @@ uint8_t SPIClass::transfer(uint8_t data)
     }
 
   return res;
+#endif
 }
 
 

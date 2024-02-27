@@ -13,13 +13,14 @@
  * https://wolles-elektronikkiste.de/en/ads1115-a-d-converter-with-amplifier (English)
  * https://wolles-elektronikkiste.de/ads1115 (German)
  *
+ * File modded to use Linux I2C
  *
  ******************************************************************************/
 
 #ifndef ADS1115_WE_H_
 #define ADS1115_WE_H_
 
-#if (ARDUINO >= 100)
+/*#if (ARDUINO >= 100)
  #include "Arduino.h"
 #else
  #include "WProgram.h"
@@ -31,7 +32,9 @@
 #endif
 #ifndef USE_TINY_WIRE_M_
  #include <Wire.h>
-#endif
+#endif*/
+
+#include "../I2chelper.h"
 
 typedef enum ADS1115_COMP_QUE {
     ADS1115_ASSERT_AFTER_1 = 0x0000,
@@ -112,12 +115,12 @@ class ADS1115_WE
         static constexpr uint16_t ADS1115_REG_FACTOR    {32768};
         static constexpr uint16_t ADS1115_REG_RESET_VAL {0x8583};
 
-#ifndef USE_TINY_WIRE_M_
-                ADS1115_WE(const uint8_t addr = 0x48) : _wire{&Wire}, i2cAddress{addr} {}
-                ADS1115_WE(TwoWire *w, const uint8_t addr = 0x48) : _wire{w}, i2cAddress{addr} {}
-#else
+//#ifndef USE_TINY_WIRE_M_
                 ADS1115_WE(const uint8_t addr = 0x48) : i2cAddress{addr} {}
-#endif
+//                ADS1115_WE(TwoWire *w, const uint8_t addr = 0x48) : _wire{w}, i2cAddress{addr} {}
+//#else
+//                ADS1115_WE(const uint8_t addr = 0x48) : i2cAddress{addr} {}
+//#endif
 
         void reset();
         bool init();
@@ -281,7 +284,7 @@ class ADS1115_WE
 
     protected:
 #ifndef USE_TINY_WIRE_M_
-        TwoWire *_wire;
+//        TwoWire *_wire;
 #endif
         uint16_t voltageRange;
         ADS1115_MEASURE_MODE deviceMeasureMode;

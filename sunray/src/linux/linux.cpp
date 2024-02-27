@@ -5,8 +5,8 @@
 LinuxSerial SerialROBOT(SERIAL_ROBOT_PATH); // serial robot
 LinuxSerial SerialWIFI(SERIAL_WIFI_PATH); // WIFI
 #ifdef LINUX_BLE
-  BleUartServer SerialBLE; // BLE 
-#else 
+  BleUartServer SerialBLE; // BLE
+#else
   LinuxSerial SerialBLE(SERIAL_BLE_PATH); // BLE
 #endif
 LinuxSerial SerialGPS(SERIAL_GPS_PATH); // GPS

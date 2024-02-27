@@ -15,7 +15,8 @@
 
 //#if defined(ARDUINO) && ARDUINO >= 100
 	#include <Arduino.h>
-	#include <SPI.h>
+	//#include <SPI.h>
+	#include "../CPeripheryInterface.h"
 	#include <Stream.h>
 /*#elif defined(bcm2835)
 	#include <bcm2835.h>

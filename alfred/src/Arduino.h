@@ -133,6 +133,7 @@ void sleepMicroseconds(uint32_t m);
 void pinMode(uint8_t, uint8_t);
 void digitalWrite(uint8_t, uint8_t);//47.5ns direct register write takes 23ns
 int digitalRead(uint8_t);//110ns direct register read takes 74ns
+
 int digitalPinToInterrupt(uint8_t );
 
 //those return nothing and are here for compatibility

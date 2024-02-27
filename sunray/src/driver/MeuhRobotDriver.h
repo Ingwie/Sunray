@@ -22,7 +22,7 @@
 #include <Process.h>
 #endif
 
-#include "../meuh/pwm_linux.h"
+#include "../meuh/CPeripheryInterface.h"
 #include "../meuh/ADS1115/ADS1115_WE.h"
 //#include "../meuh/PCF8575/PCF8575.h"
 #include "../meuh/TMCStepper-0.7.3/TMCStepper.h"
@@ -33,36 +33,35 @@
 // 1572 steps/meter
 
 //-----> BPI-M4 GPIO Pin
-#define pin_i2c_sda       17 // I2C used
-#define pin_i2c_scl       18 // I2C used
-#define pin_pwm_jyqd      21 // 5V 74HCT541 output was pin_pwm1
-#define pin_oe_74HCT541   9  // 5V 74HCT541 output was pin_ur1_tx
-#define pin_enable_jyqd   8  // 5V 74HCT541 output was pin_ur1_rx
-#define pin_cw_ccw_jyqd   42 // 5V 74HCT541 output was pin_sdio_d0
-#define pin_power_relay   3  // 5V 74HCT541 output was aio_bck
-#define pin_charge_relay  43 // 5V 74HCT541 output was pin_sdio_d1
-#define pin_buzzer        44 // 5V 74HCT541 output was pin_sdio_d2
-#define pin_ur1_rts       11 // 5V 74HCT541 output
-#define pin_ur1_cts       10
-#define pin_spi_mosi      31 // SPI used
-#define pin_spi_miso      18 // SPI used
-#define pin_tmc_3V3       47 // was pin_gpio47
-#define pin_spi_sck       19 // SPI used
-#define pin_cs_r_tmc      20 // was pin_spi_cs .. Can be used for other task ??
-#define pin_cs_l_tmc      22 // was pin_pwm2
-#define pin_sdio_d3       45
-#define pin_pwm3          23
-#define pin_sdio_clk      41
-#define pin_sdio_cmd      40
-#define pin_spdif         50 // 5V -> 3.3V input
-#define pin_aio_ck        4  // 5V -> 3.3V input
-#define pin_aio_lrsk      2
-#define pin_gpio53        53
-#define pin_gpio34        34
-#define pin_pulses_jyqd   5 // 5V -> 3.3V input was pin_aisd
-#define pin_rain_sensor   6 // 5V -> 3.3V input was pin_aosd
+#define pin_i2c_sda_Number        17 // I2C used
+#define pin_i2c_scl_Number        18 // I2C used
+#define pin_pwm_jyqd_Number       21 // 5V 74HCT541 output was pin_pwm1
+#define pin_oe_74HCT541_Number    9  // 5V 74HCT541 output was pin_ur1_tx
+#define pin_enable_jyqd_Number    8  // 5V 74HCT541 output was pin_ur1_rx
+#define pin_cw_ccw_jyqd_Number    42 // 5V 74HCT541 output was pin_sdio_d0
+#define pin_power_relay_Number    3  // 5V 74HCT541 output was aio_bck
+#define pin_charge_relay_Number   43 // 5V 74HCT541 output was pin_sdio_d1
+#define pin_buzzer_Number         44 // 5V 74HCT541 output was pin_sdio_d2
+#define pin_ur1_rts_Number        11 // 5V 74HCT541 output
+#define pin_ur1_cts_Number        10
+#define pin_spi_mosi_Number       31 // SPI used
+#define pin_spi_miso_Number       18 // SPI used
+#define pin_tmc_3V3_Number        47 // was pin_gpio47
+#define pin_spi_sck_Number        19 // SPI used
+#define pin_cs_r_tmc_Number       20 // was pin_spi_cs .. Can be used for other task ??
+#define pin_cs_l_tmc_Number       22 // was pin_pwm2
+#define pin_sdio_d3_Number        45
+#define pin_pwm3_Number           23
+#define pin_sdio_clk_Number       41
+#define pin_sdio_cmd_Number       40
+#define pin_spdif_Number          50 // 5V -> 3.3V input
+#define pin_aio_ck_Number         4  // 5V -> 3.3V input
+#define pin_aio_lrsk_Number       2
+#define pin_gpio53_Number         53
+#define pin_gpio34_Number         34
+#define pin_pulses_jyqd_Number    5 // 5V -> 3.3V input was pin_aisd
+#define pin_rain_sensor_Number    6 // 5V -> 3.3V input was pin_aosd
 //----- BPI-M4 hardware alias
-#define PWM1              1 // use pin_pwm_jyqd
 
 //-----> ADS1115 Macro resolution 2048 -> 0.0625mV/bit
 #define ASD_BAT_CHANNEL         ADS1115_COMP_0_GND
@@ -77,18 +76,6 @@
 #define ACS_AMPS_TO_VOLTS(x)    (((x/ACS_POT_FACTOR) - ACS_MID_VOLTAGE) / 0.066f)
 
 //-----> TMC settings and helper
-
-#define TMC_LOGIC_ON() \
-digitalWrite(pin_tmc_3V3, 0); \
-tmc3V3Powered = true
-
-#define TMC_LOGIC_OFF() \
-/* 24V must be off before turning logic off */ \
-digitalWrite(pin_power_relay, 0); \
-relayPower = false; \
-delay(100); \
-digitalWrite(pin_tmc_3V3, 1); \
-tmc3V3Powered = false
 
 struct TMC5160_DRV_STATUS_t
 {
@@ -152,50 +139,7 @@ errorBool |= status.s2ga; /* check short to ground a */ \
 errorBool |= status.stst; /* stabdstill in each operation */ \
 
 //-----> PWM macros used to drive the JYQD
-#define JYQD_PWM_PERIOD      1000000 // 1mS-1KHz
-
-#define PWM1_INIT() \
-pwmUnexport(PWM1); \
-delay(10); \
-if (pwmExport(PWM1) != 0) meuhRobot.exitApp(); /* close Sunray on error */ \
-delay(5); \
-pwmSetEnable(PWM1, 0); \
-pwmSetPolarity(PWM1, 0); \
-pwmSetPeriod(PWM1, JYQD_PWM_PERIOD); \
-pwmSetDutyCycle(PWM1, 0); \
-pwmSetEnable(PWM1, 1)
-
-#define SETPWM1DUTYCYCLE(x) \
-pwmSetDutyCycle(PWM1, map(x, 0, 255, 0, JYQD_PWM_PERIOD)) \
-
-//-----> level converter ship 74HCT541 macro (security)
-#define SET_74HCT541_OUTPUT_ENABLE()  digitalWrite(pin_oe_74HCT541, 0)
-#define SET_74HCT541_OUTPUT_DISABLE() digitalWrite(pin_oe_74HCT541, 1)
-
-//-----> relay module HW383 macro
-
-#define RELAY_STOP_ALL() \
-digitalWrite(pin_power_relay, 0); \
-relayPower = false; \
-digitalWrite(pin_charge_relay, 0); \
-relayCharge = false
-
-#define RELAY_POWER_ON() \
-digitalWrite(pin_charge_relay, 0); \
-relayCharge = false; \
-delay(100); \
-if (tmc3V3Powered == true) { \
-  digitalWrite(pin_power_relay, 1); \
-  relayPower = true; } \
-else CONSOLE.println("TMC logic supply is missing !")
-
-#define RELAY_CHARGE_ON() \
-digitalWrite(pin_power_relay, 0); \
-relayPower = false; \
-delay(100); \
-digitalWrite(pin_charge_relay, 1); \
-relayCharge = true
-
+#define JYQD_PWM_PERIOD      10e3 // 0.1mS-10KHz
 
 class MeuhRobotDriver: public RobotDriver
 {
@@ -237,12 +181,47 @@ public:
   bool setFanPowerState(bool state);
   float readAdcChannel(ADS1115_MUX channel);
   void exitApp();
+  void tmcLogicOff();
+  void tmcLogicOn();
+  void relayStopAll();
+  void relayPowerOn();
+  void relayChargeOn();
+  void set74HCTOutputEnable();
+  void set74HCTOutputDisable();
   //bool setImuPowerState(bool state);
+
+// gpio pin pointer
+  gpio_t * pin_i2c_sda;
+  gpio_t * pin_i2c_scl;
+  gpio_t * pin_pwm_jyqd;
+  gpio_t * pin_oe_74HCT541;
+  gpio_t * pin_enable_jyqd;
+  gpio_t * pin_cw_ccw_jyqd;
+  gpio_t * pin_power_relay;
+  gpio_t * pin_charge_relay;
+  gpio_t * pin_buzzer;
+  gpio_t * pin_ur1_rts;
+  gpio_t * pin_ur1_cts;
+  gpio_t * pin_spi_mosi;
+  gpio_t * pin_spi_miso;
+  gpio_t * pin_tmc_3V3;
+  gpio_t * pin_spi_sck;
+  gpio_t * pin_cs_r_tmc;
+  gpio_t * pin_cs_l_tmc;
+  gpio_t * pin_sdio_d3;
+  gpio_t * pin_pwm3;
+  gpio_t * pin_sdio_clk;
+  gpio_t * pin_sdio_cmd;
+  gpio_t * pin_spdif;
+  gpio_t * pin_aio_ck;
+  gpio_t * pin_aio_lrsk;
+  gpio_t * pin_gpio53;
+  gpio_t * pin_gpio34;
+  gpio_t * pin_pulses_jyqd;
+  gpio_t * pin_rain_sensor;
 protected:
-#ifdef __linux__
   Process cpuTempProcess;
   Process wifiStatusProcess;
-#endif
   String cmd;
   String cmdResponse;
   unsigned long nextMotorTime;
@@ -284,6 +263,8 @@ protected:
   bool M_MotorFault;
   TMC5160_DRV_STATUS_t L_DrvStatus;
   TMC5160_DRV_STATUS_t R_DrvStatus;
+  // pwm pointer
+  pwm_t * pwm1;
 };
 
 class MeuhBatteryDriver : public BatteryDriver

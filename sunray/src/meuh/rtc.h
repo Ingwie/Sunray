@@ -18,6 +18,7 @@
 #define RTC_H_INCLUDED
 
 #include "I2chelper.h"
+#include <time.h>
 
 ///// PCF8563T Code ///// CR1220
 

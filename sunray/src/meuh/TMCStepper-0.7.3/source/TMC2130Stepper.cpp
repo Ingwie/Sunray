@@ -61,7 +61,7 @@ void TMC2130Stepper::setSPISpeed(uint32_t speed) {
 
 __attribute__((weak))
 void TMC2130Stepper::switchCSpin(bool state) {
-  digitalWrite(_pinCS, state);
+  // digitalWrite(_pinCS, state);
 }
 
 __attribute__((weak))
@@ -163,7 +163,7 @@ void TMC2130Stepper::write(uint8_t addressByte, uint32_t config) {
 
 void TMC2130Stepper::begin() {
   //set pins
-  pinMode(_pinCS, OUTPUT);
+  // pinMode(_pinCS, OUTPUT);
   switchCSpin(HIGH);
 
   if (TMC_SW_SPI != nullptr) TMC_SW_SPI->init();

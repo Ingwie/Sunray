@@ -25,8 +25,9 @@
 
 //#define DEBUG_SERIAL_ROBOT 1
 
-TMC5160Stepper R_Stepper(pin_cs_r_tmc, TMC_RsensE);
-TMC5160Stepper L_Stepper(pin_cs_l_tmc, TMC_RsensE);
+TMC5160Stepper R_Stepper(pin_cs_r_tmc_Number, TMC_RsensE);
+TMC5160Stepper L_Stepper(pin_cs_l_tmc_Number, TMC_RsensE);
+I2CC I2C;
 bool relayCharge;
 bool relayPower;
 bool tmc3V3Powered;
@@ -39,14 +40,6 @@ void pulsesMowISR()
   ++encoderTicksMow;
 }
 
-void MeuhRobotDriver::exitApp() // Close sunray
-{
-  RELAY_STOP_ALL(); // turn OFF power boards before quit
-  TMC_LOGIC_OFF();
-  SET_74HCT541_OUTPUT_DISABLE();
-  exit(1);
-}
-
 void MeuhRobotDriver::begin()
 {
   CONSOLE.println("using robot driver: MeuhRobotDriver");
@@ -54,30 +47,33 @@ void MeuhRobotDriver::begin()
 
 // init GPIO
 
-  pinMode(pin_tmc_3V3, OUTPUT);
-  TMC_LOGIC_OFF();
-  pinMode(pin_oe_74HCT541, OUTPUT);
-  SET_74HCT541_OUTPUT_DISABLE();
-  pinMode(pin_power_relay, OUTPUT);
-  pinMode(pin_charge_relay, OUTPUT);
-  RELAY_STOP_ALL();
+  SetGpioPin(pin_tmc_3V3, GPIO_DIR_OUT);
+  SetGpioPin(pin_oe_74HCT541, GPIO_DIR_OUT);
+  SetGpioPin(pin_power_relay, GPIO_DIR_OUT);
+  SetGpioPin(pin_charge_relay, GPIO_DIR_OUT);
+  tmcLogicOff();
+  set74HCTOutputDisable();
+  relayStopAll();
+  SetGpioPin(pin_buzzer, GPIO_DIR_OUT);
+  SetGpioPin(pin_rain_sensor, GPIO_DIR_IN);
 
 // Mow driver (JYQD)
-  //pinMode(pin_pwm_jyqd, OUTPUT); // needed by linux pwm driver? no
-  pinMode(pin_enable_jyqd, OUTPUT);
-  pinMode(pin_cw_ccw_jyqd, OUTPUT);
-  pinMode(pin_pulses_jyqd, INPUT);
-  attachInterrupt(pin_pulses_jyqd, pulsesMowISR, CHANGE);
-  digitalWrite(pin_enable_jyqd, 0); // disable JYQD
+  //SetGpioPin(pin_pwm_jyqd, GPIO_DIR_OUT); // needed by linux pwm driver? no
+  SetGpioPin(pin_enable_jyqd, GPIO_DIR_OUT);
+  SetGpioPin(pin_cw_ccw_jyqd, GPIO_DIR_OUT);
+  SetGpioPin(pin_pulses_jyqd, GPIO_DIR_IN);
+  attachInterrupt(pin_pulses_jyqd_Number, pulsesMowISR, CHANGE);
+  GpioPinWrite(pin_enable_jyqd, 0); // disable JYQD
 
 
 // TMC5160 stepper drivers (wheels)
-  //pinMode(pin_spi_mosi, OUTPUT);
-  //pinMode(pin_spi_miso, OUTPUT);
-  //pinMode(pin_spi_sck, OUTPUT);
-  //pinMode(pin_cs_r_tmc, OUTPUT);
-  //pinMode(pin_cs_l_tmc, OUTPUT);
-
+  //SetGpioPin(pin_spi_mosi, GPIO_DIR_OUT);
+  //SetGpioPin(pin_spi_miso, GPIO_DIR_IN);
+  //SetGpioPin(pin_spi_sck, GPIO_DIR_OUT);
+  SetGpioPin(pin_cs_r_tmc, GPIO_DIR_OUT);
+  SetGpioPin(pin_cs_l_tmc, GPIO_DIR_OUT);
+  GpioPinWrite(pin_cs_r_tmc, 1); // desactivate R TMC chip select
+  GpioPinWrite(pin_cs_l_tmc, 1); // desactivate L TMC chip select
 
   //encoderTicksLeft = 0;
   //encoderTicksRight = 0;
@@ -122,7 +118,7 @@ void MeuhRobotDriver::begin()
   //pcf8575.write16(0xFFFF);
 
   // switch-on fan
-  //setFanPowerState(true);
+  setFanPowerState(true);
 
   // buzzer test
   if (false)
@@ -132,6 +128,9 @@ void MeuhRobotDriver::begin()
       delay(500);
       ///ioExpanderOut(EX2_I2C_ADDR, EX2_BUZZER_PORT, EX2_BUZZER_PIN, false);
     }
+
+  CONSOLE.println("starting I2C bus");
+  I2C.begin();
   // start ADC
   CONSOLE.println("starting ADC");
   adc = ADS1115_WE(0x48);
@@ -167,6 +166,71 @@ void MeuhRobotDriver::begin()
   CONSOLE.print("IDLE CURRENT = ");
   CONSOLE.println(idleCurrent);
 
+}
+
+void MeuhRobotDriver::tmcLogicOn()
+{
+  GpioPinWrite(pin_tmc_3V3, 0);
+  tmc3V3Powered = true;
+}
+
+void MeuhRobotDriver::tmcLogicOff()
+{
+  /* 24V must be off before turning logic off */
+  GpioPinWrite(pin_power_relay, 0);
+  relayPower = false;
+  delay(100);
+  GpioPinWrite(pin_tmc_3V3, 1);
+  tmc3V3Powered = false;
+}
+
+void MeuhRobotDriver::relayStopAll()
+{
+  GpioPinWrite(pin_power_relay, 0);
+  relayPower = false;
+  GpioPinWrite(pin_charge_relay, 0);
+  relayCharge = false;
+}
+
+void MeuhRobotDriver::relayPowerOn()
+{
+  GpioPinWrite(pin_charge_relay, 0);
+  relayCharge = false;
+  delay(100);
+  if (tmc3V3Powered == true)
+    {
+      GpioPinWrite(pin_power_relay, 1);
+      relayPower = true;
+    }
+  else CONSOLE.println("TMC logic supply is missing !");
+}
+
+void MeuhRobotDriver::relayChargeOn()
+{
+  GpioPinWrite(pin_power_relay, 0);
+  relayPower = false;
+  delay(100);
+  GpioPinWrite(pin_charge_relay, 1);
+  relayCharge = true;
+}
+
+void MeuhRobotDriver::exitApp() // Close sunray
+{
+  relayStopAll(); // turn OFF power boards before quit
+  tmcLogicOff();
+  set74HCTOutputDisable();
+  exit(1);
+}
+
+// level converter ship 74HCT541 functions (security)
+void MeuhRobotDriver::set74HCTOutputEnable()
+{
+  GpioPinWrite(pin_oe_74HCT541, 0);
+}
+
+void MeuhRobotDriver::set74HCTOutputDisable()
+{
+  GpioPinWrite(pin_oe_74HCT541, 1);
 }
 
 float MeuhRobotDriver::readAdcChannel(ADS1115_MUX channel)   // 8mS @ ADS1115_250_SPS to verify ... and optimise
@@ -335,29 +399,38 @@ void MeuhMotorDriver::begin()
   L_SpiStatus, R_SpiStatus = 0;
 
   CONSOLE.println("starting PWM1");
-  PWM1_INIT(); // Jyqd pwm (maw)
+  SetNewPwm(pwm1, 1); // Jyqd pwm (maw)
+  PwmSetFrequency(pwm1, JYQD_PWM_PERIOD);
 
   CONSOLE.println("starting SPI bus");
   SPI.begin();
 
   // start TMC5160 stepper drivers (wheels)
   CONSOLE.println("starting TMC5160");
-  TMC_LOGIC_ON();
+  meuhRobot.tmcLogicOn();
   R_Stepper.begin();
+  GpioPinWrite(meuhRobot.pin_cs_r_tmc, 0); // activate R TMC chip select
   uint8_t rVers = R_Stepper.version();
+  GpioPinWrite(meuhRobot.pin_cs_r_tmc, 1); // desactivate R TMC chip select
   L_Stepper.begin();
+  GpioPinWrite(meuhRobot.pin_cs_l_tmc, 0); // activate L TMC chip select
   uint8_t lVers = L_Stepper.version();
+  GpioPinWrite(meuhRobot.pin_cs_l_tmc, 1); // desactivate L TMC chip select
   CONSOLE.print("TMC versions:");
   CONSOLE.print(rVers);
   CONSOLE.print(" - ");
   CONSOLE.println(lVers);
   if ((rVers == 0xFF) || (lVers == 0xFF))
-  {
-    CONSOLE.println("No TMC communication - Sunray close ");
-    meuhRobot.exitApp();
-  }
+    {
+      CONSOLE.println("No TMC communication - Sunray close ");
+      meuhRobot.exitApp();
+    }
+  GpioPinWrite(meuhRobot.pin_cs_r_tmc, 0); // activate R TMC chip select
   START_TMC_SEQUENCE(R_Stepper); // A lot of todo to switch to speed mode, collstep, stallguard .... and test
+  GpioPinWrite(meuhRobot.pin_cs_r_tmc, 1); // desactivate R TMC chip select
+  GpioPinWrite(meuhRobot.pin_cs_l_tmc, 0); // activate L TMC chip select
   START_TMC_SEQUENCE(L_Stepper);
+  GpioPinWrite(meuhRobot.pin_cs_l_tmc, 1); // desactivate L TMC chip select
 
   // Check spi_status
   R_SpiStatus = R_Stepper.status_response;
@@ -374,8 +447,8 @@ void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm)
   if (!relayPower)
     {
       // power on motors
-      SET_74HCT541_OUTPUT_ENABLE();
-      RELAY_POWER_ON();
+      meuhRobot.set74HCTOutputEnable();
+      meuhRobot.relayPowerOn();
       // Check current
       meuhRobot.stepperCurrent = ACS_AMPS_TO_VOLTS(meuhRobot.readAdcChannel(ASD_ACS_CHANNEL)); // measure actual current steppers actives
       meuhRobot.stepperCurrent -= meuhRobot.idleCurrent; // remove offset  todo check excess
@@ -386,26 +459,27 @@ void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm)
   // JYQD
   if (mowPwm == 0)  // stop
     {
-      SETPWM1DUTYCYCLE(0);
+      PwmSetDutyCycle(pwm1, 0);
       // delay(300); // todo test active brake
-      digitalWrite(pin_enable_jyqd, 0);
+      GpioPinWrite(meuhRobot.pin_enable_jyqd, 0);
     }
   else
     {
-      digitalWrite(pin_enable_jyqd, 1);
+      GpioPinWrite(meuhRobot.pin_enable_jyqd, 1);
       if (mowPwm > 0)
         {
-          digitalWrite(pin_cw_ccw_jyqd, 0);
-          SETPWM1DUTYCYCLE(mowPwm);
+          GpioPinWrite(meuhRobot.pin_cw_ccw_jyqd, 0);
+          PwmSetDutyCycle(pwm1, map(mowPwm, 0, 255, 0, 1));
         }
       else
         {
-          digitalWrite(pin_cw_ccw_jyqd, 1);
-          SETPWM1DUTYCYCLE(abs(mowPwm));
+          GpioPinWrite(meuhRobot.pin_cw_ccw_jyqd, 1);
+          PwmSetDutyCycle(pwm1, map(abs(mowPwm), 0, 255, 0, 1));
         }
     }
 
   // TMC 5160
+  GpioPinWrite(meuhRobot.pin_cs_l_tmc, 0); // activate L TMC chip select
   if (leftPwm == 0)  // stop
     {
       L_Stepper.VMAX(0);
@@ -423,9 +497,11 @@ void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm)
           L_Stepper.VMAX(leftPwm * TMC_SPEED_MULT);
         }
     }
+  GpioPinWrite(meuhRobot.pin_cs_l_tmc, 1); // desactivate L TMC chip select
 // Check spi_status
   L_SpiStatus = L_Stepper.status_response;
 
+  GpioPinWrite(meuhRobot.pin_cs_r_tmc, 0); // activate R TMC chip select
   if (rightPwm == 0)  // stop
     {
       R_Stepper.VMAX(0);
@@ -443,6 +519,7 @@ void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm)
           R_Stepper.VMAX(rightPwm * TMC_SPEED_MULT);
         }
     }
+  GpioPinWrite(meuhRobot.pin_cs_r_tmc, 1); // desactivate R TMC chip select
 // Check spi_status
   R_SpiStatus = R_Stepper.status_response;
 
@@ -490,10 +567,10 @@ void MeuhMotorDriver::resetMotorFaults()
   CONSOLE.println("meuhRobot: resetting motor fault");
   if (M_MotorFault)
     {
-      SETPWM1DUTYCYCLE(0);
-      digitalWrite(pin_enable_jyqd, 0); // disable JYQD
+      PwmSetDutyCycle(pwm1, 0);
+      GpioPinWrite(meuhRobot.pin_enable_jyqd, 0); // disable JYQD
       delay(500);
-      digitalWrite(pin_enable_jyqd, 10); // enable JYQD
+      GpioPinWrite(meuhRobot.pin_enable_jyqd, 1); // enable JYQD
     }
 
   if (L_MotorFault)
@@ -521,8 +598,12 @@ void MeuhMotorDriver::getMotorCurrent(float &leftCurrent, float &rightCurrent, f
 void MeuhMotorDriver::getMotorEncoderTicks(int &leftTicks, int &rightTicks, int &mowTicks)
 {
 
+  GpioPinWrite(meuhRobot.pin_cs_l_tmc, 0); // activate L TMC chip select
   int32_t actualTicksLeft = L_Stepper.XACTUAL();
+  GpioPinWrite(meuhRobot.pin_cs_l_tmc, 1); // desactivate L TMC chip select
+  GpioPinWrite(meuhRobot.pin_cs_r_tmc, 0); // activate R TMC chip select
   int32_t actualTicksRight = R_Stepper.XACTUAL();
+  GpioPinWrite(meuhRobot.pin_cs_r_tmc, 1); // desactivate R TMC chip select
 
   leftTicks = abs(actualTicksLeft - lastEncoderTicksLeft);
   rightTicks = abs(actualTicksRight - lastEncoderTicksRight);
@@ -602,11 +683,11 @@ void MeuhBatteryDriver::enableCharging(bool flag)
 {
   if (flag)
     {
-      RELAY_CHARGE_ON();
+      meuhRobot.relayChargeOn();
     }
   else
     {
-      RELAY_STOP_ALL();
+      meuhRobot.relayStopAll();
     }
 }
 
@@ -630,9 +711,9 @@ void MeuhBatteryDriver::keepPowerOn(bool flag)
           CONSOLE.println("LINUX will SHUTDOWN!");
           // switch-off fan via port-expander PCA9555
           meuhRobot.setFanPowerState(false);
-          RELAY_STOP_ALL();
-          TMC_LOGIC_OFF();
-          SET_74HCT541_OUTPUT_DISABLE();
+          meuhRobot.relayStopAll();
+          meuhRobot.tmcLogicOff();
+          meuhRobot.set74HCTOutputDisable();
 
           Process p;
           p.runShellCommand("shutdown now");
@@ -710,7 +791,6 @@ void MeuhRainSensorDriver::begin()
 {
   nextControlTime = 0;
   isRaining = false;
-  pinMode(pin_rain_sensor, INPUT);
 }
 
 void MeuhRainSensorDriver::run()
@@ -718,7 +798,9 @@ void MeuhRainSensorDriver::run()
   unsigned long t = millis();
   if (t < nextControlTime) return;
   nextControlTime = t + 10000;    // save CPU resources by running at 0.1 Hz
-  isRaining = (digitalRead(pin_rain_sensor) == LOW);
+  bool val;
+  GpioPinRead(meuhRobot.pin_rain_sensor, val);
+  isRaining = (!val);
 }
 
 bool MeuhRainSensorDriver::triggered()
@@ -754,8 +836,7 @@ MeuhBuzzerDriver::MeuhBuzzerDriver(MeuhRobotDriver &sr): meuhRobot(sr)
 
 void MeuhBuzzerDriver::begin()
 {
-  pinMode(pin_buzzer, OUTPUT);
-  digitalWrite(pin_buzzer, LOW);
+  GpioPinWrite(meuhRobot.pin_buzzer, LOW);
 }
 
 void MeuhBuzzerDriver::run()
@@ -764,12 +845,12 @@ void MeuhBuzzerDriver::run()
 
 void MeuhBuzzerDriver::noTone()
 {
-  digitalWrite(pin_buzzer, LOW);
+  GpioPinWrite(meuhRobot.pin_buzzer, LOW);
 }
 
 void MeuhBuzzerDriver::tone(int freq)
 {
-  digitalWrite(pin_buzzer, HIGH);
+  GpioPinWrite(meuhRobot.pin_buzzer, HIGH);
 }
 
 // ------------------------------------------------------------------------------------

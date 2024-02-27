@@ -40,8 +40,8 @@ TMC2208Stepper::TMC2208Stepper(Stream * SerialPort, float RS, uint8_t addr, uint
 		}
 		#if defined(ARDUINO_ARCH_AVR)
 			if (RXTX_pin > 0) {
-				digitalWrite(RXTX_pin, HIGH);
-				pinMode(RXTX_pin, OUTPUT);
+				// digitalWrite(RXTX_pin, HIGH);
+				// pinMode(RXTX_pin, OUTPUT);
 			}
 		#endif
 	}
@@ -206,8 +206,8 @@ uint64_t TMC2208Stepper::_sendDatagram(uint8_t datagram[], const uint8_t len, ui
 
 	#if defined(ARDUINO_ARCH_AVR)
 		if (RXTX_pin > 0) {
-			digitalWrite(RXTX_pin, HIGH);
-			pinMode(RXTX_pin, OUTPUT);
+			// digitalWrite(RXTX_pin, HIGH);
+			// pinMode(RXTX_pin, OUTPUT);
 		}
 	#endif
 
@@ -215,7 +215,7 @@ uint64_t TMC2208Stepper::_sendDatagram(uint8_t datagram[], const uint8_t len, ui
 
 	#if defined(ARDUINO_ARCH_AVR)
 		if (RXTX_pin > 0) {
-			pinMode(RXTX_pin, INPUT_PULLUP);
+			// pinMode(RXTX_pin, INPUT_PULLUP);
 		}
 	#endif
 
@@ -268,8 +268,8 @@ uint64_t TMC2208Stepper::_sendDatagram(uint8_t datagram[], const uint8_t len, ui
 
 	#if defined(ARDUINO_ARCH_AVR)
 		if (RXTX_pin > 0) {
-			digitalWrite(RXTX_pin, HIGH);
-			pinMode(RXTX_pin, OUTPUT);
+			// digitalWrite(RXTX_pin, HIGH);
+			// pinMode(RXTX_pin, OUTPUT);
 		}
 	#endif
 

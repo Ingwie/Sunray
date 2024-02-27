@@ -13,26 +13,61 @@
 /*   Licence: GPLV3 see <http://www.gnu.org/licenses   */
 /*    Ardumower Alfred mod to drive my autoclip 325    */
 
-// Linux pwm driver
-
-#ifndef PWM_LINUX_INCLUDED
-#define PWM_LINUX_INCLUDED
-
-#include "Arduino.h"
+#include "CPeripheryInterface.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/select.h>
-#include <sys/stat.h>
+#include <stdint.h>
 
-int pwmExport(int pwmio);
-void pwmUnexport(int pwmio);
-int pwmSetEnable(int pwmio, int enable);
-int pwmSetPolarity(int pwmio, int polarity);
-int pwmSetPeriod(int pwmio, uint32_t period);
-int pwmSetDutyCycle(int pwmio, uint32_t duty);
+// SPI
 
-#endif // PWM_LINUX_INCLUDED
+void SPIC::begin()
+{
+  spi = spi_new();
+}
+
+void SPIC::beginTransaction(SPISettings settings)
+{
+  if (spi_open(spi, "/dev/spidev0.0", 3, 4e6) < 0) // overide settings (mode3 and 4MHz)
+    {
+      fprintf(stderr, "spi_open(): %s\n", spi_errmsg(spi));
+      exit(1);
+    }
+}
+
+uint8_t SPIC::transfer(uint8_t data)
+{
+  uint8_t ret = 0;
+  if (spi_transfer(spi, &data, &ret, 1) < 0)
+    {
+      fprintf(stderr, "spi_transfer(): %s\n", spi_errmsg(spi));
+      exit(1);
+      return 0;
+    }
+  else return ret;
+}
+
+void SPIC::endTransaction()
+{
+
+}
+
+//  I2C
+
+void I2CC::begin()
+{
+  i2cc = i2c_new();
+  if (i2c_open(i2cc, "/dev/i2c-1") < 0)
+    {
+      fprintf(stderr, "i2c_open(): %s\n", i2c_errmsg(i2cc));
+      exit(1);
+    }
+}
+
+void I2CC::transfer(struct i2c_msg* msgs, size_t msgsnum)
+{
+  if (i2c_transfer(i2cc, msgs, msgsnum) < 0)
+    {
+      fprintf(stderr, "i2c_transfer(): %s\n", i2c_errmsg(i2cc));
+      exit(1);
+    }
+}

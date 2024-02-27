@@ -54,9 +54,9 @@ bool computeFusionImu() // return false if fail
 {
  bool ret = true;
 // Measure
- if (!readGyro()) { CONSOLE.println("GYROSCOPE error"); ret = false; }
- if (!readAcc()) { CONSOLE.println("ACCELEROMETER error"); ret = false; }
- if (!readMag()) { CONSOLE.println("MAGNETIC SENSOR error"); ret = false; }
+ if (!readGyro()) {ret = false; }
+ if (!readAcc()) {ret = false; }
+ if (!readMag()) {ret = false; }
 
 // Calibrate gyroscope
  calibratedGyroscope = FusionCalibrationInertial(uncalibratedGyroscope, FUSION_ROTATION_MATRIX_IDENTITY, gyroscopeSensitivity, FUSION_VECTOR3_ZERO);

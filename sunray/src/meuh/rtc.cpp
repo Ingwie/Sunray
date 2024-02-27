@@ -37,7 +37,6 @@ void initRTC()
 
  if ((i2c_readReg(RTC_ADRESS, 0x02, &powerlost, 1)) == 0) // Read VL bit in secondes register
   {
-   CONSOLE.println("RTC HS");
    return;	/* Check data corruption and return on IIC error */
   }
 
@@ -53,7 +52,6 @@ void initRTC()
    buf[5] = 0x01;    // 1 - 12 from to months since January - [ 0 to 11 ]
    buf[6] = 0x21;    // 0 - 99 from to years since 1900
    i2c_writeReg(RTC_ADRESS, 0x02, buf, 7);
-   CONSOLE.println("RTC BATT HS");
   }
 
  struct tm utm;

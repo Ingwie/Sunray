@@ -560,15 +560,6 @@ void outputConfig(){
 void start(){
 #ifndef __linux__
   pinMan.begin();
-#endif // __linux__
-  // keep battery switched ON
-  batteryDriver.begin();
-  CONSOLE.begin(CONSOLE_BAUDRATE);
-  buzzerDriver.begin();
-  buzzer.begin();
-
-  Wire.begin();
-#ifndef __linux__
   analogReadResolution(12);  // configure ADC 12 bit resolution
   unsigned long timeout = millis() + 2000;
   while (millis() < timeout){
@@ -619,6 +610,13 @@ void start(){
   liftDriver.begin();
   battery.begin();
   stopButton.begin();
+  // keep battery switched ON
+  batteryDriver.begin();
+  CONSOLE.begin(CONSOLE_BAUDRATE);
+  buzzerDriver.begin();
+  buzzer.begin();
+
+  Wire.begin();
 
   bleConfig.run();
   //BLE.println(VER); is this needed? can confuse BLE modules if not connected?

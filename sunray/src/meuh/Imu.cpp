@@ -16,6 +16,7 @@
 
 
 #include "Imu.h"
+#include <arpa/inet.h>
 
 void initImusGY85() // init Gyro, accel and compass
 {
