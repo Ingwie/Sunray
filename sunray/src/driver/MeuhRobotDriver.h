@@ -41,7 +41,7 @@
 #define pin_cw_ccw_jyqd_Number    42 // 5V 74HCT541 output was pin_sdio_d0
 #define pin_power_relay_Number    3  // 5V 74HCT541 output was aio_bck
 #define pin_charge_relay_Number   43 // 5V 74HCT541 output was pin_sdio_d1
-#define pin_buzzer_Number         44 // 5V 74HCT541 output was pin_sdio_d2
+#define pin_pin_sdio_d2_Number    44 // 5V 74HCT541 output free
 #define pin_ur1_rts_Number        11 // 5V 74HCT541 output
 #define pin_ur1_cts_Number        10
 #define pin_spi_mosi_Number       31 // SPI used
@@ -50,8 +50,8 @@
 #define pin_spi_sck_Number        19 // SPI used
 #define pin_cs_r_tmc_Number       20 // was pin_spi_cs .. Can be used for other task ??
 #define pin_cs_l_tmc_Number       22 // was pin_pwm2
-#define pin_sdio_d3_Number        45
-#define pin_pwm3_Number           23
+#define pin_buzzer_Number         45 // was pin sdio_d3
+#define pin_pwm_cooler_Number     23 // was pin pwm3
 #define pin_sdio_clk_Number       41
 #define pin_sdio_cmd_Number       40
 #define pin_spdif_Number          50 // 5V -> 3.3V input
@@ -199,7 +199,7 @@ public:
   gpio_t * pin_cw_ccw_jyqd;
   gpio_t * pin_power_relay;
   gpio_t * pin_charge_relay;
-  gpio_t * pin_buzzer;
+  gpio_t * pin_sdio_d2;
   gpio_t * pin_ur1_rts;
   gpio_t * pin_ur1_cts;
   gpio_t * pin_spi_mosi;
@@ -208,8 +208,8 @@ public:
   gpio_t * pin_spi_sck;
   gpio_t * pin_cs_r_tmc;
   gpio_t * pin_cs_l_tmc;
-  gpio_t * pin_sdio_d3;
-  gpio_t * pin_pwm3;
+  gpio_t * pin_buzzer;
+  gpio_t * pin_pwm_cooler;
   gpio_t * pin_sdio_clk;
   gpio_t * pin_sdio_cmd;
   gpio_t * pin_spdif;
