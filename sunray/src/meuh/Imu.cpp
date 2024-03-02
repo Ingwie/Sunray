@@ -61,7 +61,7 @@ void initGyro()
  i2c_writeRegByte(GYRO_ADRESS, 0x3E, CLK_SEL); // frequency source
 }
 
-bool readGyro() // return 0 if fail
+bool readGyro()
 {
  bool tmp = i2c_readReg(GYRO_ADRESS, GYRO_XOUT_H, (uint8_t*)&imuGyro, 6);
 // swap bytes
@@ -76,7 +76,7 @@ bool readGyro() // return 0 if fail
  return tmp;
 }
 
-void readGyroTemp() // return 0if fail
+void readGyroTemp()
 {
  i2c_readReg(GYRO_ADRESS, TEMP_OUT_H, (uint8_t*)&gyroTemp, 2);
  gyroTemp = htons(gyroTemp);
