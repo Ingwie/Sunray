@@ -55,6 +55,9 @@ void MeuhRobotDriver::begin()
   set74HCTOutputDisable();
   relayStopAll();
   SetGpioPin(pin_buzzer, GPIO_DIR_OUT);
+  //SetGpioPin(pin_pwm_fan, GPIO_DIR_OUT); // needed by linux pwm driver? no
+  SetNewPwm(pwmFan, 3); // Jyqd pwm (maw)
+  PwmSetFrequency(pwmFan, 10e3);
   SetGpioPin(pin_rain_sensor, GPIO_DIR_IN);
 
 // Mow driver (JYQD)
@@ -118,15 +121,15 @@ void MeuhRobotDriver::begin()
   //pcf8575.write16(0xFFFF);
 
   // switch-on fan
-  setFanPowerState(true);
+  setFanPowerTune(60);
 
   // buzzer test
   if (false)
     {
       CONSOLE.println("buzzer test");
-      ///ioExpanderOut(EX2_I2C_ADDR, EX2_BUZZER_PORT, EX2_BUZZER_PIN, true);
+      GpioPinWrite(pin_buzzer, 1);
       delay(500);
-      ///ioExpanderOut(EX2_I2C_ADDR, EX2_BUZZER_PORT, EX2_BUZZER_PIN, false);
+      GpioPinWrite(pin_buzzer, 0);
     }
 
   CONSOLE.println("starting I2C bus");
@@ -241,11 +244,12 @@ float MeuhRobotDriver::readAdcChannel(ADS1115_MUX channel)   // 8mS @ ADS1115_25
   return voltage;
 }
 
-bool MeuhRobotDriver::setFanPowerState(bool state)
+bool MeuhRobotDriver::setFanPowerTune(float temp)
 {
   CONSOLE.print("FAN POWER STATE ");
-  CONSOLE.println(state);
-  return 1;///ioExpanderOut(EX1_I2C_ADDR, EX1_FAN_POWER_PORT, EX1_FAN_POWER_PIN, state);
+  CONSOLE.println(temp);
+  PwmSetDutyCycle(pwmFan, map(temp, 40, 80, 0, 1));
+  return 1;
 }
 
 /*bool MeuhRobotDriver::setImuPowerState(bool state){
@@ -368,14 +372,7 @@ void MeuhRobotDriver::run()
     {
       nextTempTime = millis() + 59000; // 59 sec
       updateCpuTemperature();
-      if (cpuTemp < 60)
-        {
-          setFanPowerState(false);
-        }
-      else if (cpuTemp > 65)
-        {
-          setFanPowerState(true);
-        }
+      setFanPowerTune(cpuTemp);
     }
   if (millis() > nextWifiTime)
     {
@@ -398,9 +395,10 @@ void MeuhMotorDriver::begin()
   R_DrvStatus.sr = L_DrvStatus.sr = 0;
   L_SpiStatus, R_SpiStatus = 0;
 
-  CONSOLE.println("starting PWM1");
-  SetNewPwm(pwm1, 1); // Jyqd pwm (maw)
-  PwmSetFrequency(pwm1, JYQD_PWM_PERIOD);
+  CONSOLE.println("starting JYQD PWM");
+  SetNewPwm(pwmJYQD, 1); // Jyqd pwm (maw)
+  PwmSetPolarity(pwmJYQD, PWM_POLARITY_INVERSED);
+  PwmSetFrequency(pwmJYQD, JYQD_PWM_PERIOD);
 
   CONSOLE.println("starting SPI bus");
   SPI.begin();
@@ -459,7 +457,7 @@ void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm)
   // JYQD
   if (mowPwm == 0)  // stop
     {
-      PwmSetDutyCycle(pwm1, 0);
+      PwmSetDutyCycle(pwmJYQD, 0);
       // delay(300); // todo test active brake
       GpioPinWrite(meuhRobot.pin_enable_jyqd, 0);
     }
@@ -469,12 +467,12 @@ void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm)
       if (mowPwm > 0)
         {
           GpioPinWrite(meuhRobot.pin_cw_ccw_jyqd, 0);
-          PwmSetDutyCycle(pwm1, map(mowPwm, 0, 255, 0, 1));
+          PwmSetDutyCycle(pwmJYQD, map(mowPwm, 0, 255, 0, 1));
         }
       else
         {
           GpioPinWrite(meuhRobot.pin_cw_ccw_jyqd, 1);
-          PwmSetDutyCycle(pwm1, map(abs(mowPwm), 0, 255, 0, 1));
+          PwmSetDutyCycle(pwmJYQD, map(abs(mowPwm), 0, 255, 0, 1));
         }
     }
 
@@ -567,7 +565,7 @@ void MeuhMotorDriver::resetMotorFaults()
   CONSOLE.println("meuhRobot: resetting motor fault");
   if (M_MotorFault)
     {
-      PwmSetDutyCycle(pwm1, 0);
+      PwmSetDutyCycle(pwmJYQD, 0);
       GpioPinWrite(meuhRobot.pin_enable_jyqd, 0); // disable JYQD
       delay(500);
       GpioPinWrite(meuhRobot.pin_enable_jyqd, 1); // enable JYQD
@@ -710,7 +708,7 @@ void MeuhBatteryDriver::keepPowerOn(bool flag)
           linuxShutdownTime = millis() + 10000; // re-trigger linux command after 10 secs
           CONSOLE.println("LINUX will SHUTDOWN!");
           // switch-off fan via port-expander PCA9555
-          meuhRobot.setFanPowerState(false);
+          meuhRobot.setFanPowerTune(false);
           meuhRobot.relayStopAll();
           meuhRobot.tmcLogicOff();
           meuhRobot.set74HCTOutputDisable();

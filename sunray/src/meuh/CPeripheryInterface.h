@@ -60,6 +60,8 @@ if (pwm_set_frequency(pwm, frequency) < 0) \
 #define PwmSetDutyCycle(pwm, dutycycle) \
 if (pwm_set_duty_cycle(pwm, dutycycle) < 0) {fprintf(stderr, "pwm_set_duty_cycle(): %s\n", pwm_errmsg(pwm));exit(1);}
 
+#define PwmSetPolarity(pwm, polarity) \
+if (pwm_set_polarity(pwm, polarity) < 0) {fprintf(stderr, "pwm_set_polarity(): %s\n", pwm_errmsg(pwm));exit(1);}
 
 //  SPI
 

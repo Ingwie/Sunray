@@ -51,7 +51,7 @@
 #define pin_cs_r_tmc_Number       20 // was pin_spi_cs .. Can be used for other task ??
 #define pin_cs_l_tmc_Number       22 // was pin_pwm2
 #define pin_buzzer_Number         45 // was pin sdio_d3
-#define pin_pwm_cooler_Number     23 // was pin pwm3
+#define pin_pwm_fan_Number        23 // was pin pwm3
 #define pin_sdio_clk_Number       41
 #define pin_sdio_cmd_Number       40
 #define pin_spdif_Number          50 // 5V -> 3.3V input
@@ -178,7 +178,7 @@ public:
   //void requestMotorPwm(int leftPwm, int rightPwm, int mowPwm);
   void updateCpuTemperature();
   void updateWifiConnectionState();
-  bool setFanPowerState(bool state);
+  bool setFanPowerTune(float temp);
   float readAdcChannel(ADS1115_MUX channel);
   void exitApp();
   void tmcLogicOff();
@@ -209,7 +209,7 @@ public:
   gpio_t * pin_cs_r_tmc;
   gpio_t * pin_cs_l_tmc;
   gpio_t * pin_buzzer;
-  gpio_t * pin_pwm_cooler;
+  gpio_t * pin_pwm_fan;
   gpio_t * pin_sdio_clk;
   gpio_t * pin_sdio_cmd;
   gpio_t * pin_spdif;
@@ -219,6 +219,10 @@ public:
   gpio_t * pin_gpio34;
   gpio_t * pin_pulses_jyqd;
   gpio_t * pin_rain_sensor;
+
+  // pwm pointer
+  pwm_t * pwmFan;
+
 protected:
   Process cpuTempProcess;
   Process wifiStatusProcess;
@@ -264,7 +268,7 @@ protected:
   TMC5160_DRV_STATUS_t L_DrvStatus;
   TMC5160_DRV_STATUS_t R_DrvStatus;
   // pwm pointer
-  pwm_t * pwm1;
+  pwm_t * pwmJYQD;
 };
 
 class MeuhBatteryDriver : public BatteryDriver
