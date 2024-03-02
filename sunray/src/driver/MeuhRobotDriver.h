@@ -61,7 +61,6 @@
 #define pin_gpio34_Number         34
 #define pin_pulses_jyqd_Number    5 // 5V -> 3.3V input was pin_aisd
 #define pin_rain_sensor_Number    6 // 5V -> 3.3V input was pin_aosd
-//----- BPI-M4 hardware alias
 
 //-----> ADS1115 Macro resolution 2048 -> 0.0625mV/bit
 #define ASD_BAT_CHANNEL         ADS1115_COMP_0_GND

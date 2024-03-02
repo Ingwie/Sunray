@@ -314,10 +314,6 @@ void MeuhRobotDriver::updateWifiConnectionState()
   //CONSOLE.println(duration);
 }
 
-// request MCU motor PWM
-//void MeuhRobotDriver::requestMotorPwm(int leftPwm, int rightPwm, int mowPwm){}
-
-
 void MeuhRobotDriver::versionResponse()
 {
   if (cmd.length()<6) return;
@@ -406,12 +402,12 @@ void MeuhMotorDriver::begin()
   // start TMC5160 stepper drivers (wheels)
   CONSOLE.println("starting TMC5160");
   meuhRobot.tmcLogicOn();
-  R_Stepper.begin();
   GpioPinWrite(meuhRobot.pin_cs_r_tmc, 0); // activate R TMC chip select
+  R_Stepper.begin();
   uint8_t rVers = R_Stepper.version();
   GpioPinWrite(meuhRobot.pin_cs_r_tmc, 1); // desactivate R TMC chip select
-  L_Stepper.begin();
   GpioPinWrite(meuhRobot.pin_cs_l_tmc, 0); // activate L TMC chip select
+  L_Stepper.begin();
   uint8_t lVers = L_Stepper.version();
   GpioPinWrite(meuhRobot.pin_cs_l_tmc, 1); // desactivate L TMC chip select
   CONSOLE.print("TMC versions:");
@@ -530,8 +526,12 @@ void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm)
 void MeuhMotorDriver::getMotorFaults(bool &leftFault, bool &rightFault, bool &mowFault)
 {
 
+  GpioPinWrite(meuhRobot.pin_cs_l_tmc, 0); // activate L TMC chip select
   CHECK_AND_COMPUTE_TMC_ERROR(L_DrvStatus, L_Stepper, L_SpiStatus, L_MotorFault, meuhRobot.motorLeftCurr);
+  GpioPinWrite(meuhRobot.pin_cs_l_tmc, 1); // desactivate L TMC chip select
+  GpioPinWrite(meuhRobot.pin_cs_r_tmc, 0); // activate R TMC chip select
   CHECK_AND_COMPUTE_TMC_ERROR(R_DrvStatus, R_Stepper, R_SpiStatus, R_MotorFault, meuhRobot.motorRightCurr);
+  GpioPinWrite(meuhRobot.pin_cs_r_tmc, 1); // desactivate R TMC chip select
 
   if ((meuhRobot.lastMowPwm != 0) && (encoderTicksMow == 0))
     {
@@ -595,7 +595,6 @@ void MeuhMotorDriver::getMotorCurrent(float &leftCurrent, float &rightCurrent, f
 
 void MeuhMotorDriver::getMotorEncoderTicks(int &leftTicks, int &rightTicks, int &mowTicks)
 {
-
   GpioPinWrite(meuhRobot.pin_cs_l_tmc, 0); // activate L TMC chip select
   int32_t actualTicksLeft = L_Stepper.XACTUAL();
   GpioPinWrite(meuhRobot.pin_cs_l_tmc, 1); // desactivate L TMC chip select
