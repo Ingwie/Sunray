@@ -74,8 +74,8 @@ void MeuhRobotDriver::begin()
   //SetGpioPin(pin_spi_miso, GPIO_DIR_IN);
   //SetGpioPin(pin_spi_sck, GPIO_DIR_OUT);
   SetGpioPin(pin_cs_r_tmc, GPIO_DIR_OUT);
-  SetGpioPin(pin_cs_l_tmc, GPIO_DIR_OUT);
   GpioPinWrite(pin_cs_r_tmc, 1); // desactivate R TMC chip select
+  SetGpioPin(pin_cs_l_tmc, GPIO_DIR_OUT);
   GpioPinWrite(pin_cs_l_tmc, 1); // desactivate L TMC chip select
 
   //encoderTicksLeft = 0;
@@ -398,6 +398,10 @@ void MeuhMotorDriver::begin()
 
   CONSOLE.println("starting SPI bus");
   SPI.begin();
+  SPISettings dummy;
+  SPI.beginTransaction(dummy); // SPISetting are hard coded in CPeripheryInterface.cpp
+  SPI.transfer(0xFF); // initial dummy transfert
+
 
   // start TMC5160 stepper drivers (wheels)
   CONSOLE.println("starting TMC5160");
