@@ -326,6 +326,6 @@ uint16_t ADS1115_WE::readRegister(uint8_t reg){
     uint8_t ret[2] = {0};
     uint16_t regValue = 0;
     i2c_readReg(i2cAddress, reg, ret, 2);
-    regValue = (ret[0]<<8) + ret[1];
+    regValue = (ret[0]<<8) | ret[1];
     return regValue;
 }
