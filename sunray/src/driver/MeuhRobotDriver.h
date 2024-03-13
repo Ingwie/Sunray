@@ -149,6 +149,7 @@ public:
   int lastLeftPwm;
   int lastRightPwm;
   int lastMowPwm;
+  uint32_t encoderTicksMow;
   //unsigned long encoderTicksLeft;
   //unsigned long encoderTicksRight;
   //bool mcuCommunicationLost;
@@ -187,6 +188,7 @@ public:
   void relayChargeOn();
   void set74HCTOutputEnable();
   void set74HCTOutputDisable();
+  void getTicksMow();
   //bool setImuPowerState(bool state);
 
 // gpio pin pointer
@@ -221,6 +223,8 @@ public:
 
   // pwm pointer
   pwm_t * pwmFan;
+  // counter File
+  int ticksMowFD;
 
 protected:
   Process cpuTempProcess;

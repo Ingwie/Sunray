@@ -16,14 +16,11 @@
 
 #include "MeuhRobotDriver.h"
 #include "../../config.h"
-//#include "../../ioboard.h"
 #include "../meuh/Imu.h"
 #include "../meuh/FusionImu.h"
-
+#include <fcntl.h>
 
 #define COMM  ROBOT
-
-//#define DEBUG_SERIAL_ROBOT 1
 
 TMC5160Stepper R_Stepper(pin_cs_r_tmc_Number, TMC_RsensE);
 TMC5160Stepper L_Stepper(pin_cs_l_tmc_Number, TMC_RsensE);
@@ -32,13 +29,6 @@ bool relayCharge;
 bool relayPower;
 bool tmc3V3Powered;
 
-
-// JYQDpusles ISR
-volatile unsigned long encoderTicksMow = 0;
-void pulsesMowISR()
-{
-  ++encoderTicksMow;
-}
 
 void MeuhRobotDriver::begin()
 {
@@ -65,7 +55,7 @@ void MeuhRobotDriver::begin()
   SetGpioPin(pin_enable_jyqd, GPIO_DIR_OUT);
   SetGpioPin(pin_cw_ccw_jyqd, GPIO_DIR_OUT);
   SetGpioPin(pin_pulses_jyqd, GPIO_DIR_IN);
-  attachInterrupt(pin_pulses_jyqd_Number, pulsesMowISR, CHANGE);
+  //SetGpioPin(pin_pulses_jyqd, GPIO_DIR_IN);
   GpioPinWrite(pin_enable_jyqd, 0); // disable JYQD
 
 
@@ -73,9 +63,9 @@ void MeuhRobotDriver::begin()
   //SetGpioPin(pin_spi_mosi, GPIO_DIR_OUT);
   //SetGpioPin(pin_spi_miso, GPIO_DIR_IN);
   //SetGpioPin(pin_spi_sck, GPIO_DIR_OUT);
-  SetGpioPin(pin_cs_r_tmc, GPIO_DIR_OUT);
-  GpioPinWrite(pin_cs_r_tmc, 1); // desactivate R TMC chip select
-  SetGpioPin(pin_cs_l_tmc, GPIO_DIR_OUT);
+  SetGpioPin(pin_cs_r_tmc, GPIO_DIR_OUT_HIGH);
+  SetGpioPin(pin_cs_l_tmc, GPIO_DIR_OUT_HIGH);
+  GpioPinWrite(pin_cs_r_tmc, 1); // desactivate L TMC chip select
   GpioPinWrite(pin_cs_l_tmc, 1); // desactivate L TMC chip select
 
   //encoderTicksLeft = 0;
@@ -169,6 +159,16 @@ void MeuhRobotDriver::begin()
   CONSOLE.print("IDLE CURRENT = ");
   CONSOLE.println(idleCurrent);
 
+  if ((ticksMowFD = open("/sys/class/gpio-counter/GPIO-5/value", O_WRONLY | O_SYNC)) < 0)
+  {
+    CONSOLE.println("Can't open MowCouter value");
+    exitApp();
+  }
+}
+
+void MeuhRobotDriver::getTicksMow()
+{
+  // TODO call kernel module counter !!
 }
 
 void MeuhRobotDriver::tmcLogicOn()
@@ -537,7 +537,7 @@ void MeuhMotorDriver::getMotorFaults(bool &leftFault, bool &rightFault, bool &mo
   CHECK_AND_COMPUTE_TMC_ERROR(R_DrvStatus, R_Stepper, R_SpiStatus, R_MotorFault, meuhRobot.motorRightCurr);
   GpioPinWrite(meuhRobot.pin_cs_r_tmc, 1); // desactivate R TMC chip select
 
-  if ((meuhRobot.lastMowPwm != 0) && (encoderTicksMow == 0))
+  if ((meuhRobot.lastMowPwm != 0) && (lastEncoderTicksMow == 0))
     {
       M_MotorFault = true;
     }
@@ -608,12 +608,12 @@ void MeuhMotorDriver::getMotorEncoderTicks(int &leftTicks, int &rightTicks, int 
 
   leftTicks = abs(actualTicksLeft - lastEncoderTicksLeft);
   rightTicks = abs(actualTicksRight - lastEncoderTicksRight);
-  mowTicks = encoderTicksMow;
+  mowTicks = meuhRobot.encoderTicksMow;
 
   lastEncoderTicksLeft = actualTicksLeft;
   lastEncoderTicksRight = actualTicksRight;
-  lastEncoderTicksMow = encoderTicksMow;
-  encoderTicksMow = 0;
+  lastEncoderTicksMow = meuhRobot.encoderTicksMow;
+  meuhRobot.encoderTicksMow = 0;
 }
 
 
