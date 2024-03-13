@@ -16,6 +16,7 @@
 // I2Chelper to use Arduino code
 
 #include "I2chelper.h"
+#include <string.h>
 
 uint8_t i2c_readRegByte(uint8_t address, uint8_t reg) // Return 0 if success
 {
@@ -25,18 +26,18 @@ uint8_t i2c_readRegByte(uint8_t address, uint8_t reg) // Return 0 if success
   Wire.requestFrom(address, 1);
   return Wire.read();*/
 
-uint8_t ret = 0;
-struct i2c_msg msgs[2] =
-        {
-            /* Write 8-bit address */
-            { .addr = address, .flags = 0, .len = 1, .buf = &reg },
-            /* Read 8-bit data */
-            { .addr = address, .flags = I2C_M_RD, .len = 1, .buf = &ret},
-        };
+  uint8_t ret = 0;
+  struct i2c_msg msgs[2] =
+  {
+    /* Write 8-bit address */
+    { .addr = address, .flags = 0, .len = 1, .buf = &reg },
+    /* Read 8-bit data */
+    { .addr = address, .flags = I2C_M_RD, .len = 1, .buf = &ret},
+  };
 
-    /* Transfer a transaction with two I2C messages */
-    I2C.transfer(msgs, 2);
-    return ret;
+  /* Transfer a transaction with two I2C messages */
+  I2C.transfer(msgs, 2);
+  return ret;
 }
 
 uint8_t i2c_readReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len) // Return 0 if fail
@@ -50,17 +51,17 @@ uint8_t i2c_readReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len) 
       buffer[i] = Wire.read();
     }
   return ret;*/
- struct i2c_msg msgs[2] =
-        {
-            /* Write 8-bit address */
-            { .addr = address, .flags = 0, .len = 1, .buf = &reg },
-            /* Read len 8-bit data */
-            { .addr = address, .flags = I2C_M_RD, .len = len, .buf = buffer},
-        };
+  struct i2c_msg msgs[2] =
+  {
+    /* Write 8-bit address */
+    { .addr = address, .flags = 0, .len = 1, .buf = &reg },
+    /* Read len 8-bit data */
+    { .addr = address, .flags = I2C_M_RD, .len = len, .buf = buffer},
+  };
 
-    /* Transfer a transaction with two I2C messages */
-    I2C.transfer(msgs, 2);
-    return 0;
+  /* Transfer a transaction with two I2C messages */
+  I2C.transfer(msgs, 2);
+  return 0;
 }
 
 uint8_t i2c_writeRegByte(uint8_t address, uint8_t reg, uint8_t value) // Return 0 if success
@@ -69,17 +70,16 @@ uint8_t i2c_writeRegByte(uint8_t address, uint8_t reg, uint8_t value) // Return 
   Wire.write(reg);
   Wire.write(value);
   return Wire.endTransmission();*/
-struct i2c_msg msgs[2] =
-        {
-            /* Write 8-bit address */
-            { .addr = address, .flags = 0, .len = 1, .buf = &reg },
-            /* Write 8-bit data */
-            { .addr = address, .flags = 0, .len = 1, .buf = &value},
-        };
+  uint8_t buf[2] = {reg, value};
+  struct i2c_msg msgs[1] =
+  {
+    /* Write 8-bit address + reg + value */
+    { .addr = address, .flags = 0, .len = 2, .buf = buf },
+  };
 
-    /* Transfer a transaction with two I2C messages */
-    I2C.transfer(msgs, 2);
-    return 0;
+  /* Transfer a transaction with two I2C messages */
+  I2C.transfer(msgs, 1);
+  return 0;
 }
 
 uint8_t i2c_writeReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len) // Return 0 if success
@@ -91,15 +91,16 @@ uint8_t i2c_writeReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len)
       Wire.write(buffer[i]);
     }
   return Wire.endTransmission();*/
- struct i2c_msg msgs[2] =
-        {
-            /* Write 8-bit address */
-            { .addr = address, .flags = 0, .len = 1, .buf = &reg },
-            /* Write len 8-bit data */
-            { .addr = address, .flags = 0, .len = len, .buf = buffer},
-        };
+  uint8_t buf[len + 1];
+  buf[0] = reg;
+  memcpy(&buf[1], buffer, len);
+  struct i2c_msg msgs[1] =
+  {
+    /* Write 8-bit address + reg + values */
+    { .addr = address, .flags = 0, .len = (len + 1), .buf = buf },
+  };
 
-    /* Transfer a transaction with two I2C messages */
-    I2C.transfer(msgs, 2);
-    return 0;
+  /* Transfer a transaction with two I2C messages */
+  I2C.transfer(msgs, 1);
+  return 0;
 }
