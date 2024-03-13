@@ -38,6 +38,15 @@ if (gpio_write(name, value) < 0) \
 if (gpio_read(name, &value) < 0) \
   {fprintf(stderr, "gpio_read(): %s\n", gpio_errmsg(name)); exit(1);}
 
+#define GpioSetEdge(name, edge) \
+if (gpio_set_edge(name, edge) < 0) \
+  {fprintf(stderr, "gpio_set_edge(): %s\n", gpio_errmsg(name)); exit(1);}
+
+#define GpioReadEvent(name, edge, timestamp) \
+if (gpio_read_event(name, edge, timestamp) < 0) \
+  {fprintf(stderr, "gpio_read_event(): %s\n", gpio_errmsg(name)); exit(1);}
+
+
 //  PWM
 
 #define SetNewPwm(pwm, num) \
