@@ -46,6 +46,15 @@ uint8_t SPIC::transfer(uint8_t data)
   else return ret;
 }
 
+void SPIC::transfertTmcFrame(tmcFrame * frame)
+{
+  if (spi_transfer(spi, (uint8_t*)frame, (uint8_t*)frame, sizeof(tmcFrame)) < 0)
+    {
+      fprintf(stderr, "spi_transfer5(): %s\n", spi_errmsg(spi));
+      exit(1);
+    }
+}
+
 void SPIC::endTransaction()
 {
 

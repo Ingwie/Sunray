@@ -99,7 +99,7 @@ void TMC2130Stepper::transferEmptyBytes(const uint8_t n) {
 
 __attribute__((weak))
 uint32_t TMC2130Stepper::read(uint8_t addressByte) {
-  uint32_t out = 0UL;
+  //uint32_t out = 0UL;
   //int8_t i = 1;
 
   //beginTransaction();
@@ -107,6 +107,12 @@ uint32_t TMC2130Stepper::read(uint8_t addressByte) {
   transfer(addressByte);
   // Clear SPI
   transferEmptyBytes(4);
+
+  tmcFrame frame;
+  frame.firstByte = addressByte;
+  frame.datas = 0;
+  SPI.transfertTmcFrame(&frame);
+
 
   // Shift the written data to the correct driver in chain
   // Default link_index = -1 and no shifting happens
@@ -125,18 +131,22 @@ uint32_t TMC2130Stepper::read(uint8_t addressByte) {
   }*/
 
   // ...and once more to MCU
-  status_response = transfer(addressByte); // Send the address byte again
-  out  = transfer(0x00);
-  out <<= 8;
-  out |= transfer(0x00);
-  out <<= 8;
-  out |= transfer(0x00);
-  out <<= 8;
-  out |= transfer(0x00);
+  //status_response = transfer(addressByte); // Send the address byte again
+  //out  = transfer(0x00);
+  //out <<= 8;
+  //out |= transfer(0x00);
+  //out <<= 8;
+  //out |= transfer(0x00);
+  //out <<= 8;
+  //out |= transfer(0x00);
 
+  frame.firstByte = addressByte;
+  frame.datas = 0;
+  SPI.transfertTmcFrame(&frame);
+  status_response = frame.firstByte;
   //endTransaction();
   //switchCSpin(HIGH);
-  return out;
+  return frame.datas;
 }
 
 __attribute__((weak))
@@ -146,11 +156,16 @@ void TMC2130Stepper::write(uint8_t addressByte, uint32_t config) {
 
   //beginTransaction();
   //switchCSpin(LOW);
-  status_response = transfer(addressByte);
-  transfer(config>>24);
-  transfer(config>>16);
-  transfer(config>>8);
-  transfer(config);
+  //status_response = transfer(addressByte);
+  //transfer(config>>24);
+  //transfer(config>>16);
+  //transfer(config>>8);
+  //transfer(config);
+
+  tmcFrame frame;
+  frame.firstByte = addressByte;
+  frame.datas = config;
+  SPI.transfertTmcFrame(&frame);
 
   // Shift the written data to the correct driver in chain
   // Default link_index = -1 and no shifting happens

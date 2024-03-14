@@ -74,6 +74,11 @@ if (pwm_set_polarity(pwm, polarity) < 0) {fprintf(stderr, "pwm_set_polarity(): %
 
 //  SPI
 
+struct tmcFrame { // Specialy to manage TMC cpmminication transfertTmcFrame()
+uint8_t firstByte;
+uint32_t datas;
+};
+
 class SPISettings {
 public:
   SPISettings():freq(4000000),mode(SPI_MODE_3){}
@@ -94,6 +99,7 @@ public:
   void beginTransaction(SPISettings settings);
   void endTransaction();
   uint8_t transfer(uint8_t data);
+  void transfertTmcFrame(tmcFrame * frame);
 protected:
   spi_t *spi;
 };
