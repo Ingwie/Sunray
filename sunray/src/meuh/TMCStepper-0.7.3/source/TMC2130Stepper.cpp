@@ -1,4 +1,4 @@
-// File modded : CS pin and SPI are managed in the main code for speed optimization
+// File modded : SPI is managed in the main code for speed optimization
 
 #include "../TMCStepper.h"
 #include "TMC_MACROS.h"
@@ -6,9 +6,9 @@
 int8_t TMC2130Stepper::chain_length = 0;
 uint32_t TMC2130Stepper::spi_speed = 16000000/8;
 
-TMC2130Stepper::TMC2130Stepper(uint16_t pinCS, float RS, int8_t link) :
+TMC2130Stepper::TMC2130Stepper(gpio_t * gpioPinCS, float RS, int8_t link) :
   TMCStepper(RS),
-  _pinCS(pinCS),
+  _pinCS(gpioPinCS),
   link_index(link)
   {
     defaults();
@@ -17,9 +17,9 @@ TMC2130Stepper::TMC2130Stepper(uint16_t pinCS, float RS, int8_t link) :
       chain_length = link;
   }
 
-TMC2130Stepper::TMC2130Stepper(uint16_t pinCS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK, int8_t link) :
+TMC2130Stepper::TMC2130Stepper(gpio_t * gpioPinCS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK, int8_t link) :
   TMCStepper(default_RS),
-  _pinCS(pinCS),
+  _pinCS(gpioPinCS),
   link_index(link)
   {
     SW_SPIClass *SW_SPI_Obj = new SW_SPIClass(pinMOSI, pinMISO, pinSCK);
@@ -30,9 +30,9 @@ TMC2130Stepper::TMC2130Stepper(uint16_t pinCS, uint16_t pinMOSI, uint16_t pinMIS
       chain_length = link;
   }
 
-TMC2130Stepper::TMC2130Stepper(uint16_t pinCS, float RS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK, int8_t link) :
+TMC2130Stepper::TMC2130Stepper(gpio_t * gpioPinCS, float RS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK, int8_t link) :
   TMCStepper(RS),
-  _pinCS(pinCS),
+  _pinCS(gpioPinCS),
   link_index(link)
   {
     SW_SPIClass *SW_SPI_Obj = new SW_SPIClass(pinMOSI, pinMISO, pinSCK);
@@ -63,7 +63,7 @@ void TMC2130Stepper::setSPISpeed(uint32_t speed) {
 
 __attribute__((weak))
 void TMC2130Stepper::switchCSpin(bool state) {
-  // digitalWrite(_pinCS, state);
+  GpioPinWrite(_pinCS, state);
 }
 
 __attribute__((weak))
@@ -103,10 +103,10 @@ uint32_t TMC2130Stepper::read(uint8_t addressByte) {
   //int8_t i = 1;
 
   //beginTransaction();
-  //switchCSpin(LOW);
-  transfer(addressByte);
+  switchCSpin(LOW);
+  //transfer(addressByte);
   // Clear SPI
-  transferEmptyBytes(4);
+  //transferEmptyBytes(4);
 
   tmcFrame frame;
   frame.firstByte = addressByte;
@@ -119,13 +119,13 @@ uint32_t TMC2130Stepper::read(uint8_t addressByte) {
   /*while(i < link_index) {
     transferEmptyBytes(5);
     i++;
-  }
+  }*/
 
   switchCSpin(HIGH);
   switchCSpin(LOW);
 
   // Shift data from target link into the last one...
-  while(i < chain_length) {
+  /*while(i < chain_length) {
     transferEmptyBytes(5);
     i++;
   }*/
@@ -145,7 +145,7 @@ uint32_t TMC2130Stepper::read(uint8_t addressByte) {
   SPI.transfertTmcFrame(&frame);
   status_response = frame.firstByte;
   //endTransaction();
-  //switchCSpin(HIGH);
+  switchCSpin(HIGH);
   return frame.datas;
 }
 
@@ -155,7 +155,7 @@ void TMC2130Stepper::write(uint8_t addressByte, uint32_t config) {
   //int8_t i = 1;
 
   //beginTransaction();
-  //switchCSpin(LOW);
+  switchCSpin(LOW);
   //status_response = transfer(addressByte);
   //transfer(config>>24);
   //transfer(config>>16);
@@ -174,8 +174,8 @@ void TMC2130Stepper::write(uint8_t addressByte, uint32_t config) {
     i++;
   }
 
-  endTransaction();
-  switchCSpin(HIGH);*/
+  endTransaction();*/
+  switchCSpin(HIGH);
 }
 
 void TMC2130Stepper::begin() {

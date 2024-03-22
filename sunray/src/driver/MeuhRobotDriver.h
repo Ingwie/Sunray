@@ -71,8 +71,8 @@
 #define CHARGE_POT_FACTOR       POT_FACTOR(22000.0f, 300000.0f)
 #define ACS_POT_FACTOR          POT_FACTOR(4700.0f, 6800.0f)
 // ACS712 30A Sensitivity (66mV/A)
-#define ACS_MID_VOLTAGE         2.5f
-#define ACS_AMPS_TO_VOLTS(x)    (((x/ACS_POT_FACTOR) - ACS_MID_VOLTAGE) / 0.066f)
+#define ACS_MID_VOLTAGE         1.024f
+#define ACS_AMPS_TO_VOLTS(x)    (((x/ACS_MID_VOLTAGE) - ACS_POT_FACTOR) / 0.066f)
 
 //-----> TMC settings and helper
 
@@ -191,38 +191,6 @@ public:
   void getTicksMow();
   //bool setImuPowerState(bool state);
 
-// gpio pin pointer
-  gpio_t * pin_i2c_sda;
-  gpio_t * pin_i2c_scl;
-  gpio_t * pin_pwm_jyqd;
-  gpio_t * pin_oe_74HCT541;
-  gpio_t * pin_enable_jyqd;
-  gpio_t * pin_cw_ccw_jyqd;
-  gpio_t * pin_power_relay;
-  gpio_t * pin_charge_relay;
-  gpio_t * pin_sdio_d2;
-  gpio_t * pin_ur1_rts;
-  gpio_t * pin_ur1_cts;
-  gpio_t * pin_spi_mosi;
-  gpio_t * pin_spi_miso;
-  gpio_t * pin_tmc_3V3;
-  gpio_t * pin_spi_sck;
-  gpio_t * pin_cs_r_tmc;
-  gpio_t * pin_cs_l_tmc;
-  gpio_t * pin_buzzer;
-  gpio_t * pin_pwm_fan;
-  gpio_t * pin_sdio_clk;
-  gpio_t * pin_sdio_cmd;
-  gpio_t * pin_spdif;
-  gpio_t * pin_aio_ck;
-  gpio_t * pin_aio_lrsk;
-  gpio_t * pin_gpio53;
-  gpio_t * pin_gpio34;
-  gpio_t * pin_pulses_jyqd;
-  gpio_t * pin_rain_sensor;
-
-  // pwm pointer
-  pwm_t * pwmFan;
   // counter File
   int ticksMowFD;
 

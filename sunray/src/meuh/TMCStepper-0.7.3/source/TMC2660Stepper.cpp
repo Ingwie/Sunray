@@ -1,21 +1,21 @@
 #include "../TMCStepper.h"
 #include "SW_SPI.h"
 
-TMC2660Stepper::TMC2660Stepper(uint16_t pinCS, float RS) :
-  _pinCS(pinCS),
+TMC2660Stepper::TMC2660Stepper(gpio_t * gpioPinCS, float RS) :
+  _pinCS(gpioPinCS),
   Rsense(RS)
   {}
 
-TMC2660Stepper::TMC2660Stepper(uint16_t pinCS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK) :
-  _pinCS(pinCS),
+TMC2660Stepper::TMC2660Stepper(gpio_t * gpioPinCS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK) :
+  _pinCS(gpioPinCS),
   Rsense(default_RS)
   {
     SW_SPIClass *SW_SPI_Obj = new SW_SPIClass(pinMOSI, pinMISO, pinSCK);
     TMC_SW_SPI = SW_SPI_Obj;
   }
 
-TMC2660Stepper::TMC2660Stepper(uint16_t pinCS, float RS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK) :
-  _pinCS(pinCS),
+TMC2660Stepper::TMC2660Stepper(gpio_t * gpioPinCS, float RS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK) :
+  _pinCS(gpioPinCS),
   Rsense(RS)
   {
     SW_SPIClass *SW_SPI_Obj = new SW_SPIClass(pinMOSI, pinMISO, pinSCK);
