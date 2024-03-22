@@ -615,9 +615,9 @@ void start(){
   CONSOLE.begin(CONSOLE_BAUDRATE);
   buzzerDriver.begin();
   buzzer.begin();
-
+#if !defined(DRV_MEUH_ROBOT)
   Wire.begin();
-
+#endif
   bleConfig.run();
   //BLE.println(VER); is this needed? can confuse BLE modules if not connected?
 
