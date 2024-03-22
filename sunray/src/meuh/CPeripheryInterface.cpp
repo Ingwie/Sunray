@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
 // SPI
 
@@ -27,7 +28,7 @@ void SPIC::begin()
 
 void SPIC::beginTransaction(SPISettings settings)
 {
-  if (spi_open(spi, "/dev/spidev0.0", 3, 4e6) < 0) // overide settings (mode3 and 4MHz)
+  if (spi_open(spi, "/dev/spidev0.0", 3, 2e6) < 0) // overide settings (mode3 and 4MHz)
     {
       fprintf(stderr, "spi_open(): %s\n", spi_errmsg(spi));
       exit(1);
@@ -48,11 +49,13 @@ uint8_t SPIC::transfer(uint8_t data)
 
 void SPIC::transfertTmcFrame(tmcFrame * frame)
 {
-  if (spi_transfer(spi, (uint8_t*)frame, (uint8_t*)frame, sizeof(tmcFrame)) < 0)
+  tmcFrame ret = {0};
+  if (spi_transfer(spi, (uint8_t*)frame, (uint8_t*)&ret, sizeof(tmcFrame)) < 0)
     {
       fprintf(stderr, "spi_transfer5(): %s\n", spi_errmsg(spi));
       exit(1);
     }
+  memcpy((uint8_t*)frame, &ret, sizeof(tmcFrame));
 }
 
 void SPIC::endTransaction()
@@ -72,11 +75,14 @@ void I2CC::begin()
     }
 }
 
-void I2CC::transfer(struct i2c_msg* msgs, size_t msgsnum)
+bool I2CC::transfer(struct i2c_msg* msgs, size_t msgsnum)
 {
+  bool ret = 0;
   if (i2c_transfer(i2cc, msgs, msgsnum) < 0)
     {
       fprintf(stderr, "i2c_transfer(): %s\n", i2c_errmsg(i2cc));
-      exit(1);
+      ret = 1;
+      //exit(1);
     }
+  return ret;
 }

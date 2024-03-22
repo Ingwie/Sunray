@@ -112,7 +112,7 @@ class I2CC
 {
 public:
   void begin();
-  void transfer(struct i2c_msg* msgs, size_t msgsnum);
+  bool transfer(struct i2c_msg* msgs, size_t msgsnum);
 protected:
   i2c_t *i2cc;
 };
