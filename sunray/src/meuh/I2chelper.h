@@ -19,9 +19,9 @@
 
 #include "CPeripheryInterface.h"
 
-extern uint8_t i2c_readRegByte(uint8_t address, uint8_t reg); // Return 0 if success
-extern uint8_t i2c_readReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len); // Return 0 if success
-extern uint8_t i2c_writeRegByte(uint8_t address, uint8_t reg, uint8_t value); // Return 0 if success
-extern uint8_t i2c_writeReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len); // Return 0 if success
+extern bool i2c_readRegByte(uint8_t address, uint8_t reg); // Return 0 if success
+extern bool i2c_readReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len); // Return 0 if success
+extern bool i2c_writeRegByte(uint8_t address, uint8_t reg, uint8_t value); // Return 0 if success
+extern bool i2c_writeReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len); // Return 0 if success
 
 #endif

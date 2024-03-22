@@ -45,13 +45,13 @@ extern int16_t gyroTemp;
 extern void initImusGY85();
 
 extern void initGyro();
-extern bool readGyro(); // return 0 on success
-extern void readGyroTemp(); // return 0 on success
+extern bool readGyro();
+extern void readGyroTemp();
 
 extern void initAcc();
-extern bool readAcc(); // return 0 on success
+extern bool readAcc();
 
 extern void initMag();
-extern bool readMag(); // return 0 on success
+extern bool readMag();
 
 #endif // IMU_H_INCLUDED

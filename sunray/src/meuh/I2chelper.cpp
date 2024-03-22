@@ -18,14 +18,8 @@
 #include "I2chelper.h"
 #include <string.h>
 
-uint8_t i2c_readRegByte(uint8_t address, uint8_t reg) // Return 0 if success
+bool i2c_readRegByte(uint8_t address, uint8_t reg) // Return 0 if success
 {
-  /*Wire.beginTransmission(address);
-  Wire.write(reg);
-  Wire.endTransmission(false);
-  Wire.requestFrom(address, 1);
-  return Wire.read();*/
-
   uint8_t ret = 0;
   struct i2c_msg msgs[2] =
   {
@@ -36,21 +30,11 @@ uint8_t i2c_readRegByte(uint8_t address, uint8_t reg) // Return 0 if success
   };
 
   /* Transfer a transaction with two I2C messages */
-  I2C.transfer(msgs, 2);
-  return ret;
+  return I2C.transfer(msgs, 2);
 }
 
-uint8_t i2c_readReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len) // Return 0 if fail
+bool i2c_readReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len) // Return 0 if success
 {
-  /*Wire.beginTransmission(address);
-  Wire.write((uint8_t)reg);
-  Wire.endTransmission(false);
-  uint8_t ret = Wire.requestFrom(address, len);
-  for (uint8_t i = 0; i < len; i++)
-    {
-      buffer[i] = Wire.read();
-    }
-  return ret;*/
   struct i2c_msg msgs[2] =
   {
     /* Write 8-bit address */
@@ -60,16 +44,11 @@ uint8_t i2c_readReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len) 
   };
 
   /* Transfer a transaction with two I2C messages */
-  I2C.transfer(msgs, 2);
-  return 0;
+  return I2C.transfer(msgs, 2);
 }
 
-uint8_t i2c_writeRegByte(uint8_t address, uint8_t reg, uint8_t value) // Return 0 if success
+bool i2c_writeRegByte(uint8_t address, uint8_t reg, uint8_t value) // Return 0 if success
 {
-  /*Wire.beginTransmission(address);
-  Wire.write(reg);
-  Wire.write(value);
-  return Wire.endTransmission();*/
   uint8_t buf[2] = {reg, value};
   struct i2c_msg msgs[1] =
   {
@@ -78,29 +57,20 @@ uint8_t i2c_writeRegByte(uint8_t address, uint8_t reg, uint8_t value) // Return 
   };
 
   /* Transfer a transaction with two I2C messages */
-  I2C.transfer(msgs, 1);
-  return 0;
+  return I2C.transfer(msgs, 1);
 }
 
-uint8_t i2c_writeReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len) // Return 0 if success
+bool i2c_writeReg(uint8_t address, uint8_t reg, uint8_t* buffer, uint8_t len) // Return 0 if success
 {
-  /*Wire.beginTransmission(address);
-  Wire.write(reg);
-  for (uint8_t i = 0; i < len; i++)
-    {
-      Wire.write(buffer[i]);
-    }
-  return Wire.endTransmission();*/
   uint8_t buf[len + 1];
   buf[0] = reg;
   memcpy(&buf[1], buffer, len);
   struct i2c_msg msgs[1] =
   {
     /* Write 8-bit address + reg + values */
-    { .addr = address, .flags = 0, .len = (len + 1), .buf = buf },
+    { .addr = address, .flags = 0, .len = (++len), .buf = buf },
   };
 
   /* Transfer a transaction with two I2C messages */
-  I2C.transfer(msgs, 1);
-  return 0;
+  return I2C.transfer(msgs, 1);
 }
