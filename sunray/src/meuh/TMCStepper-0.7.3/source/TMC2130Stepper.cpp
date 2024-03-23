@@ -6,6 +6,22 @@
 int8_t TMC2130Stepper::chain_length = 0;
 uint32_t TMC2130Stepper::spi_speed = 16000000/8;
 
+TMC2130Stepper::TMC2130Stepper(uint8_t pinMumber, gpio_t * gpioPinCS, float RS, int8_t link) :
+  TMCStepper(RS),
+  _pinCS(gpioPinCS),
+  link_index(link)
+  {
+    defaults();
+
+  _pinCS = gpio_new();
+  if (gpio_open(_pinCS, "/dev/gpiochip0", pinMumber, GPIO_DIR_OUT_HIGH) < 0)
+  {fprintf(stderr, "gpio_open(): %s\n", gpio_errmsg(_pinCS)); exit(1);}
+
+
+    if (link > chain_length)
+      chain_length = link;
+  }
+
 TMC2130Stepper::TMC2130Stepper(gpio_t * gpioPinCS, float RS, int8_t link) :
   TMCStepper(RS),
   _pinCS(gpioPinCS),

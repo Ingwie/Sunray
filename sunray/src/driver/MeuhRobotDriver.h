@@ -238,8 +238,6 @@ protected:
   bool M_MotorFault;
   TMC5160_DRV_STATUS_t L_DrvStatus;
   TMC5160_DRV_STATUS_t R_DrvStatus;
-  // pwm pointer
-  pwm_t * pwmJYQD;
 };
 
 class MeuhBatteryDriver : public BatteryDriver

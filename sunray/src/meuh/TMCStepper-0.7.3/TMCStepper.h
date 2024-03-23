@@ -159,6 +159,7 @@ class TMCStepper {
 
 class TMC2130Stepper : public TMCStepper {
 	public:
+		TMC2130Stepper(uint8_t pinMumber, gpio_t * gpioPinCS, float RS, int8_t link_index = -1);
 		TMC2130Stepper(gpio_t * gpioPinCS, float RS = default_RS, int8_t link_index = -1);
 		TMC2130Stepper(gpio_t * gpioPinCS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK, int8_t link_index = -1);
 		TMC2130Stepper(gpio_t * gpioPinCS, float RS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK, int8_t link_index = -1);
@@ -386,6 +387,7 @@ class TMC2130Stepper : public TMCStepper {
 
 class TMC2160Stepper : public TMC2130Stepper {
 	public:
+		TMC2160Stepper(uint8_t pinMumber, gpio_t * gpioPinCS, float RS, int8_t link = -1);
 		TMC2160Stepper(gpio_t * gpioPinCS, float RS = default_RS, int8_t link_index = -1);
 		TMC2160Stepper(gpio_t * gpioPinCS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK, int8_t link_index = -1);
 		TMC2160Stepper(gpio_t * gpioPinCS, float RS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK, int8_t link_index = -1);
@@ -485,6 +487,7 @@ class TMC2160Stepper : public TMC2130Stepper {
 
 class TMC5130Stepper : public TMC2160Stepper {
 	public:
+		TMC5130Stepper(uint8_t pinMumber, gpio_t * gpioPinCS, float RS = default_RS, int8_t link_index = -1);
 		TMC5130Stepper(gpio_t * gpioPinCS, float RS = default_RS, int8_t link_index = -1);
 		TMC5130Stepper(gpio_t * gpioPinCS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK, int8_t link_index = -1);
 		TMC5130Stepper(gpio_t * gpioPinCS, float RS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK, int8_t link_index = -1);
@@ -729,6 +732,7 @@ class TMC5130Stepper : public TMC2160Stepper {
 
 class TMC5160Stepper : public TMC5130Stepper {
 	public:
+		TMC5160Stepper(uint8_t pinMumber, gpio_t * gpioPinCS, float RS = default_RS, int8_t link_index = -1);
 		TMC5160Stepper(gpio_t * gpioPinCS, float RS = default_RS, int8_t link_index = -1);
 		TMC5160Stepper(gpio_t * gpioPinCS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK, int8_t link_index = -1);
 		TMC5160Stepper(gpio_t * gpioPinCS, float RS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK, int8_t link_index = -1);

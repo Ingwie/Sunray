@@ -1,6 +1,8 @@
 #include "../TMCStepper.h"
 #include "TMC_MACROS.h"
 
+TMC2160Stepper::TMC2160Stepper(uint8_t pinMumber, gpio_t * gpioPinCS, float RS, int8_t link) : TMC2130Stepper(pinMumber, gpioPinCS, RS, link)
+  { defaults(); }
 TMC2160Stepper::TMC2160Stepper(gpio_t * gpioPinCS, float RS, int8_t link) : TMC2130Stepper(gpioPinCS, RS, link)
   { defaults(); }
 TMC2160Stepper::TMC2160Stepper(gpio_t * gpioPinCS, float RS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK, int8_t link) :

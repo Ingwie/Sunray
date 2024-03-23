@@ -53,10 +53,11 @@
   gpio_t * pin_rain_sensor;
 
 // pwm pointer
+  pwm_t * pwmJYQD;
   pwm_t * pwmFan;
 
-TMC5160Stepper R_Stepper(pin_cs_r_tmc, TMC_RsensE);
-TMC5160Stepper L_Stepper(pin_cs_l_tmc, TMC_RsensE);
+TMC5160Stepper R_Stepper(pin_cs_r_tmc_Number, pin_cs_r_tmc, TMC_RsensE);
+TMC5160Stepper L_Stepper(pin_cs_l_tmc_Number, pin_cs_l_tmc, TMC_RsensE);
 I2CC I2C;
 bool relayCharge;
 bool relayPower;
@@ -70,8 +71,8 @@ void MeuhRobotDriver::begin()
 
 // init GPIO
 
-  SetGpioPin(pin_cs_r_tmc, GPIO_DIR_OUT_HIGH);
-  SetGpioPin(pin_cs_l_tmc, GPIO_DIR_OUT_HIGH);
+  //SetGpioPin(pin_cs_r_tmc, GPIO_DIR_OUT_HIGH);
+  //SetGpioPin(pin_cs_l_tmc, GPIO_DIR_OUT_HIGH);
   SetGpioPin(pin_tmc_3V3, GPIO_DIR_OUT_HIGH);
   SetGpioPin(pin_oe_74HCT541, GPIO_DIR_OUT_HIGH);
   SetGpioPin(pin_power_relay, GPIO_DIR_OUT_LOW);
