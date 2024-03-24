@@ -18,6 +18,85 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../../robot.h"
+
+//  GPIO
+
+void GpioPinWrite(gpio_t * name, bool value)
+{
+  if (gpio_write(name, value) < 0)
+    {
+      fprintf(stderr, "gpio_write(): %s\n", gpio_errmsg(name));
+      robotDriver.exitApp();
+    }
+}
+
+void GpioPinRead(gpio_t * name, bool value)
+{
+  if (gpio_read(name, &value) < 0) \
+    {fprintf(stderr, "gpio_read(): %s\n", gpio_errmsg(name)); robotDriver.exitApp();}
+}
+
+void GpioSetEdge(gpio_t * name, gpio_edge edge)
+{
+  if (gpio_set_edge(name, edge) < 0) \
+    {fprintf(stderr, "gpio_set_edge(): %s\n", gpio_errmsg(name)); robotDriver.exitApp();}
+}
+
+void GpioReadEvent(gpio_t * name, gpio_edge edge, uint64_t * timestamp)
+{
+  if (gpio_read_event(name, &edge, timestamp) < 0) \
+    {fprintf(stderr, "gpio_read_event(): %s\n", gpio_errmsg(name)); robotDriver.exitApp();}
+}
+
+
+//  PWM
+
+void PwmEnable(pwm_t * pwm)
+{
+  if (pwm_enable(pwm) < 0)
+    {
+      fprintf(stderr, "pwm_enable(): %s\n", pwm_errmsg(pwm));
+      robotDriver.exitApp();
+    }
+}
+
+void PwmDisable(pwm_t * pwm)
+{
+  if (pwm_disable(pwm) < 0)
+    {
+      fprintf(stderr, "pwm_disable(): %s\n", pwm_errmsg(pwm));
+      robotDriver.exitApp();
+    }
+}
+
+void PwmSetFrequency(pwm_t * pwm, double frequency)
+{
+  if (pwm_set_frequency(pwm, frequency) < 0)
+    {
+      fprintf(stderr, "pwm_set_frequency(): %s\n", pwm_errmsg(pwm));
+      robotDriver.exitApp();
+    }
+}
+
+void PwmSetDutyCycle(pwm_t * pwm, double dutycycle)
+{
+  if (pwm_set_duty_cycle(pwm, dutycycle) < 0)
+    {
+      fprintf(stderr, "pwm_set_duty_cycle(): %s\n", pwm_errmsg(pwm));
+      robotDriver.exitApp();
+    }
+}
+
+void PwmSetPolarity(pwm_t * pwm, pwm_polarity_t polarity)
+{
+  if (pwm_set_polarity(pwm, polarity) < 0)
+    {
+      fprintf(stderr, "pwm_set_polarity(): %s\n", pwm_errmsg(pwm));
+      robotDriver.exitApp();
+    }
+}
+
 
 // SPI
 
@@ -28,10 +107,10 @@ void SPIC::begin()
 
 void SPIC::beginTransaction(SPISettings settings)
 {
-  if (spi_open(spi, "/dev/spidev0.0", 3, 2e6) < 0) // overide settings (mode3 and 4MHz)
+  if (spi_open(spi, "/dev/spidev0.0", 3, 4e6) < 0) // overide settings (mode3 and 4MHz)
     {
       fprintf(stderr, "spi_open(): %s\n", spi_errmsg(spi));
-      exit(1);
+      robotDriver.exitApp();
     }
 }
 
@@ -41,7 +120,7 @@ uint8_t SPIC::transfer(uint8_t data)
   if (spi_transfer(spi, &data, &ret, 1) < 0)
     {
       fprintf(stderr, "spi_transfer(): %s\n", spi_errmsg(spi));
-      exit(1);
+      robotDriver.exitApp();
       return 0;
     }
   else return ret;
@@ -53,7 +132,7 @@ void SPIC::transfertTmcFrame(tmcFrame * frame)
   if (spi_transfer(spi, (uint8_t*)frame, (uint8_t*)&ret, sizeof(tmcFrame)) < 0)
     {
       fprintf(stderr, "spi_transfer5(): %s\n", spi_errmsg(spi));
-      exit(1);
+      robotDriver.exitApp();
     }
   memcpy((uint8_t*)frame, &ret, sizeof(tmcFrame));
 }
@@ -71,7 +150,7 @@ void I2CC::begin()
   if (i2c_open(i2cc, "/dev/i2c-1") < 0)
     {
       fprintf(stderr, "i2c_open(): %s\n", i2c_errmsg(i2cc));
-      exit(1);
+      robotDriver.exitApp();
     }
 }
 
@@ -82,7 +161,7 @@ bool I2CC::transfer(struct i2c_msg* msgs, size_t msgsnum)
     {
       fprintf(stderr, "i2c_transfer(): %s\n", i2c_errmsg(i2cc));
       ret = 1;
-      //exit(1);
+      robotDriver.exitApp();
     }
   return ret;
 }

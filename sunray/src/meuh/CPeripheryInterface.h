@@ -22,29 +22,18 @@
 #include "./c-periphery/pwm.h"
 #include "./c-periphery/i2c.h"
 
+
 //  GPIO
 
 #define SetGpioPin(name, direction) \
  name = gpio_new(); \
  if (gpio_open(name, "/dev/gpiochip0", name##_Number , direction) < 0) \
-  {fprintf(stderr, "gpio_open(): %s\n", gpio_errmsg(name)); exit(1);}
+  {fprintf(stderr, "gpio_open(): %s\n", gpio_errmsg(name));exit(1);}
 
-
-#define GpioPinWrite(name, value) \
-if (gpio_write(name, value) < 0) \
-  {fprintf(stderr, "gpio_write(): %s\n", gpio_errmsg(name)); exit(1);}
-
-#define GpioPinRead(name, value) \
-if (gpio_read(name, &value) < 0) \
-  {fprintf(stderr, "gpio_read(): %s\n", gpio_errmsg(name)); exit(1);}
-
-#define GpioSetEdge(name, edge) \
-if (gpio_set_edge(name, edge) < 0) \
-  {fprintf(stderr, "gpio_set_edge(): %s\n", gpio_errmsg(name)); exit(1);}
-
-#define GpioReadEvent(name, edge, timestamp) \
-if (gpio_read_event(name, edge, timestamp) < 0) \
-  {fprintf(stderr, "gpio_read_event(): %s\n", gpio_errmsg(name)); exit(1);}
+void GpioPinWrite(gpio_t * name, bool value);
+void GpioPinRead(gpio_t * name, bool value);
+void GpioSetEdge(gpio_t * name, gpio_edge edge);
+void GpioReadEvent(gpio_t * name, gpio_edge edge, uint64_t * timestamp);
 
 
 //  PWM
@@ -54,29 +43,17 @@ pwm = pwm_new(); \
 if (pwm_open(pwm, 0, num) < 0) \
    {fprintf(stderr, "pwm_open(): %s\n", pwm_errmsg(pwm)); exit(1);}
 
-#define PwmEnable(pwm) \
-if (pwm_enable(pwm) < 0) \
-   {fprintf(stderr, "pwm_enable(): %s\n", pwm_errmsg(pwm));exit(1);}
+void PwmDisable(pwm_t * pwm);
+void PwmSetFrequency(pwm_t * pwm, double frequency);
+void PwmSetDutyCycle(pwm_t * pwm, double dutycycle);
+void PwmSetPolarity(pwm_t * pwm, pwm_polarity_t polarity);
 
-#define PwmDisable(pwm) \
-if (pwm_disable(pwm) < 0) \
-   {fprintf(stderr, "pwm_disable(): %s\n", pwm_errmsg(pwm));exit(1);}
-
-#define PwmSetFrequency(pwm, frequency) \
-if (pwm_set_frequency(pwm, frequency) < 0) \
-   {fprintf(stderr, "pwm_set_frequency(): %s\n", pwm_errmsg(pwm));exit(1);}
-
-#define PwmSetDutyCycle(pwm, dutycycle) \
-if (pwm_set_duty_cycle(pwm, dutycycle) < 0) {fprintf(stderr, "pwm_set_duty_cycle(): %s\n", pwm_errmsg(pwm));exit(1);}
-
-#define PwmSetPolarity(pwm, polarity) \
-if (pwm_set_polarity(pwm, polarity) < 0) {fprintf(stderr, "pwm_set_polarity(): %s\n", pwm_errmsg(pwm));exit(1);}
 
 //  SPI
 
-struct tmcFrame { // Specialy to manage TMC cpmminication transfertTmcFrame()
-uint8_t firstByte;
+struct tmcFrame { // Specialy to manage TMC comminication transfertTmcFrame()
 uint32_t datas;
+uint8_t firstByte;
 };
 
 class SPISettings {
