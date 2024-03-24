@@ -190,7 +190,7 @@ void MeuhRobotDriver::begin()
   CONSOLE.print("IDLE CURRENT = ");
   CONSOLE.println(idleCurrent);
 
-  if ((ticksMowFD = open("/sys/class/gpio-counter/GPIO-5/value", O_WRONLY | O_SYNC)) < 0)
+  if ((ticksMowFD = open("/sys/class/gpio_counter/gpio_counter_5/count", O_WRONLY | O_SYNC)) < 0)
   {
     CONSOLE.println("Can't open MowCouter value");
     exitApp();
@@ -250,9 +250,9 @@ void MeuhRobotDriver::relayChargeOn()
 
 void MeuhRobotDriver::exitApp() // Close sunray
 {
-  ///relayStopAll(); // turn OFF power boards before quit
-  ///tmcLogicOff();
-  ///set74HCTOutputDisable();
+  relayStopAll(); // turn OFF power boards before quit
+  tmcLogicOff();
+  set74HCTOutputDisable();
   ///exit(1);
 }
 
@@ -438,8 +438,8 @@ void MeuhMotorDriver::begin()
   CONSOLE.println("starting TMC5160");
   meuhRobot.tmcLogicOn();
   delay(5);
-  ///meuhRobot.set74HCTOutputEnable();
-  ///meuhRobot.relayPowerOn();
+  meuhRobot.set74HCTOutputEnable();
+  meuhRobot.relayPowerOn();
   R_Stepper.begin();
   uint8_t rVers = R_Stepper.version();
   L_Stepper.begin();
@@ -577,9 +577,9 @@ void MeuhMotorDriver::getMotorFaults(bool &leftFault, bool &rightFault, bool &mo
     }
 
   // send states
-  leftFault = L_MotorFault;
-  rightFault = R_MotorFault;
-  mowFault = M_MotorFault;;
+  ///leftFault = L_MotorFault;
+  ///rightFault = R_MotorFault;
+  ///mowFault = M_MotorFault;;
 }
 
 void MeuhMotorDriver::resetMotorFaults()
@@ -920,6 +920,16 @@ bool MeuhImuDriver::isDataAvail()
   pitch = eulerAngles.angle.pitch / 180.0 * PI;
   yaw = eulerAngles.angle.yaw / 180.0 * PI;
   //heading = fusionHeading;
+  /*
+  CONSOLE.print("ROLL: ");
+  CONSOLE.println(roll);
+  CONSOLE.print("PITCH: ");
+  CONSOLE.println(pitch);
+  CONSOLE.print("YAW: ");
+  CONSOLE.println(yaw);
+  CONSOLE.print("Heading: ");
+  CONSOLE.println(fusionHeading);
+  */
   return ret;
 }
 

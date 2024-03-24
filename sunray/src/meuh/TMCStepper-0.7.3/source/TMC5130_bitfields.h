@@ -26,7 +26,7 @@ namespace TMC5130_n {
               enc_n_dco : 1,
               sd_mode : 1,
               swcomp_in : 1;
-        uint16_t : 16;
+        uint16_t aa : 16;
         uint8_t version : 8;
       };
     };

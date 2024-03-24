@@ -72,7 +72,7 @@
 #define ACS_POT_FACTOR          POT_FACTOR(4700.0f, 6800.0f)
 // ACS712 30A Sensitivity (66mV/A)
 #define ACS_MID_VOLTAGE         1.024f
-#define ACS_AMPS_TO_VOLTS(x)    (((x/ACS_MID_VOLTAGE) - ACS_POT_FACTOR) / 0.066f)
+#define ACS_AMPS_TO_VOLTS(x)    (((x-ACS_MID_VOLTAGE) * ACS_POT_FACTOR) / 0.066f)
 
 //-----> TMC settings and helper
 

@@ -31,9 +31,9 @@ QMC5883L - 0x0D — Three axis magnetic field
 
 struct imu_t
 {
- int16_t x;
- int16_t y;
  int16_t z;
+ int16_t y;
+ int16_t x; // endianness inversion in struct
 };
 
 extern imu_t imuGyro;

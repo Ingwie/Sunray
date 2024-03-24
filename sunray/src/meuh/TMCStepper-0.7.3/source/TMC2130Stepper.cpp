@@ -2,6 +2,8 @@
 
 #include "../TMCStepper.h"
 #include "TMC_MACROS.h"
+#include "../../../../robot.h"
+#include <arpa/inet.h>
 
 int8_t TMC2130Stepper::chain_length = 0;
 uint32_t TMC2130Stepper::spi_speed = 16000000/8;
@@ -15,7 +17,7 @@ TMC2130Stepper::TMC2130Stepper(uint8_t pinMumber, gpio_t * gpioPinCS, float RS, 
 
   _pinCS = gpio_new();
   if (gpio_open(_pinCS, "/dev/gpiochip0", pinMumber, GPIO_DIR_OUT_HIGH) < 0)
-  {fprintf(stderr, "gpio_open(): %s\n", gpio_errmsg(_pinCS)); exit(1);}
+  {fprintf(stderr, "gpio_open(): %s\n", gpio_errmsg(_pinCS)); robotDriver.exitApp();}
 
 
     if (link > chain_length)
@@ -102,102 +104,56 @@ uint8_t TMC2130Stepper::transfer(const uint8_t data) {
     out = TMC_SW_SPI->transfer(data);
   }
   else {*/
-    out = SPI.transfer(data);
+    //out = SPI.transfer(data);
+    fprintf(stderr, "don't use SPI.TRANSFERT function: %i\n", data);
   //}
   return out;
 }
 
 void TMC2130Stepper::transferEmptyBytes(const uint8_t n) {
-  for (uint8_t i = 0; i < n; i++) {
+  /*for (uint8_t i = 0; i < n; i++) {
     transfer(0x00);
-  }
+  }*/
 }
 
 __attribute__((weak))
 uint32_t TMC2130Stepper::read(uint8_t addressByte) {
-  //uint32_t out = 0UL;
-  //int8_t i = 1;
 
-  //beginTransaction();
   switchCSpin(LOW);
-  //transfer(addressByte);
-  // Clear SPI
-  //transferEmptyBytes(4);
 
   tmcFrame frame;
   frame.firstByte = addressByte;
   frame.datas = 0;
   SPI.transfertTmcFrame(&frame);
 
-
-  // Shift the written data to the correct driver in chain
-  // Default link_index = -1 and no shifting happens
-  /*while(i < link_index) {
-    transferEmptyBytes(5);
-    i++;
-  }*/
-
   switchCSpin(HIGH);
   switchCSpin(LOW);
-
-  // Shift data from target link into the last one...
-  /*while(i < chain_length) {
-    transferEmptyBytes(5);
-    i++;
-  }*/
-
-  // ...and once more to MCU
-  //status_response = transfer(addressByte); // Send the address byte again
-  //out  = transfer(0x00);
-  //out <<= 8;
-  //out |= transfer(0x00);
-  //out <<= 8;
-  //out |= transfer(0x00);
-  //out <<= 8;
-  //out |= transfer(0x00);
 
   frame.firstByte = addressByte;
   frame.datas = 0;
   SPI.transfertTmcFrame(&frame);
-  status_response = frame.firstByte;
-  //endTransaction();
   switchCSpin(HIGH);
-  return frame.datas;
+  status_response = frame.firstByte;
+  return htonl(frame.datas); // endianness conversion
 }
 
 __attribute__((weak))
 void TMC2130Stepper::write(uint8_t addressByte, uint32_t config) {
   addressByte |= TMC_WRITE;
-  //int8_t i = 1;
-
-  //beginTransaction();
   switchCSpin(LOW);
-  //status_response = transfer(addressByte);
-  //transfer(config>>24);
-  //transfer(config>>16);
-  //transfer(config>>8);
-  //transfer(config);
 
   tmcFrame frame;
   frame.firstByte = addressByte;
-  frame.datas = config;
+  frame.datas = ntohl(config); // endianness conversion
   SPI.transfertTmcFrame(&frame);
 
-  // Shift the written data to the correct driver in chain
-  // Default link_index = -1 and no shifting happens
-  /*while(i < link_index) {
-    transferEmptyBytes(5);
-    i++;
-  }
-
-  endTransaction();*/
   switchCSpin(HIGH);
 }
 
 void TMC2130Stepper::begin() {
   //set pins
   // pinMode(_pinCS, OUTPUT);
-  //switchCSpin(HIGH);
+  switchCSpin(HIGH);
 
   //if (TMC_SW_SPI != nullptr) TMC_SW_SPI->init();
 
