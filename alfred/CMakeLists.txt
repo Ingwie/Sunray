@@ -1,7 +1,7 @@
 #
 # Compiles Sunray firmware for Raspberry pi
 #
-#  cmake .. 
+#  cmake ..
 #  cmake -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ ..
 #
 
@@ -20,8 +20,7 @@ if(WIN32)
 endif()
 
 
-    set(GPIO_CDEV_SUPPORT 1)
-
+set(GPIO_CDEV_SUPPORT 1)
 add_definitions(-DPERIPHERY_GPIO_CDEV_SUPPORT=${GPIO_CDEV_SUPPORT})
 
 # find_package(CUDA REQUIRED)
@@ -41,7 +40,7 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -x c")
 SET(CMAKE_BUILD_TYPE Debug)
 #SET(CMAKE_BUILD_TYPE Release)
 
-# set(DL_LIB_DIR "/lib/arm-linux-gnueabihf") 
+# set(DL_LIB_DIR "/lib/arm-linux-gnueabihf")
 
 message("CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}")
 message("Using firmware path ${FIRMWARE_PATH}")
