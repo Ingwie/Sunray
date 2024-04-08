@@ -57,7 +57,7 @@ File::File(const char *_filename, const char * _mode){
   //if(S_ISREG(_st.st_mode)){
     //::printf("regular file...\n");
   _file = fopen(_filename, _mode);
-  ::printf("_fopen=%d\n", _file);
+  ::printf("_fopen=%p\n", _file);
   //} else {
   //  ::printf("folder...\n");
   //  _dir = opendir(_filename);
@@ -83,7 +83,7 @@ size_t File::write(const char *buf){
 }
 
 size_t File::write(const uint8_t *buf, size_t size) {
-  if( fileno(_file) == 0) {    
+  if( fileno(_file) == 0) {
     ::printf("file write error: file not open!\n");
     return 0;
   }
@@ -91,7 +91,7 @@ size_t File::write(const uint8_t *buf, size_t size) {
 }
 
 size_t File::write(uint8_t c) {
-  if( fileno(_file) == 0) {    
+  if( fileno(_file) == 0) {
     ::printf("file write error: file not open!\n");
     return 0;
   }
@@ -104,16 +104,16 @@ void File::flush() {
 }
 
 int File::read(void *buff, uint16_t nbyte) {
-  if( fileno(_file) == 0) {    
-    ::printf("file read error: file not open!\n");  
+  if( fileno(_file) == 0) {
+    ::printf("file read error: file not open!\n");
     return -1;
   }
   return ::fread(buff, 1, nbyte, _file);
 }
 
 int File::read() {
-  if( fileno(_file) == 0) {    
-    ::printf("file read error: file not open!\n");      
+  if( fileno(_file) == 0) {
+    ::printf("file read error: file not open!\n");
     return -1;
   }
   return getc(_file);
@@ -189,7 +189,7 @@ File File::openNextFile(const char * mode){
 }
 
 void File::rewindDirectory(void){
-  if( dirfd(_dir) == 0) return;    
+  if( dirfd(_dir) == 0) return;
   closedir(_dir);
   _dir = opendir(_name);
 }
