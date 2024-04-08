@@ -23,7 +23,7 @@ void TMC5160Stepper::defaults() {
   DRV_CONF_register.drvstrength = 0b10;
   DRV_CONF_register.filt_isense = 0b00;
   TPOWERDOWN_register.sr = 10;
-  VSTOP_register.sr = 1;
+  vSTOP_register.sr = 1;
   ENC_CONST_register.sr = 65536;
   //MSLUT0_register.sr = ???;
   //MSLUT1_register.sr = ???;
@@ -61,14 +61,14 @@ void TMC5160Stepper::push() {
     X_COMPARE(X_COMPARE_register.sr);
     RAMPMODE(RAMPMODE_register.sr);
     XACTUAL(XACTUAL_register.sr);
-    VSTART(VSTART_register.sr);
+    vSTART(vSTART_register.sr);
     a1(A1_register.sr);
     v1(V1_register.sr);
     AMAX(AMAX_register.sr);
     VMAX(VMAX_register.sr);
     DMAX(DMAX_register.sr);
     d1(D1_register.sr);
-    VSTOP(VSTOP_register.sr);
+    vSTOP(vSTOP_register.sr);
     TZEROWAIT(TZEROWAIT_register.sr);
     SW_MODE(SW_MODE_register.sr);
     ENCMODE(ENCMODE_register.sr);

@@ -26,11 +26,11 @@ namespace TMC5130_n {
               enc_n_dco : 1,
               sd_mode : 1,
               swcomp_in : 1;
-        uint16_t aa : 16;
+        uint16_t : 16;
         uint8_t version : 8;
       };
     };
-  };
+ };
 }
 
 struct OUTPUT_t {
@@ -53,7 +53,7 @@ struct XACTUAL_t {
   uint32_t sr;
 };
 
-struct VSTART_t {
+struct vSTART_t {
   constexpr static uint8_t address = 0x23;
   uint32_t sr : 18;
 };
@@ -88,7 +88,7 @@ struct D1_t {
   uint16_t sr : 16;
 };
 
-struct VSTOP_t {
+struct vSTOP_t {
   constexpr static uint8_t address = 0x2B;
   uint32_t sr : 18;
 };

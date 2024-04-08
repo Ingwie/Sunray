@@ -6,18 +6,11 @@
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
-// Already defined in Linux lib .. push and pop those defines
-#pragma push_macro("VSTART")
-#undef VSTART
-#pragma push_macro("VSTOP")
-#undef VSTOP
-
-
 //#if defined(ARDUINO) && ARDUINO >= 100
 	#include <Arduino.h>
 	//#include <SPI.h>
 	#include "../CPeripheryInterface.h"
-	#include <Stream.h>
+	//#include <Stream.h>
 /*#elif defined(bcm2835)
 	#include <bcm2835.h>
 	#include "source/bcm2835_spi.h"
@@ -607,9 +600,9 @@ class TMC5130Stepper : public TMC2160Stepper {
 		void XACTUAL(int32_t input);
 		// R: VACTUAL
 		int32_t VACTUAL();
-		// W: VSTART
-		uint32_t VSTART();
-		void VSTART(uint32_t input);
+		// W: vSTART
+		uint32_t vSTART();
+		void vSTART(uint32_t input);
 		// W: A1
 		uint16_t a1();
 		void a1(uint16_t input);
@@ -628,9 +621,9 @@ class TMC5130Stepper : public TMC2160Stepper {
 		// W: D1
 		uint16_t d1();
 		void d1(uint16_t input);
-		// W: VSTOP
-		uint32_t VSTOP();
-		void VSTOP(uint32_t input);
+		// W: vSTOP
+		uint32_t vSTOP();
+		void vSTOP(uint32_t input);
 		// W: TZEROWAIT
 		uint16_t TZEROWAIT();
 		void TZEROWAIT(uint16_t input);
@@ -668,14 +661,14 @@ class TMC5130Stepper : public TMC2160Stepper {
 		INIT_REGISTER(X_COMPARE){.sr=0};
 		INIT_REGISTER(RAMPMODE){.sr=0};
 		INIT_REGISTER(XACTUAL){.sr=0};
-		INIT_REGISTER(VSTART){.sr=0};
+		INIT_REGISTER(vSTART){.sr=0};
 		INIT_REGISTER(A1){.sr=0};
 		INIT_REGISTER(V1){.sr=0};
 		INIT_REGISTER(AMAX){.sr=0};
 		INIT_REGISTER(VMAX){.sr=0};
 		INIT_REGISTER(DMAX){.sr=0};
 		INIT_REGISTER(D1){.sr=0};
-		INIT_REGISTER(VSTOP){.sr=0};
+		INIT_REGISTER(vSTOP){.sr=0};
 		INIT_REGISTER(TZEROWAIT){.sr=0};
 		INIT_REGISTER(SW_MODE){{.sr=0}};
 		INIT_REGISTER(ENCMODE){{.sr=0}};
@@ -1274,6 +1267,3 @@ class TMC2660Stepper {
 		uint8_t _savedToff = 0;
 		SW_SPIClass * TMC_SW_SPI = nullptr;
 };
-
-#pragma pop_macro("VSTART")
-#pragma pop_macro("VSTOP")
