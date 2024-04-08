@@ -52,9 +52,9 @@ void PwmSetPolarity(pwm_t * pwm, pwm_polarity_t polarity);
 //  SPI
 
 struct tmcFrame { // Specialy to manage TMC comminication transfertTmcFrame()
-uint32_t datas;
 uint8_t firstByte;
-};
+uint32_t datas;
+}__attribute__((__packed__));
 
 class SPISettings {
 public:
