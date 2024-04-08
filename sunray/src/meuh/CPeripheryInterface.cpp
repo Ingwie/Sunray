@@ -107,7 +107,7 @@ void SPIC::begin()
 
 void SPIC::beginTransaction(SPISettings settings)
 {
-  if (spi_open(spi, "/dev/spidev0.0", 3, 4e6) < 0) // overide settings (mode3 and 4MHz)
+  if (spi_open(spi, "/dev/spidev0.0", 0, 5e6) < 0) // overide settings (mode0 and 5MHz)
     {
       fprintf(stderr, "spi_open(): %s\n", spi_errmsg(spi));
       robotDriver.exitApp();
@@ -129,12 +129,12 @@ uint8_t SPIC::transfer(uint8_t data)
 void SPIC::transfertTmcFrame(tmcFrame * frame)
 {
   tmcFrame ret = {0};
-  if (spi_transfer(spi, (uint8_t*)frame, (uint8_t*)&ret, sizeof(tmcFrame)) < 0)
+  if (spi_transfer(spi, (uint8_t*)frame, (uint8_t*)&ret, sizeof(struct tmcFrame)) < 0)
     {
       fprintf(stderr, "spi_transfer5(): %s\n", spi_errmsg(spi));
       robotDriver.exitApp();
     }
-  memcpy((uint8_t*)frame, &ret, sizeof(tmcFrame));
+  memcpy((uint8_t*)frame, &ret, sizeof(struct tmcFrame));
 }
 
 void SPIC::endTransaction()
