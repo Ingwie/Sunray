@@ -134,8 +134,7 @@ uint32_t TMC2130Stepper::read(uint8_t addressByte) {
   SPI.transfertTmcFrame(&frame);
   switchCSpin(HIGH);
   status_response = frame.firstByte;
-  frame.datas = __bswap_32(frame.datas);
-  return frame.datas;
+  return __builtin_bswap32(frame.datas);
 }
 
 __attribute__((weak))
@@ -145,7 +144,7 @@ void TMC2130Stepper::write(uint8_t addressByte, uint32_t config) {
 
   tmcFrame frame;
   frame.firstByte = addressByte;
-  frame.datas = __bswap_32(config);
+  frame.datas = __builtin_bswap32(config);
   SPI.transfertTmcFrame(&frame);
 
   switchCSpin(HIGH);

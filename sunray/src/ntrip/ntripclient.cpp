@@ -5,7 +5,7 @@
 
 
 void NTRIPClient::begin(){
-  CONSOLE.println("using NTRIPClient");  
+  CONSOLE.println("using NTRIPClient");
   reconnectTimeout = 0;
   ggaTimeout = 0;
   NTRIP.begin(115200);
@@ -18,16 +18,16 @@ void NTRIPClient::connectNTRIP(){
     delay(100);
     while(available()){
       readLine(buffer,sizeof(buffer));
-      CONSOLE.print(buffer); 
+      CONSOLE.print(buffer);
     }
   }
   else{
     CONSOLE.println("SourceTable request error");
   }
   CONSOLE.print("Requesting SourceTable is OK\n");
-  stop(); //Need to call "stop" function for next request.  
+  stop(); //Need to call "stop" function for next request.
   */
-  CONSOLE.println("Requesting MountPoint's Raw data");  
+  CONSOLE.println("Requesting MountPoint's Raw data");
   if(!reqRaw((char*)NTRIP_HOST,NTRIP_PORT,(char*)NTRIP_MOUNT,(char*)NTRIP_USER,(char*)NTRIP_PASS)){
     CONSOLE.println("Error requesting MointPoint");
   } else {
@@ -38,7 +38,7 @@ void NTRIPClient::connectNTRIP(){
 
 void NTRIPClient::run(){
   if (millis() > reconnectTimeout){
-    if (connected()) stop();          
+    if (connected()) stop();
     reconnectTimeout = millis() + 10000;
     if (millis() < ggaTimeout){
       CONSOLE.println("NTRIP disconnected - reconnecting...");
@@ -46,33 +46,33 @@ void NTRIPClient::run(){
     } else {
       CONSOLE.println("NTRIP disconnected - waiting for GPS GGA message...");
     }
-  }          
+  }
   if (connected()) {
     // transfer NTRIP client data to GPS...
-    int count = 0;    
+    int count = 0;
     while(available()) {
-      char ch = read();  
+      char ch = read();
       NTRIP.write(ch);  // send to GPS receiver (GPS receiver NTRIP serial port)
-      count++;            
-      //CONSOLE.print(ch);            
+      count++;
+      //CONSOLE.print(ch);
     }
     if (count > 0){
       CONSOLE.print("NTRIP:");
       CONSOLE.println(count);
-      reconnectTimeout = millis() + 10000;    
+      reconnectTimeout = millis() + 10000;
     }
   }
-  // transfer GPS NMEA data (GGA message) to NTRIP client... 
+  // transfer GPS NMEA data (GGA message) to NTRIP client...
   String nmea = "";
   while (NTRIP.available()){
     char ch = NTRIP.read();
     if (connected()) write(ch);             // send to NTRIP client
-    nmea += ch;        
+    nmea += ch;
   }
-  if (nmea != ""){    
+  if (nmea != ""){
     CONSOLE.print(nmea);
-    ggaTimeout = millis() + 30000;            
-  }  
+    ggaTimeout = millis() + 30000;
+  }
 }
 
 
@@ -105,7 +105,7 @@ bool NTRIPClient::reqSrcTbl(char* host,int port)
     return false;
   }
   return true;
-    
+
 }
 bool NTRIPClient::reqRaw(char* host,int port,char* mntpnt,char* user,char* psw)
 {
@@ -113,11 +113,11 @@ bool NTRIPClient::reqRaw(char* host,int port,char* mntpnt,char* user,char* psw)
     String p="GET /";
     String auth="";
     CONSOLE.println("Request NTRIP");
-    
+
     p = p + mntpnt + String(" HTTP/1.0\r\n"
         "User-Agent: NTRIPClient for Arduino v1.0\r\n"
     );
-    
+
     if (strlen(user)==0) {
         p = p + String(
             "Accept: */*\r\n"

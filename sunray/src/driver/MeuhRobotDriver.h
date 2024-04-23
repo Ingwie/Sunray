@@ -26,7 +26,6 @@
 #include "../meuh/ADS1115/ADS1115_WE.h"
 //#include "../meuh/PCF8575/PCF8575.h"
 #include "../meuh/TMCStepper-0.7.3/TMCStepper.h"
-
 //-----> Mecanics informations
 // Wheel diameter 270 mm
 // pulley/belt reduction 12/80
@@ -48,8 +47,8 @@
 #define pin_spi_miso_Number       18 // SPI used
 #define pin_tmc_3V3_Number        47 // was pin_gpio47
 #define pin_spi_sck_Number        19 // SPI used
-#define pin_cs_r_tmc_Number       20 // was pin_spi_cs .. Can be used for other task ??
-#define pin_cs_l_tmc_Number       22 // was pin_pwm2
+#define pin_cs_l_tmc_Number       20 // was pin_spi_cs .. Can be used for other task ??
+#define pin_cs_r_tmc_Number       22 // was pin_pwm2
 #define pin_buzzer_Number         45 // was pin sdio_d3
 #define pin_pwm_fan_Number        23 // was pin pwm3
 #define pin_sdio_clk_Number       41
@@ -66,13 +65,13 @@
 #define ASD_BAT_CHANNEL         ADS1115_COMP_0_GND
 #define ASD_CHARGE_CHANNEL      ADS1115_COMP_1_GND
 #define ASD_ACS_CHANNEL         ADS1115_COMP_2_GND
-#define POT_FACTOR(RMeas, RAds) RAds/(RAds + RMeas)
+#define POT_FACTOR(RMeas, RAds) (RAds + RMeas)/RMeas
 #define BAT_POT_FACTOR          POT_FACTOR(22000.0f, 300000.0f) // todo measure real values
 #define CHARGE_POT_FACTOR       POT_FACTOR(22000.0f, 300000.0f)
 #define ACS_POT_FACTOR          POT_FACTOR(4700.0f, 6800.0f)
 // ACS712 30A Sensitivity (66mV/A)
 #define ACS_MID_VOLTAGE         1.024f
-#define ACS_AMPS_TO_VOLTS(x)    (((x-ACS_MID_VOLTAGE) * ACS_POT_FACTOR) / 0.066f)
+#define ACS_VOLTS_TO_AMPS(x)    (((x-ACS_MID_VOLTAGE) * ACS_POT_FACTOR) / 0.066f)
 
 //-----> TMC settings and helper
 
@@ -102,40 +101,10 @@ struct TMC5160_DRV_STATUS_t
     };
   };
 };
+
 #define TMC_RsensE           0.22f // ohms
-#define TMC_RMS_CURRENT_MA   600 // mA
-#define TMC_SPEED_MULT       1 // pwm to tmc mult value
-// tmc start sequence macro
-#define START_TMC_SEQUENCE(x) \
-x.begin(); \
-x.XACTUAL(0);       /* Resetet position */ \
-x.XTARGET(0);       /* Reset target mode position */ \
-x.rms_current(TMC_RMS_CURRENT_MA); /* Set motor RMS current (mA) */ \
-x.microsteps(32);   /* Set microsteps */ \
-x.VMAX(0);          /* 44739 . Max speed (5rev/S) @ fck 12Mhz */ \
-x.AMAX(489);        /* Acceleration (velocity mode) 1Sec . 0 to VMAX */ \
-x.hstrt(7);         /* Chopconf param from excel computation */ \
-x.hend(0);          /* Chopconf param from excel computation */ \
-x.semin(8);         /* CoolStep low limit (activate) */ \
-x.semax(8);         /* CoolStep hight limit (desactivate)*/ \
-x.seup(2);          /* CoolStep increment */ \
-x.sedn(1);          /* CoolStep current down step speed */ \
-x.sgt(0);           /* StallGuard2 sensitivity to tune */ \
-x.sfilt(1);         /* StallGuard2 filter */ \
-x.TCOOLTHRS(10000); /* CoolStep lower velocity to active StallGuard2 stall flag */ \
-// tmc error check macro
-#define CHECK_AND_COMPUTE_TMC_ERROR(status, stepper, spiStatus, errorBool, current) \
- status.sr = stepper.DRV_STATUS(); /* load satus */ \
- errorBool = (spiStatus & 0x3); /* error or reset occured*/ \
- /*current = (TMC_RMS_CURRENT_MA / 1000) * (status.cs_actual + 1) / 32; /* compute current (mA) */ \
- current = stepper.cs2rms(status.cs_actual) * 1000; \
-errorBool |= status.stallGuard; /* check stall */ \
-errorBool |= status.ot; /* check over temperature */ \
-errorBool |= status.olb; /* check open load b */ \
-errorBool |= status.ola; /* check open load a */ \
-errorBool |= status.s2gb; /* check short to ground b */ \
-errorBool |= status.s2ga; /* check short to ground a */ \
-errorBool |= status.stst; /* stabdstill in each operation */ \
+#define TMC_RMS_CURRENT_MA   300.0 // mA
+#define TMC_SPEED_MULT       10 // pwm to tmc mult value
 
 //-----> PWM macros used to drive the JYQD
 #define JYQD_PWM_PERIOD      10e3 // 0.1mS-10KHz
@@ -149,7 +118,7 @@ public:
   int lastLeftPwm;
   int lastRightPwm;
   int lastMowPwm;
-  uint32_t encoderTicksMow;
+  uint64_t encoderTicksMow;
   //unsigned long encoderTicksLeft;
   //unsigned long encoderTicksRight;
   //bool mcuCommunicationLost;
@@ -198,10 +167,10 @@ protected:
   Process cpuTempProcess;
   Process wifiStatusProcess;
   String cmd;
-  String cmdResponse;
-  unsigned long nextMotorTime;
-  unsigned long nextSummaryTime;
-  unsigned long nextConsoleTime;
+  //String cmdResponse;
+  //unsigned long nextMotorTime;
+  //unsigned long nextSummaryTime;
+  //unsigned long nextConsoleTime;
   unsigned long nextTempTime;
   unsigned long nextWifiTime;
   //int cmdMotorCounter;
@@ -218,14 +187,17 @@ protected:
 class MeuhMotorDriver: public MotorDriver
 {
 public:
-  unsigned long lastEncoderTicksLeft;
-  unsigned long lastEncoderTicksRight;
-  unsigned long lastEncoderTicksMow;
+  uint32_t lastEncoderTicksLeft;
+  uint32_t lastEncoderTicksRight;
+  uint64_t lastEncoderTicksMow;
   MeuhRobotDriver &meuhRobot;
   MeuhMotorDriver(MeuhRobotDriver &sr);
+  void initTmc5160(TMC5160Stepper &stepper);
   void begin() override;
   void run() override;
   void setMotorPwm(int leftPwm, int rightPwm, int mowPwm) override;
+  void printTmcError(TMC5160_DRV_STATUS_t status);
+  void checkTmcState(TMC5160Stepper &stepper, TMC5160_DRV_STATUS_t &status, bool &errorBool, float &current);
   void getMotorFaults(bool &leftFault, bool &rightFault, bool &mowFault) override;
   void resetMotorFaults()  override;
   void getMotorCurrent(float &leftCurrent, float &rightCurrent, float &mowCurrent) override;

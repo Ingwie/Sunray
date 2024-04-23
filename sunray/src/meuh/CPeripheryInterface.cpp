@@ -107,7 +107,7 @@ void SPIC::begin()
 
 void SPIC::beginTransaction(SPISettings settings)
 {
-  if (spi_open(spi, "/dev/spidev0.0", 0, 5e6) < 0) // overide settings (mode0 and 5MHz)
+  if (spi_open(spi, "/dev/spidev0.0", 3, 4e6) < 0) // overide settings (mode3 and 4MHz)
     {
       fprintf(stderr, "spi_open(): %s\n", spi_errmsg(spi));
       robotDriver.exitApp();
