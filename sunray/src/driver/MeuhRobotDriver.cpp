@@ -284,10 +284,8 @@ void MeuhRobotDriver::set74HCTOutputDisable()
 
 float MeuhRobotDriver::readAdcChannel(ADS1115_MUX channel)   // 8mS @ ADS1115_250_SPS to verify ... and optimise
 {
-  float voltage = 0.0;
   adc.setCompareChannels(channel);
-  voltage = adc.getResult_V(); // alternative: getResult_mV for Millivolt
-  return voltage;
+  return adc.getResult_V(); // alternative: getResult_mV for Millivolt
 }
 
 bool MeuhRobotDriver::setFanPowerTune(float temp)
@@ -594,15 +592,15 @@ void MeuhMotorDriver::printTmcError(TMC5160_DRV_STATUS_t status)
 
 void MeuhMotorDriver::checkTmcState(TMC5160Stepper &stepper, TMC5160_DRV_STATUS_t &status, bool &errorBool, float &current)
 {
-  status.sr = stepper.DRV_STATUS(); /* load satus */ \
-  current = (TMC_RMS_CURRENT_MA / 1000) * (status.cs_actual + 1) / 32; /* compute current (mA) */ \
-  errorBool |= status.stallGuard; /* check stall */ \
-  errorBool |= status.ot; /* check over temperature */ \
-  errorBool |= status.olb; /* check open load b */ \
-  errorBool |= status.ola; /* check open load a */ \
-  errorBool |= status.s2gb; /* check short to ground b */ \
-  errorBool |= status.s2ga; /* check short to ground a */ \
-//errorBool |= status.stst; /* stabdstill in each operation */
+  status.sr = stepper.DRV_STATUS(); /* load satus */
+  current = (TMC_RMS_CURRENT_MA / 1000) * (status.cs_actual + 1) / 32; /* compute current (mA) */
+  errorBool |= status.ot; /* check over temperature */
+  errorBool |= status.olb; /* check open load b */
+  errorBool |= status.ola; /* check open load a */
+  errorBool |= status.s2gb; /* check short to ground b */
+  errorBool |= status.s2ga; /* check short to ground a */
+  //errorBool |= status.stallGuard; /* check stall */
+  //errorBool |= status.stst; /* stabdstill in each operation */
 }
 
 void MeuhMotorDriver::getMotorFaults(bool &leftFault, bool &rightFault, bool &mowFault)
