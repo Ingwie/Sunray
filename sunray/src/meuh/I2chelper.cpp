@@ -9,7 +9,7 @@
 |  |  \    /   '. \_/``".'  |  (_,_)  /  '. \_/``".'    (_I_)   |  |      |  |  \       /  \ /  . \ /(_{;}_)|   |
 ''-'   `'-'      '-----'    /_______.'     '-----'      '---'   '--'      '--'   `'-..-'    ``-'`-'' '(_,_) '---'
 */
-/*          Copyright 2023 by Ingwie (Bracame)         */
+/*          Copyright 2023-2024 by Ingwie (Bracame)    */
 /*   Licence: GPLV3 see <http://www.gnu.org/licenses   */
 /*    Ardumower Alfred mod to drive my autoclip 325    */
 

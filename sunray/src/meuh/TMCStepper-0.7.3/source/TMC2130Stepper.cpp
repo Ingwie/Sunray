@@ -17,7 +17,7 @@ TMC2130Stepper::TMC2130Stepper(uint8_t pinMumber, gpio_t * gpioPinCS, float RS, 
 
   _pinCS = gpio_new();
   if (gpio_open(_pinCS, "/dev/gpiochip0", pinMumber, GPIO_DIR_OUT_HIGH) < 0)
-  {fprintf(stderr, "gpio_open(): %s\n", gpio_errmsg(_pinCS)); robotDriver.exitApp();}
+  {fprintf(stderr, "gpio_open(): %s\n", gpio_errmsg(_pinCS)); robotDriver.exitApp(1);}
 
 
     if (link > chain_length)

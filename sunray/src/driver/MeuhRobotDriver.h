@@ -18,9 +18,7 @@
 
 #include <Arduino.h>
 #include "RobotDriver.h"
-#ifdef __linux__
 #include <Process.h>
-#endif
 
 #include "../meuh/CPeripheryInterface.h"
 #include "../meuh/ADS1115/ADS1115_WE.h"
@@ -53,25 +51,27 @@
 #define pin_pwm_fan_Number        23 // was pin pwm3
 #define pin_sdio_clk_Number       41
 #define pin_sdio_cmd_Number       40
-#define pin_spdif_Number          50 // 5V -> 3.3V input
-#define pin_aio_ck_Number         4  // 5V -> 3.3V input
+#define pin_spdif_Number          50
+#define pin_aio_ck_Number         4
 #define pin_aio_lrsk_Number       2
 #define pin_gpio53_Number         53
 #define pin_gpio34_Number         34
-#define pin_pulses_jyqd_Number    5 // 5V -> 3.3V input was pin_aisd
-#define pin_rain_sensor_Number    6 // 5V -> 3.3V input was pin_aosd
+#define pin_rain_sensor_Number    5 // 5V -> 3.3V input was pin_aisdz
+#define pin_pulses_jyqd_Number    6 // 5V -> 3.3V input was pin_aosd
 
 //-----> ADS1115 Macro resolution 2048 -> 0.0625mV/bit
 #define ASD_BAT_CHANNEL         ADS1115_COMP_0_GND
 #define ASD_CHARGE_CHANNEL      ADS1115_COMP_1_GND
 #define ASD_ACS_CHANNEL         ADS1115_COMP_2_GND
+#define ASD_VCC_CHANNEL         ADS1115_COMP_3_GND
 #define POT_FACTOR(RMeas, RAds) (RAds + RMeas)/RMeas
-#define BAT_POT_FACTOR          POT_FACTOR(22000.0f, 300000.0f) // todo measure real values
-#define CHARGE_POT_FACTOR       POT_FACTOR(22000.0f, 300000.0f)
-#define ACS_POT_FACTOR          POT_FACTOR(4700.0f, 6800.0f)
+#define BAT_POT_FACTOR          15.4711862309 // POT_FACTOR(22000.0f, 300000.0f) // todo measure real values
+#define CHARGE_POT_FACTOR       15.8162508059 // POT_FACTOR(22000.0f, 300000.0f)
+#define ACS_POT_FACTOR          2.656293181 // POT_FACTOR(4700.0f, 6800.0f)
+#define VCC_POT_FACTOR          5.300404035
 // ACS712 30A Sensitivity (66mV/A)
-#define ACS_MID_VOLTAGE         1.024f
-#define ACS_VOLTS_TO_AMPS(x)    (((x-ACS_MID_VOLTAGE) * ACS_POT_FACTOR) / 0.066f)
+#define ACS_MID_VOLTAGE         (vccVoltage/2)
+#define ACS_VOLTS_TO_AMPS(x)    (((x * ACS_POT_FACTOR)-ACS_MID_VOLTAGE) / 0.066f)
 
 //-----> TMC settings and helper
 
@@ -103,8 +103,8 @@ struct TMC5160_DRV_STATUS_t
 };
 
 #define TMC_RsensE           0.22f // ohms
-#define TMC_RMS_CURRENT_MA   300.0 // mA
-#define TMC_SPEED_MULT       10 // pwm to tmc mult value
+#define TMC_RMS_CURRENT_MA   600.0 // mA
+#define TMC_SPEED_MULT       59652.0f/255.0f // pwm to tmc mult value -> 1 M/S Max
 
 //-----> PWM macros used to drive the JYQD
 #define JYQD_PWM_PERIOD      10e3 // 0.1mS-10KHz
@@ -149,7 +149,7 @@ public:
   void updateWifiConnectionState();
   bool setFanPowerTune(float temp);
   float readAdcChannel(ADS1115_MUX channel);
-  void exitApp();
+  void exitApp(int error);
   void tmcLogicOff();
   void tmcLogicOn();
   void relayStopAll();
@@ -197,7 +197,7 @@ public:
   void run() override;
   void setMotorPwm(int leftPwm, int rightPwm, int mowPwm) override;
   void printTmcError(TMC5160_DRV_STATUS_t status);
-  void checkTmcState(TMC5160Stepper &stepper, TMC5160_DRV_STATUS_t &status, bool &errorBool, float &current);
+  void checkTmcState(TMC5160Stepper &stepper, TMC5160_DRV_STATUS_t &status, bool &errorBool, float &current, int &lastPwm);
   void getMotorFaults(bool &leftFault, bool &rightFault, bool &mowFault) override;
   void resetMotorFaults()  override;
   void getMotorCurrent(float &leftCurrent, float &rightCurrent, float &mowCurrent) override;

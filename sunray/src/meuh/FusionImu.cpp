@@ -9,7 +9,7 @@
 |  |  \    /   '. \_/``".'  |  (_,_)  /  '. \_/``".'    (_I_)   |  |      |  |  \       /  \ /  . \ /(_{;}_)|   |
 ''-'   `'-'      '-----'    /_______.'     '-----'      '---'   '--'      '--'   `'-..-'    ``-'`-'' '(_,_) '---'
 */
-/*          Copyright 2023 by Ingwie (Bracame)         */
+/*          Copyright 2023-2024 by Ingwie (Bracame)    */
 /*   Licence: GPLV3 see <http://www.gnu.org/licenses   */
 /*    Ardumower Alfred mod to drive my autoclip 325    */
 
@@ -17,7 +17,7 @@
 
 FusionBias fusionBias;
 FusionAhrs fusionAhrs;
-#define FUSIONPERIOD 0.02f // sample period in seconde
+#define FUSIONPERIOD 0.03f // sample period in seconde
 
 // gyroscope
 #define gyroscopeSensitivity    {GYRO_RATE_XYZ, GYRO_RATE_XYZ, GYRO_RATE_XYZ} // sensitivity in degrees per second per lsb

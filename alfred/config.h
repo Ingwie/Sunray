@@ -63,6 +63,7 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 // https://wiki.ardumower.de/index.php?title=Ardumower_Sunray#IMU.2C_sensor_fusion
 
 #define GY85
+#define IMU_LOOP_TIME 30 // FUSIONPERIOD Must be sync
 //#define MPU6050
 //#define MPU9150
 //#define MPU9250   // also choose this for MPU9255
@@ -140,7 +141,7 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 //#define MOTOR_DRIVER_BRUSHLESS_GEARS_A4931  1   // uncomment for brushless A4931 driver and gear/traction motors
 
 #define MOTOR_FAULT_CURRENT 3.0    // gear motors fault current (amps)
-#define MOTOR_TOO_LOW_CURRENT 0.005   // gear motor too low current (amps), set to zero (0) to disable
+#define MOTOR_TOO_LOW_CURRENT 0   // gear motor too low current (amps), set to zero (0) to disable
 #define MOTOR_OVERLOAD_CURRENT 1.2    // gear motors overload current (amps)
 
 //#define USE_LINEAR_SPEED_RAMP  true      // use a speed ramp for the linear speed
@@ -148,6 +149,7 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 
 // motor speed control (PID coefficients) - these values are tuned for Ardumower motors
 // general information about PID controllers: https://wiki.ardumower.de/index.php?title=PID_control
+#define MOTOR_TA_MAX     0.15   // PID max interval time
 #define MOTOR_PID_KP     0.5    // do not change 2.0 (for non-Ardumower motors or if the motor speed control is too fast you may try: KP=1.0, KI=0, KD=0)
 #define MOTOR_PID_KI     0.01   // do not change 0.03
 #define MOTOR_PID_KD     0.01   // do not change 0.03
@@ -163,24 +165,24 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 
 //#define MAX_MOW_PWM 200  // use this to permanently reduce mowing motor power (255=max)
 
-#define MOW_FAULT_CURRENT 8.0       // mowing motor fault current (amps)
-#define MOW_TOO_LOW_CURRENT 0.005   // mowing motor too low current (amps) , set to zero (0) to disable
-#define MOW_OVERLOAD_CURRENT 2.0    // mowing motor overload current (amps)
+#define MOW_FAULT_CURRENT 3.0       // mowing motor fault current (amps)
+#define MOW_TOO_LOW_CURRENT 0   // mowing motor too low current (amps) , set to zero (0) to disable
+#define MOW_OVERLOAD_CURRENT 2.5    // mowing motor overload current (amps)
 
 // should the direction of mowing motor toggle each start? (yes: true, no: false)
 #define MOW_TOGGLE_DIR       true
 //#define MOW_TOGGLE_DIR       false
 
 // should the error on motor overload detection be enabled?
-//#define ENABLE_OVERLOAD_DETECTION  true    // robot will stop on overload
-#define ENABLE_OVERLOAD_DETECTION  false    // robot will slow down on overload
+#define ENABLE_OVERLOAD_DETECTION  true    // robot will stop on overload
+//#define ENABLE_OVERLOAD_DETECTION  false    // robot will slow down on overload
 
 // should the motor fault (error) detection be enabled?
-#define ENABLE_FAULT_DETECTION  true
-//#define ENABLE_FAULT_DETECTION  false       // use this if you keep getting 'motor error'
+//#define ENABLE_FAULT_DETECTION  true
+#define ENABLE_FAULT_DETECTION  false       // use this if you keep getting 'motor error'
 
-#define ENABLE_RPM_FAULT_DETECTION  true     // use mow rpm signal to detect a motor fault (requires mowing motor with rpm output!)
-//#define ENABLE_RPM_FAULT_DETECTION  false     // do not use mow rpm signal to detect a motor fault
+//#define ENABLE_RPM_FAULT_DETECTION  true     // use mow rpm signal to detect a motor fault (requires mowing motor with rpm output!)
+#define ENABLE_RPM_FAULT_DETECTION  false     // do not use mow rpm signal to detect a motor fault
 
 // should the robot trigger obstacle avoidance on motor errors if motor recovery failed?
 #define ENABLE_FAULT_OBSTACLE_AVOIDANCE true
@@ -266,9 +268,9 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 // see Wiki on how to install bumperduino or freewheel sensor:
 // https://wiki.ardumower.de/index.php?title=Bumper_sensor
 // https://wiki.ardumower.de/index.php?title=Free_wheel_sensor
-#define BUMPER_ENABLE false
+#define BUMPER_ENABLE true
 //#define BUMPER_ENABLE false
-#define BUMPER_DEADTIME 1000  		// linear motion dead-time (ms) after bumper is allowed to trigger
+#define BUMPER_DEADTIME 10 		// linear motion dead-time (ms) after bumper is allowed to trigger
 #define BUMPER_TRIGGER_DELAY  0		// bumper must be active for (ms) to trigger
 #define BUMPER_MAX_TRIGGER_TIME 30	// if bumpersensor stays permanent triggered mower will stop with bumper error (time in seconds; 0 = disabled)
 
@@ -286,7 +288,7 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 
 #define GO_HOME_VOLTAGE   25.5  // start going to dock below this voltage
 // The battery will charge if both battery voltage is below that value and charging current is above that value.
-#define BAT_FULL_VOLTAGE  30.0  // start mowing again at this voltage
+#define BAT_FULL_VOLTAGE  29.3  // start mowing again at this voltage
 #define BAT_FULL_CURRENT  -0.1   // start mowing again below this charging current (amps)
 
 // https://wiki.ardumower.de/index.php?title=Ardumower_Sunray#Automatic_battery_switch_off
@@ -307,6 +309,11 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 
 //#define GPS_USE_TCP 1                    // comment out for serial gps, activate for TCP client-based GPS
 //#define GPS_SKYTRAQ  1               // comment out for ublox gps, uncomment for skytraq gps/NMEA
+
+#define FREE_GPS_POSITION true
+#define GPS_X_OFFSET      10.0 // cm X is front-back axis
+#define GPS_Y_OFFSET      10.0 // cm Y is the wheels axis
+#define GPS_Z_OFFSET      10.0 // cm
 
 #define REQUIRE_VALID_GPS  true       // mower will pause if no float and no fix GPS solution during mowing (recommended)
 //#define REQUIRE_VALID_GPS  false    // mower will continue to mow if no float or no fix solution (not recommended)
@@ -339,7 +346,7 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 
 #define ENABLE_PATH_FINDER  true     // path finder calculates routes around exclusions and obstacles
 //#define ENABLE_PATH_FINDER  false
-#define ALLOW_ROUTE_OUTSIDE_PERI_METER 1.0   // max. distance (m) to allow routing from outside perimeter
+#define ALLOW_ROUTE_OUTSIDE_PERI_METER 0.1   // max. distance (m) to allow routing from outside perimeter
 // (increase if you get 'no map route' errors near perimeter)
 
 //#define OBSTACLE_DETECTION_ROTATION true // detect robot rotation stuck (requires IMU)
