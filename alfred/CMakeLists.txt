@@ -19,22 +19,24 @@ if(WIN32)
 	message(INFO "This package is not tested on Windows. Feel free to report if it works!")
 endif()
 
-
-set(GPIO_CDEV_SUPPORT 1)
+# Check Linux kernel header files for character device GPIO support (periphery C project)
+include(CheckSourceCompiles)
+check_source_compiles(C "#include <linux/gpio.h>\nint main(void) { GPIO_V2_LINE_FLAG_EVENT_CLOCK_REALTIME; return 0; }" HAVE_GPIO_CDEV_V2)
+include(CheckSymbolExists)
+check_symbol_exists(GPIO_GET_LINEEVENT_IOCTL linux/gpio.h HAVE_GPIO_CDEV_V1)
+if(HAVE_GPIO_CDEV_V2)
+    set(GPIO_CDEV_SUPPORT 2)
+elseif(HAVE_GPIO_CDEV_V1)
+    set(GPIO_CDEV_SUPPORT 1)
+else()
+    set(GPIO_CDEV_SUPPORT 0)
+    message(WARNING "Missing character device GPIO support in Linux kernel header files. c-periphery will be built with legacy sysfs GPIO support only.")
+endif()
 add_definitions(-DPERIPHERY_GPIO_CDEV_SUPPORT=${GPIO_CDEV_SUPPORT})
 
-# find_package(CUDA REQUIRED)
-# find_package(OpenCV REQUIRED)
-
-# find_library(LIBIW_LIB iw)
-# find_library(LIBNL_LIB nl-3)
-# find_library(LIBNL_GENL_LIB nl-genl-3)
-# SET(LIBNL_LIBS ${LIBNL_LIB} ${LIBNL_GENL_LIB})
-
-# find_path (LIBNL_INCLUDE_DIR netlink/netlink.h libnl3)
 
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -lbluetooth")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -lbluetooth -Wno-stringop-truncation -fPIC")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -x c")
 # SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -x c -I /usr/include/libnl3/")
 SET(CMAKE_BUILD_TYPE Debug)
