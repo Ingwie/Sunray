@@ -326,6 +326,7 @@ void Motor::run() {
 
 // check if motor current too high
 bool Motor::checkCurrentTooHighError(){
+#ifndef DRV_MEUH_ROBOT
   bool motorLeftFault = (motorLeftSense > MOTOR_FAULT_CURRENT);
   bool motorRightFault = (motorRightSense > MOTOR_FAULT_CURRENT);
   bool motorMowFault = (motorMowSense > MOW_FAULT_CURRENT);
@@ -339,6 +340,7 @@ bool Motor::checkCurrentTooHighError(){
     CONSOLE.println(motorMowSense);
     return true;
   }
+#endif // DRV_MEUH_ROBOT
   return false;
 }
 
@@ -348,6 +350,7 @@ bool Motor::checkCurrentTooLowError(){
   //CONSOLE.print(motorRightPWMCurr);
   //CONSOLE.print(",");
   //CONSOLE.println(motorRightSenseLP);
+#ifndef DRV_MEUH_ROBOT
   if  (    ( (abs(motorMowPWMCurr) > 100) && (abs(motorMowPWMCurrLP) > 100) && (motorMowSenseLP < MOW_TOO_LOW_CURRENT))
         ||  ( (abs(motorLeftPWMCurr) > 100) && (abs(motorLeftPWMCurrLP) > 100) && (motorLeftSenseLP < MOTOR_TOO_LOW_CURRENT))
         ||  ( (abs(motorRightPWMCurr) > 100) && (abs(motorRightPWMCurrLP) > 100) && (motorRightSenseLP < MOTOR_TOO_LOW_CURRENT))  ){
@@ -367,6 +370,7 @@ bool Motor::checkCurrentTooLowError(){
     CONSOLE.println(motorMowSenseLP);
     return true;
   }
+#endif // DRV_MEUH_ROBOT
   return false;
 }
 
@@ -493,7 +497,9 @@ void Motor::sense(){
 		pitchfactor = 2.0-cosPitch; // increase by angle
   motorRightSenseLPNorm = abs(motorRightSenseLP) * robotMass * pitchfactor;
 
+#ifndef DRV_MEUH_ROBOT
   checkOverload();
+#endif // DRV_MEUH_ROBOT
 }
 
 

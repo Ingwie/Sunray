@@ -15,70 +15,109 @@
 
 #include "FusionImu.h"
 
-FusionBias fusionBias;
-FusionAhrs fusionAhrs;
-#define FUSIONPERIOD 0.03f // sample period in seconde
+#define SAMPLE_RATE 33 // samples per seconde
 
 // gyroscope
-#define gyroscopeSensitivity    {GYRO_RATE_XYZ, GYRO_RATE_XYZ, GYRO_RATE_XYZ} // sensitivity in degrees per second per lsb
 #define  uncalibratedGyroscope  {(float)imuGyro.x, (float)imuGyro.y, (float)imuGyro.z}
-FusionVector3 calibratedGyroscope;
 
 // accelerometer
-#define accelerometerSensitivity  {ACC_RATE_XYZ, ACC_RATE_XYZ, ACC_RATE_XYZ} // Sensitivity in g per lsb
 #define uncalibratedAccelerometer {(float)imuAcc.x, (float)imuAcc.y, (float)imuAcc.z}
-FusionVector3 calibratedAccelerometer;
 
 // magnetometer
-#define hardIronBias               {0.0f, 0.0f, 0.0f} //  bias in uT
 #define  uncalibratedMagnetometer  {(float)imuMag.x*MAG_RATE_XYZ, (float)imuMag.y*MAG_RATE_XYZ, (float)imuMag.z*MAG_RATE_XYZ} // measurement in uT
-FusionVector3 calibratedMagnetometer;
 
 // Euler angles
-FusionEulerAngles eulerAngles;
+FusionEuler eulerAngles;
 
-// Compas
-float fusionHeading;
+// GPS position
+FusionVector gpsOffset;
+
+// Define calibration
+const FusionMatrix gyroscopeMisalignment = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+const FusionVector gyroscopeSensitivity = {GYRO_RATE_XYZ, GYRO_RATE_XYZ, GYRO_RATE_XYZ};// sensitivity in degrees per second per lsb
+const FusionVector gyroscopeOffset = {0.0f, 0.0f, 0.0f};
+const FusionMatrix accelerometerMisalignment = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+const FusionVector accelerometerSensitivity = {ACC_RATE_XYZ, ACC_RATE_XYZ, ACC_RATE_XYZ};// Sensitivity in g per lsb
+const FusionVector accelerometerOffset = {0.0f, 0.0f, 0.0f};
+const FusionMatrix softIronMatrix = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+const FusionVector hardIronOffset = {0.0f, 0.0f, 0.0f};
+
+// Initialise algorithms
+FusionOffset offset;
+FusionAhrs ahrs;
 
 void initFusionImu()
 {
-// Initialise gyroscope bias correction algorithm
- FusionBiasInitialise(&fusionBias, 0.5f, FUSIONPERIOD); // stationary threshold = 0.5 degrees per second
-// Initialise AHRS algorithm
- FusionAhrsInitialise(&fusionAhrs, 0.7f); // set gain low gain use less Acc and Mag and then can drift
-// Set optional magnetic field limits
- FusionAhrsSetMagneticField(&fusionAhrs, 20.0f, 70.0f); // valid magnetic field range = 20 uT to 70 uT
+  FusionOffsetInitialise(&offset, SAMPLE_RATE);
+  FusionAhrsInitialise(&ahrs);
+
+  // Set AHRS algorithm settings
+  const FusionAhrsSettings settings =
+  {
+    .convention = FusionConventionEnu,
+    .gain = 0.5f,
+    .gyroscopeRange = 2000.0f, /* replace this with actual gyroscope range in degrees/s */
+    .accelerationRejection = 10.0f,
+    .magneticRejection = 10.0f,
+    .recoveryTriggerPeriod = 5 * SAMPLE_RATE, /* 5 seconds */
+  };
+  FusionAhrsSetSettings(&ahrs, &settings);
 }
 
 bool computeFusionImu() // return false if fail
 {
- bool ret = true;
-// Measure
- if (readGyro()) {ret = false; }
- if (readAcc()) {ret = false; }
- if (readMag()) {ret = false; }
+  static uint32_t lastNow = millis();
+  bool ret = true;
 
-// Calibrate gyroscope
- calibratedGyroscope = FusionCalibrationInertial(uncalibratedGyroscope, FUSION_ROTATION_MATRIX_IDENTITY, gyroscopeSensitivity, FUSION_VECTOR3_ZERO);
+// Time
+  uint32_t now = millis();
+  float lastTime = now - lastNow;
+  lastTime /= 1000;
+  lastNow = now;
 
-// Calibrate accelerometer
- calibratedAccelerometer = FusionCalibrationInertial(uncalibratedAccelerometer, FUSION_ROTATION_MATRIX_IDENTITY, accelerometerSensitivity, FUSION_VECTOR3_ZERO);
+// Measure imu
+  if (readGyro())
+    {
+      ret = false;
+    }
+  if (readAcc())
+    {
+      ret = false;
+    }
+  if (readMag())
+    {
+      ret = false;
+    }
 
-// Calibrate magnetometer
- calibratedMagnetometer = FusionCalibrationMagnetic(uncalibratedMagnetometer, FUSION_ROTATION_MATRIX_IDENTITY, hardIronBias);
+  FusionVector gyroscope = uncalibratedGyroscope;
+  FusionVector accelerometer = uncalibratedAccelerometer;
+  FusionVector magnetometer = uncalibratedMagnetometer;
 
-// Update gyroscope bias correction algorithm
- calibratedGyroscope = FusionBiasUpdate(&fusionBias, calibratedGyroscope);
+  // Apply calibration
+  gyroscope = FusionCalibrationInertial(gyroscope, gyroscopeMisalignment, gyroscopeSensitivity, gyroscopeOffset);
+  accelerometer = FusionCalibrationInertial(accelerometer, accelerometerMisalignment, accelerometerSensitivity, accelerometerOffset);
+  magnetometer = FusionCalibrationMagnetic(magnetometer, softIronMatrix, hardIronOffset);
 
-// Update AHRS algorithm
- FusionAhrsUpdate(&fusionAhrs, calibratedGyroscope, calibratedAccelerometer, calibratedMagnetometer, FUSIONPERIOD);
+  // Update gyroscope offset correction algorithm
+  gyroscope = FusionOffsetUpdate(&offset, gyroscope);
 
-// Calculate Euler angles
- eulerAngles = FusionQuaternionToEulerAngles(FusionAhrsGetQuaternion(&fusionAhrs));
+  // Update gyroscope AHRS algorithm
+  FusionAhrsUpdate(&ahrs, gyroscope, accelerometer, magnetometer, lastTime);
 
-// Calculate heading
- fusionHeading = FusionCompassCalculateHeading(calibratedAccelerometer, calibratedMagnetometer);
+  // Get result quaternion
+  FusionQuaternion quaternion = FusionAhrsGetQuaternion(&ahrs);
 
- return ret;
+  // Compute algorithm outputs
+  eulerAngles = FusionQuaternionToEuler(quaternion);
+
+// Read Gyro temperature
+  readGyroTemp();
+
+// GPS offset
+ FusionMatrix matrix = FusionQuaternionToMatrix(quaternion);
+ FusionVector gpsOrigin = {15, 0 , 10};
+ gpsOffset = FusionMatrixMultiplyVector(matrix, gpsOrigin);
+
+  return ret;
 }
 

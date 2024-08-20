@@ -11,7 +11,9 @@
 #include "robot.h"
 #include "Stats.h"
 #include "helper.h"
-#include "i2c.h"
+#ifndef DRV_MEUH_ROBOT
+  #include "i2c.h"
+#endif // DRV_MEUH_ROBOT
 
 
 float stateX = 0;  // position-east (m)
@@ -62,11 +64,13 @@ bool startIMU(bool forceIMU){
      if (imuDriver.imuFound){
        break;
      }
+#ifndef DRV_MEUH_ROBOT
      I2Creset();
      Wire.begin();
      #ifdef I2C_SPEED
        Wire.setClock(I2C_SPEED);
      #endif
+#endif // DRV_MEUH_ROBOT
      counter++;
      if (counter > 5){
        // no I2C recovery possible - this should not happen (I2C module error)
@@ -233,11 +237,10 @@ void computeRobotState(){
 #if defined (FREE_GPS_POSITION)
 if (imuDriver.imuFound)
   {
+     /* use fusion rotation matrix to compute offset */
 
-     /*TODO use fusion rotation matrix to compute offset
-
-    posN += Offset.y;
-    posE += Offset.x;*/
+    posN += imuDriver.gpsOffset_Y;
+    posE += imuDriver.gpsOffset_X;
   }
 #endif
 

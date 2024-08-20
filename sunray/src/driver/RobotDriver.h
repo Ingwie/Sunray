@@ -104,6 +104,9 @@ class ImuDriver {
     float quatX; // quaternion
     float quatY; // quaternion
     float quatZ; // quaternion
+    float gpsOffset_X;
+    float gpsOffset_Y;
+    float gpsOffset_Z;
     float roll; // euler radiant
     float pitch; // euler radiant
     float yaw;   // euler radiant

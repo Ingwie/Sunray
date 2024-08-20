@@ -69,8 +69,8 @@ bool readGyro()
  imuGyro.y = htons(imuGyro.y);
  imuGyro.z = htons(imuGyro.z);
 // offset correction (manually)
- imuGyro.x -= 2;
- imuGyro.y -= 16;
+ imuGyro.x -= 8;
+ imuGyro.y -= 10;
  imuGyro.z -= 110;
 
  return tmp;

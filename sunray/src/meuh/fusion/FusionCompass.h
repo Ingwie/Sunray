@@ -1,9 +1,8 @@
 /**
  * @file FusionCompass.h
  * @author Seb Madgwick
- * @brief The tilt-compensated compass calculates an angular heading relative to
- * magnetic north using accelerometer and magnetometer measurements (NWU
- * convention).
+ * @brief Tilt-compensated compass to calculate the magnetic heading using
+ * accelerometer and magnetometer measurements.
  */
 
 #ifndef FUSION_COMPASS_H
@@ -12,12 +11,13 @@
 //------------------------------------------------------------------------------
 // Includes
 
-#include "FusionTypes.h"
+#include "FusionConvention.h"
+#include "FusionMath.h"
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
-float FusionCompassCalculateHeading(const FusionVector3 accelerometer, const FusionVector3 magnetometer);
+float FusionCompassCalculateHeading(const FusionConvention convention, const FusionVector accelerometer, const FusionVector magnetometer);
 
 #endif
 

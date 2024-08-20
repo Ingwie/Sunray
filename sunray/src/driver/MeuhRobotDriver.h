@@ -45,14 +45,14 @@
 #define pin_spi_miso_Number       18 // SPI used
 #define pin_tmc_3V3_Number        47 // was pin_gpio47
 #define pin_spi_sck_Number        19 // SPI used
-#define pin_cs_l_tmc_Number       20 // was pin_spi_cs .. Can be used for other task ??
-#define pin_cs_r_tmc_Number       22 // was pin_pwm2
+#define pin_cs_r_tmc_Number       20 // was pin_spi_cs .. Can be used for other task ??
+#define pin_cs_l_tmc_Number       22 // was pin_pwm2
 #define pin_buzzer_Number         45 // was pin sdio_d3
-#define pin_pwm_fan_Number        23 // was pin pwm3
+#define pin_pwm_fan_Number        23 // was pin_pwm3
 #define pin_sdio_clk_Number       41
 #define pin_sdio_cmd_Number       40
 #define pin_spdif_Number          50
-#define pin_aio_ck_Number         4
+#define pin_cur_pol_Number        4 // was pin_aio_ck
 #define pin_aio_lrsk_Number       2
 #define pin_gpio53_Number         53
 #define pin_gpio34_Number         34
@@ -62,16 +62,16 @@
 //-----> ADS1115 Macro resolution 2048 -> 0.0625mV/bit
 #define ASD_BAT_CHANNEL         ADS1115_COMP_0_GND
 #define ASD_CHARGE_CHANNEL      ADS1115_COMP_1_GND
-#define ASD_ACS_CHANNEL         ADS1115_COMP_2_GND
-#define ASD_VCC_CHANNEL         ADS1115_COMP_3_GND
+#define ASD_VCC_CHANNEL         ADS1115_COMP_2_GND
+#define ASD_CUR_CHANNEL         ADS1115_COMP_3_GND
 #define POT_FACTOR(RMeas, RAds) (RAds + RMeas)/RMeas
-#define BAT_POT_FACTOR          15.4711862309 // POT_FACTOR(22000.0f, 300000.0f) // todo measure real values
-#define CHARGE_POT_FACTOR       15.8162508059 // POT_FACTOR(22000.0f, 300000.0f)
-#define ACS_POT_FACTOR          2.656293181 // POT_FACTOR(4700.0f, 6800.0f)
-#define VCC_POT_FACTOR          5.300404035
-// ACS712 30A Sensitivity (66mV/A)
-#define ACS_MID_VOLTAGE         (vccVoltage/2)
-#define ACS_VOLTS_TO_AMPS(x)    (((x * ACS_POT_FACTOR)-ACS_MID_VOLTAGE) / 0.066f)
+#define BAT_POT_FACTOR          15.276 // POT_FACTOR(22000.0f, 300000.0f) // todo measure real values
+#define CHARGE_POT_FACTOR       15.276 // POT_FACTOR(22000.0f, 300000.0f)
+#define VCC_POT_FACTOR          2.64 // POT_FACTOR(4700.0f, 6800.0f)
+
+// MAX471 I/2000 v output DIV2 by 1K/1K pot divisor
+#define MAX471_FACTOR           0.5f
+#define MAX471_VOLTS_TO_AMPS(x) (x * 2)
 
 //-----> TMC settings and helper
 
@@ -102,9 +102,9 @@ struct TMC5160_DRV_STATUS_t
   };
 };
 
-#define TMC_RsensE           0.22f // ohms
+#define TMC_RsensE           0.11f // ohms
 #define TMC_RMS_CURRENT_MA   600.0 // mA
-#define TMC_SPEED_MULT       59652.0f/255.0f // pwm to tmc mult value -> 1 M/S Max
+#define TMC_SPEED_MULT       (135000.0f/255.0f) // pwm to tmc mult value -> 0.5 M/S Max with 1/20 reduction
 
 //-----> PWM macros used to drive the JYQD
 #define JYQD_PWM_PERIOD      10e3 // 0.1mS-10KHz
@@ -157,6 +157,7 @@ public:
   void relayChargeOn();
   void set74HCTOutputEnable();
   void set74HCTOutputDisable();
+  float readBatteryCurrent();
   void getTicksMow();
   //bool setImuPowerState(bool state);
 
@@ -187,8 +188,8 @@ protected:
 class MeuhMotorDriver: public MotorDriver
 {
 public:
-  uint32_t lastEncoderTicksLeft;
-  uint32_t lastEncoderTicksRight;
+  //uint32_t lastEncoderTicksLeft;
+  //uint32_t lastEncoderTicksRight;
   uint64_t lastEncoderTicksMow;
   MeuhRobotDriver &meuhRobot;
   MeuhMotorDriver(MeuhRobotDriver &sr);

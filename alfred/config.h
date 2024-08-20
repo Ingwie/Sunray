@@ -103,13 +103,13 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 
 // NOTE: if using non-default Ardumower chassis and your freewheel is at frontside (gear motors at backside), have may have to swap motor cables,
 // more info here: https://wiki.ardumower.de/index.php?title=Ardumower_Chassis_%27mountain_mod%27)
-#define FREEWHEEL_IS_AT_BACKSIDE   false   // default Ardumower: true   (change to false, if your freewheel is at frontside) - this is used for obstacle avoidance
+#define FREEWHEEL_IS_AT_BACKSIDE   true   // default Ardumower: true   (change to false, if your freewheel is at frontside) - this is used for obstacle avoidance
 #define WHEEL_BASE_CM         40         // wheel-to-wheel distance (cm)
 #define WHEEL_DIAMETER        270        // wheel diameter (mm)
 #define MOWER_SIZE            60         // mower / chassis size / length in cm
 
-//#define ENABLE_ODOMETRY_ERROR_DETECTION  true    // use this to detect odometry erros
-#define ENABLE_ODOMETRY_ERROR_DETECTION  false
+#define ENABLE_ODOMETRY_ERROR_DETECTION  true    // use this to detect odometry erros
+//#define ENABLE_ODOMETRY_ERROR_DETECTION  false
 
 // choose ticks per wheel revolution :
 // ...for the 36mm diameter motor (blue cap)  https://www.marotronics.de/2-x-36er-DC-Planeten-Getriebemotor-24-Volt-mit-HallIC-30-33-RPM-8mm-Welle
@@ -129,7 +129,7 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 
 //#define TICKS_PER_REVOLUTION  320     // odometry ticks per wheel revolution (RM24)
 
-#define TICKS_PER_REVOLUTION  1333     // odometry ticks per wheel revolution (RobotMeuh)
+#define TICKS_PER_REVOLUTION  ((200/*steps*/ * 32/*usteps*/) / 0.05/*reduction*/)     // odometry ticks per wheel revolution (RobotMeuh)
 
 
 // ----- gear motors --------------------------------------------------
@@ -150,9 +150,9 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 // motor speed control (PID coefficients) - these values are tuned for Ardumower motors
 // general information about PID controllers: https://wiki.ardumower.de/index.php?title=PID_control
 #define MOTOR_TA_MAX     0.15   // PID max interval time
-#define MOTOR_PID_KP     0.5    // do not change 2.0 (for non-Ardumower motors or if the motor speed control is too fast you may try: KP=1.0, KI=0, KD=0)
-#define MOTOR_PID_KI     0.01   // do not change 0.03
-#define MOTOR_PID_KD     0.01   // do not change 0.03
+#define MOTOR_PID_KP     0.8    // do not change 2.0 (for non-Ardumower motors or if the motor speed control is too fast you may try: KP=1.0, KI=0, KD=0)
+#define MOTOR_PID_KI     0.15   // do not change 0.03
+#define MOTOR_PID_KD     0   // do not change 0.03
 
 #define MOTOR_LEFT_SWAP_DIRECTION 1  // uncomment to swap left motor direction
 #define MOTOR_RIGHT_SWAP_DIRECTION 1  // uncomment to swap right motor direction
@@ -178,8 +178,8 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 //#define ENABLE_OVERLOAD_DETECTION  false    // robot will slow down on overload
 
 // should the motor fault (error) detection be enabled?
-//#define ENABLE_FAULT_DETECTION  true
-#define ENABLE_FAULT_DETECTION  false       // use this if you keep getting 'motor error'
+#define ENABLE_FAULT_DETECTION  true
+//#define ENABLE_FAULT_DETECTION  false       // use this if you keep getting 'motor error'
 
 //#define ENABLE_RPM_FAULT_DETECTION  true     // use mow rpm signal to detect a motor fault (requires mowing motor with rpm output!)
 #define ENABLE_RPM_FAULT_DETECTION  false     // do not use mow rpm signal to detect a motor fault
@@ -311,8 +311,8 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 //#define GPS_SKYTRAQ  1               // comment out for ublox gps, uncomment for skytraq gps/NMEA
 
 #define FREE_GPS_POSITION true
-#define GPS_X_OFFSET      10.0 // cm X is front-back axis
-#define GPS_Y_OFFSET      10.0 // cm Y is the wheels axis
+#define GPS_X_OFFSET      15.0 // cm X is front-back axis
+#define GPS_Y_OFFSET      0.0 // cm Y is the wheels axis
 #define GPS_Z_OFFSET      10.0 // cm
 
 #define REQUIRE_VALID_GPS  true       // mower will pause if no float and no fix GPS solution during mowing (recommended)

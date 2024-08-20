@@ -23,8 +23,8 @@
 void initFusionImu();
 bool computeFusionImu(); // load values in ImuValues.xxx
 // Euler angles
-extern FusionEulerAngles eulerAngles;
-// Compas
-extern float fusionHeading;
+extern FusionEuler eulerAngles;
+// gpsOffset
+extern FusionVector gpsOffset;
 
 #endif // FUSIONIMU_H_INCLUDED

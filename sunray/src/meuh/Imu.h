@@ -18,6 +18,7 @@
 #define IMU_H_INCLUDED
 
 #include "I2chelper.h"
+#include <Arduino.h>
 
 /*
 ITG3205  - 0x68 — Three axis gyroscope
@@ -25,9 +26,9 @@ ADXL345 -  0x53 — Three axis acceleration
 QMC5883L - 0x0D — Three axis magnetic field
 */
 
-#define GYRO_RATE_XYZ      (1.0f/14.375f) // 14.375 LSBs per °/sec
-#define ACC_RATE_XYZ       0.0039f        // 3.9mG
-#define MAG_RATE_XYZ       (0.1f/12.0f)   //  12 lsb = 1mG . 1mG = 0.1 uT
+#define GYRO_RATE_XYZ      (-1.0f/14.375f) // 14.375 LSBs per °/sec
+#define ACC_RATE_XYZ       (-0.0039f)        // 3.9mG
+#define MAG_RATE_XYZ       (-0.1f/12.0f)   //  12 lsb = 1mG . 1mG = 0.1 uT
 
 struct imu_t
 {

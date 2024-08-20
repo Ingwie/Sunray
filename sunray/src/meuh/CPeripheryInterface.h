@@ -31,7 +31,7 @@
   {fprintf(stderr, "gpio_open(): %s\n", gpio_errmsg(name));exit(1);}
 
 void GpioPinWrite(gpio_t * name, bool value);
-void GpioPinRead(gpio_t * name, bool value);
+void GpioPinRead(gpio_t * name, bool * value);
 void GpioSetEdge(gpio_t * name, gpio_edge edge);
 void GpioReadEvent(gpio_t * name, gpio_edge edge, uint64_t * timestamp);
 

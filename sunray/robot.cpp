@@ -74,7 +74,7 @@ const signed char orientationMatrix[9] = {
   SerialRainSensorDriver rainDriver(robotDriver);
   SerialLiftSensorDriver liftDriver(robotDriver);
   SerialBuzzerDriver buzzerDriver(robotDriver);
-#elif DRV_MEUH_ROBOT
+#elif defined(DRV_MEUH_ROBOT)
   MeuhRobotDriver robotDriver;
   MeuhMotorDriver motorDriver(robotDriver);
   MeuhBatteryDriver batteryDriver(robotDriver);
@@ -104,7 +104,9 @@ const signed char orientationMatrix[9] = {
 #endif
 Motor motor;
 Battery battery;
+#ifndef DRV_MEUH_ROBOT
 PinManager pinMan;
+#endif // DRV_SIM_ROBOT
 #ifdef DRV_SIM_ROBOT
   SimGpsDriver gps(robotDriver);
 #elif GPS_SKYTRAQ
@@ -114,9 +116,11 @@ PinManager pinMan;
 #endif
 BLEConfig bleConfig;
 Buzzer buzzer;
-Sonar sonar;
 Bumper bumper;
+Sonar sonar;
+#ifndef DRV_MEUH_ROBOT
 VL53L0X tof(VL53L0X_ADDRESS_DEFAULT);
+#endif // DRV_MEUH_ROBOT
 Map maps;
 RCModel rcmodel;
 TimeTable timetable;
@@ -666,7 +670,9 @@ void start(){
 
   watchdogEnable(15000L);   // 15 seconds
 
+#if !defined(DRV_MEUH_ROBOT)
   startIMU(false);
+#endif
 
   buzzer.sound(SND_READY);
   battery.resetIdle();
