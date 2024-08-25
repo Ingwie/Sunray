@@ -217,7 +217,7 @@ void ADS1115_WE::setCompareChannels(ADS1115_MUX mux){
 
     if(!(currentConfReg & 0x0100)){  // => if not single shot mode
         convRate rate = getConvRate();
-        //delayAccToRate(rate);
+        delayAccToRate(rate);
         delayAccToRate(rate);
     }
 }

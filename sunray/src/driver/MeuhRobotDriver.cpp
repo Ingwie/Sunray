@@ -86,11 +86,12 @@ void MeuhRobotDriver::begin()
   //SetGpioPin(pin_pwm_fan, GPIO_DIR_OUT); // needed by linux pwm driver? no
   SetNewPwm(pwmFan, 3); // Jyqd pwm (mow)
   PwmSetFrequency(pwmFan, 10e3);
+  PwmSetDutyCycle(pwmFan, 0.0);
   SetGpioPin(pin_rain_sensor, GPIO_DIR_IN);
 
 // Mow driver (JYQD)
   //SetGpioPin(pin_pwm_jyqd, GPIO_DIR_OUT); // needed by linux pwm driver? no
-  SetGpioPin(pin_enable_jyqd, GPIO_DIR_OUT_HIGH);
+  SetGpioPin(pin_enable_jyqd, GPIO_DIR_OUT_LOW);
   SetGpioPin(pin_cw_ccw_jyqd, GPIO_DIR_OUT_LOW);
   //SetGpioPin(pin_pulses_jyqd, GPIO_DIR_IN); // GPIO counter in kernel use it ;-)
 
@@ -145,7 +146,7 @@ void MeuhRobotDriver::begin()
   //pcf8575.write16(0xFFFF);
 
   // switch-on fan
-  setFanPowerTune(60);
+  setFanPowerTune(60.0);
 
   // buzzer test
   if (false)
@@ -170,9 +171,9 @@ void MeuhRobotDriver::begin()
   // set rate
   adc.setConvRate(ADS1115_250_SPS);
   // set mode
-  adc.setMeasureMode(ADS1115_CONTINOUS);
+  adc.setMeasureMode(ADS1115_CONTINUOUS);
   // ADC test
-  if (true)
+  do
     {
       delay(5);
       unsigned long startTime = millis();
@@ -191,15 +192,53 @@ void MeuhRobotDriver::begin()
       CONSOLE.print("Four ADC conversion duration: ");
       CONSOLE.print((uint32_t) millis() - startTime);
       CONSOLE.println(" mS");
+      delay(200);
+    }
+  while(false);   // true to test adc
+
+/*
+   do
+    {
+          set74HCTOutputEnable();
+          GpioPinWrite(pin_charge_relay, 1);
+
+        float raw = readAdcChannel(ASD_BAT_CHANNEL);
+        ADC_FILTER(batteryVoltage, raw);
+        raw = readAdcChannel(ASD_CHARGE_CHANNEL);
+        ADC_FILTER(chargeVoltage, raw);
+        vccVoltage = readAdcChannel(ASD_VCC_CHANNEL) * VCC_POT_FACTOR;
+        idleCurrent = readBatteryCurrent();
+      unsigned long startTime = millis();
+      CONSOLE.print("Batterie voltage = ");
+      CONSOLE.print(batteryVoltage);
+      CONSOLE.println(" V");
+      CONSOLE.print("Charge voltage = ");
+      CONSOLE.print(chargeVoltage);
+      CONSOLE.println(" V");
+      CONSOLE.print("VCC voltage = ");
+      CONSOLE.print(vccVoltage);
+      CONSOLE.println(" V");
+      CONSOLE.print("Current = ");
+      CONSOLE.print(idleCurrent);
+      CONSOLE.println(" A");
+      delay(200);
+    }
+  while(true);   // true to test adc conv
+*/
+
+    for (uint8_t i = 0; i < 20; i++)
+    {
+        float raw = readAdcChannel(ASD_BAT_CHANNEL);
+        ADC_FILTER(batteryVoltage, raw);
+        raw = readAdcChannel(ASD_CHARGE_CHANNEL);
+        ADC_FILTER(chargeVoltage, raw);
+        vccVoltage = readAdcChannel(ASD_VCC_CHANNEL) * VCC_POT_FACTOR;
+        idleCurrent = readBatteryCurrent();
     }
 
-  delay(10);
-  vccVoltage = readAdcChannel(ASD_VCC_CHANNEL) * VCC_POT_FACTOR;
   CONSOLE.print("VCC (5V) = ");
   CONSOLE.print(vccVoltage);
   CONSOLE.println(" V");
-
-  idleCurrent = readBatteryCurrent();
   CONSOLE.print("IDLE CURRENT = ");
   CONSOLE.print(idleCurrent);
   CONSOLE.println(" A");
@@ -224,64 +263,64 @@ void MeuhRobotDriver::begin()
 
 
   do
-  {
-    //CONSOLE.println("?\e[1;1H\e[2J?"); // clear console
-  unsigned long startTime = millis();
-  computeFusionImu();
+    {
+      //CONSOLE.println("?\e[1;1H\e[2J?"); // clear console
+      unsigned long startTime = millis();
+      computeFusionImu();
 
-  CONSOLE.print("RAW GYRO X: ");
-  CONSOLE.println(imuGyro.x);
-  CONSOLE.print("RAW GYRO Y: ");
-  CONSOLE.println(imuGyro.y);
-  CONSOLE.print("RAW GYRO Z: ");
-  CONSOLE.println(imuGyro.z);
+      CONSOLE.print("RAW GYRO X: ");
+      CONSOLE.println(imuGyro.x);
+      CONSOLE.print("RAW GYRO Y: ");
+      CONSOLE.println(imuGyro.y);
+      CONSOLE.print("RAW GYRO Z: ");
+      CONSOLE.println(imuGyro.z);
 
-  CONSOLE.print("RAW ACC X: ");
-  CONSOLE.println(imuAcc.x);
-  CONSOLE.print("RAW ACC Y: ");
-  CONSOLE.println(imuAcc.y);
-  CONSOLE.print("RAW ACC Z: ");
-  CONSOLE.println(imuAcc.z);
+      CONSOLE.print("RAW ACC X: ");
+      CONSOLE.println(imuAcc.x);
+      CONSOLE.print("RAW ACC Y: ");
+      CONSOLE.println(imuAcc.y);
+      CONSOLE.print("RAW ACC Z: ");
+      CONSOLE.println(imuAcc.z);
 
-  CONSOLE.print("RAW MAG X: ");
-  CONSOLE.println(imuMag.x);
-  CONSOLE.print("RAW MAG Y: ");
-  CONSOLE.println(imuMag.y);
-  CONSOLE.print("RAW MAG Z: ");
-  CONSOLE.println(imuMag.z);
+      CONSOLE.print("RAW MAG X: ");
+      CONSOLE.println(imuMag.x);
+      CONSOLE.print("RAW MAG Y: ");
+      CONSOLE.println(imuMag.y);
+      CONSOLE.print("RAW MAG Z: ");
+      CONSOLE.println(imuMag.z);
 
-  CONSOLE.print("ROLL: ");
-  CONSOLE.println(eulerAngles.angle.roll);
-  CONSOLE.print("PITCH: ");
-  CONSOLE.println(eulerAngles.angle.pitch);
-  CONSOLE.print("YAW: ");
-  CONSOLE.println(eulerAngles.angle.yaw);
+      CONSOLE.print("ROLL: ");
+      CONSOLE.println(eulerAngles.angle.roll);
+      CONSOLE.print("PITCH: ");
+      CONSOLE.println(eulerAngles.angle.pitch);
+      CONSOLE.print("YAW: ");
+      CONSOLE.println(eulerAngles.angle.yaw);
 
-  CONSOLE.print("GPS OFFSET X: ");
-  CONSOLE.println(gpsOffset.axis.x);
-  CONSOLE.print("GPS OFFSET Y: ");
-  CONSOLE.println(gpsOffset.axis.y);
-  CONSOLE.print("GPS OFFSET Z: ");
-  CONSOLE.println(gpsOffset.axis.z);
+      CONSOLE.print("GPS OFFSET X: ");
+      CONSOLE.println(gpsOffset.axis.x);
+      CONSOLE.print("GPS OFFSET Y: ");
+      CONSOLE.println(gpsOffset.axis.y);
+      CONSOLE.print("GPS OFFSET Z: ");
+      CONSOLE.println(gpsOffset.axis.z);
 
-  CONSOLE.print("GYROTEMP: ");
-  CONSOLE.println((float)gyroTemp/10);
+      CONSOLE.print("GYROTEMP: ");
+      CONSOLE.println((float)gyroTemp/10);
 
-  CONSOLE.print("Temps imu: ");
-  CONSOLE.print((uint32_t) millis() - startTime);
-  CONSOLE.println(" mS");
-  delay(200);
-  } while(true); // true to test imu
+      CONSOLE.print("Temps imu: ");
+      CONSOLE.print((uint32_t) millis() - startTime);
+      CONSOLE.println(" mS");
+      delay(200);
+    }
+  while(true);   // true to test imu
 
 }
 
 float MeuhRobotDriver::readBatteryCurrent()
 {
-  float curr = MAX471_VOLTS_TO_AMPS(readAdcChannel(ASD_CUR_CHANNEL));
-  bool pol = 0;
-  GpioPinRead(pin_cur_pol, &pol);
-  curr *= pol? 1 : -1;
-  return curr;
+  float raw = MAX471_VOLTS_TO_AMPS(readAdcChannel(ASD_CUR_CHANNEL));
+  bool pol = GpioPinRead(pin_cur_pol);
+  raw *= (pol==false)? 1 : -1;
+  return raw;
 }
 
 void MeuhRobotDriver::getTicksMow()
@@ -330,10 +369,11 @@ void MeuhRobotDriver::relayPowerOn()
   GpioPinWrite(pin_charge_relay, 0);
   relayCharge = false;
   PwmSetDutyCycle(pwmJYQD, 0);
+  GpioPinWrite(pin_cw_ccw_jyqd, 1);
+  GpioPinWrite(pin_enable_jyqd, JYQD_OFF);
   delay(100);
   if (tmc3V3Powered == true)
     {
-      PwmSetDutyCycle(pwmJYQD, 0);
       GpioPinWrite(pin_power_relay, 1); // needed to switch JY01 to hall sensor mode at power On
       relayPower = true;
     }
@@ -358,7 +398,7 @@ void MeuhRobotDriver::exitApp(int error) // Close sunray
   relayStopAll(); // turn OFF power boards before quit
   tmcLogicOff();
   set74HCTOutputDisable();
-  ///exit(error);
+  exit(error);
 }
 
 // level converter ship 74HCT541 functions (security)
@@ -383,8 +423,9 @@ bool MeuhRobotDriver::setFanPowerTune(float temp)
   CONSOLE.print("FAN POWER STATE ");
   CONSOLE.print(temp);
   CONSOLE.print(" C° - ");
-  double dt = max(0, map(temp, 30, 80, 0, 1));
-  CONSOLE.print(dt/100);
+  double dt = max(0.0, map(temp, FAN_MIN_TEMP, 80.0, FAN_MIN_PWM, 1.0));
+  if (temp < FAN_MIN_TEMP) dt = 0.0;
+  CONSOLE.print(dt*100);
   CONSOLE.println(" %");
   PwmSetDutyCycle(pwmFan, dt);
   return 1;
@@ -479,14 +520,14 @@ void MeuhMotorDriver::initTmc5160(TMC5160Stepper &stepper)
   stepper.microsteps(32);   /* Set microsteps */
   stepper.vSTART(0);        /* 0 */
   stepper.VMAX(0);          /* 59652 . Max speed (6.667rev/S -> 1M/S ) @ fck 12Mhz TSTEP = 35 */
-  stepper.AMAX(1500);       /* Acceleration (velocity mode) 1Sec . 0 to VMAX */
+  stepper.AMAX(1500);        /* Acceleration (velocity mode) 3Sec . 0 to VMAX */
   stepper.hstrt(6);         /* Chopconf param from excel computation */
   stepper.hend(3);          /* Chopconf param from excel computation */
   stepper.semin(8);         /* CoolStep low limit (activate) */
   stepper.semax(8);         /* CoolStep hight limit (desactivate)*/
   stepper.seup(2);          /* CoolStep increment */
   stepper.sedn(1);          /* CoolStep current down step speed */
-  stepper.sgt(1);          /* StallGuard2 sensitivity to tune (obstacle detection) */
+  stepper.sgt(5);          /* StallGuard2 sensitivity to tune (obstacle detection) */
   stepper.sfilt(1);         /* StallGuard2 filter */
   stepper.THIGH(30);        /* Stay in CoolStep mode */
   stepper.TCOOLTHRS(140);   /* CoolStep lower velocity to active StallGuard2 stall flag */
@@ -502,7 +543,7 @@ void MeuhMotorDriver::begin()
   L_SpiStatus, R_SpiStatus = 0;
 
   CONSOLE.println("starting JYQD PWM");
-  GpioPinWrite(pin_enable_jyqd, 0);
+  GpioPinWrite(pin_enable_jyqd, JYQD_OFF);
   SetNewPwm(pwmJYQD, 1); // Jyqd pwm (mow)
   //PwmSetPolarity(pwmJYQD, PWM_POLARITY_INVERSED);
   PwmSetFrequency(pwmJYQD, JYQD_PWM_PERIOD);
@@ -544,9 +585,10 @@ void MeuhMotorDriver::begin()
       GpioPinWrite(pin_enable_jyqd, 0);
       meuhRobot.getTicksMow();
       CONSOLE.println(meuhRobot.encoderTicksMow);
-      PwmSetDutyCycle(pwmJYQD, 0.15);
-      GpioPinWrite(pin_enable_jyqd, 0);
+      PwmSetDutyCycle(pwmJYQD, 0.2115);
+      //GpioPinWrite(pin_enable_jyqd, 0);
       GpioPinWrite(pin_enable_jyqd, 1);
+      GpioPinWrite(pin_enable_jyqd, 0);
       delay(1000);
       meuhRobot.getTicksMow();
       CONSOLE.println(meuhRobot.encoderTicksMow);
@@ -577,16 +619,16 @@ void MeuhMotorDriver::run()
 
 void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm)
 {
-    // left/right pwm sign : front +,+..rear -,-..left -,+..right +,-
+  // left/right pwm sign : front +,+..rear -,-..left -,+..right +,-
 
- if ((!relayPower) && ((leftPwm != 0) || (rightPwm != 0) || (mowPwm != 0))) // Power needed ?
+  if ((!relayPower) && ((leftPwm != 0) || (rightPwm != 0) || (mowPwm != 0))) // Power needed ?
     {
       // power on motors controlers
       meuhRobot.set74HCTOutputEnable();
       meuhRobot.tmcLogicOn();
       meuhRobot.relayPowerOn();
-      //GpioPinWrite(pin_cw_ccw_jyqd, 0);
-      PwmSetDutyCycle(pwmJYQD, 0.5);
+      GpioPinWrite(pin_enable_jyqd, JYQD_ON);
+      PwmSetDutyCycle(pwmJYQD, 0.0);
       delay(20);
       initTmc5160(L_Stepper);
       initTmc5160(R_Stepper);
@@ -610,24 +652,26 @@ void MeuhMotorDriver::setMotorPwm(int leftPwm, int rightPwm, int mowPwm)
   // JYQD
   if (mowPwm == 0)  // stop
     {
-      PwmSetDutyCycle(pwmJYQD, 0);
+      PwmSetDutyCycle(pwmJYQD, 0.0);
       // delay(300); // todo test active brake
-      GpioPinWrite(pin_enable_jyqd, 0);
+      GpioPinWrite(pin_enable_jyqd, JYQD_OFF);
     }
   else
     {
-      if (abs(mowPwm) < 64) (mowPwm < 0) ? mowPwm = -128 : mowPwm = 128;
+      if (abs(mowPwm) < 64) (mowPwm < 0) ? mowPwm = -50 : mowPwm = 50;
+      const double dt = (double)abs(mowPwm)/255.0f;
+
       if (mowPwm > 0)
         {
           GpioPinWrite(pin_cw_ccw_jyqd, 0);
-          PwmSetDutyCycle(pwmJYQD, 0.5);//map(mowPwm, 0, 255, 0, 1.0f));
+          PwmSetDutyCycle(pwmJYQD, dt);
         }
       else
         {
           GpioPinWrite(pin_cw_ccw_jyqd, 1);
-          PwmSetDutyCycle(pwmJYQD, 0.5);//map(abs(mowPwm), 0, 255, 0, 1.0f));
+          PwmSetDutyCycle(pwmJYQD, dt);
         }
-      GpioPinWrite(pin_enable_jyqd, 1);
+      GpioPinWrite(pin_enable_jyqd, JYQD_ON);
     }
 
   // TMC 5160
@@ -698,6 +742,7 @@ void MeuhMotorDriver::printTmcError(TMC5160_DRV_STATUS_t status)
 
 void MeuhMotorDriver::checkTmcState(TMC5160Stepper &stepper, TMC5160_DRV_STATUS_t &status, bool &errorBool, float &current, int &lastPwm)
 {
+  errorBool = 0;
   status.sr = stepper.DRV_STATUS(); /* load satus */
   current = (TMC_RMS_CURRENT_MA / 1000) * (status.cs_actual + 1) / 32; /* compute current (mA) */
   errorBool |= status.ot; /* check over temperature */
@@ -705,19 +750,20 @@ void MeuhMotorDriver::checkTmcState(TMC5160Stepper &stepper, TMC5160_DRV_STATUS_
   errorBool |= status.ola; /* check open load a */
   errorBool |= status.s2gb; /* check short to ground b */
   errorBool |= status.s2ga; /* check short to ground a */
-  errorBool |= status.stallGuard; /* check stall */
-  errorBool |= status.stst; /* stabdstill in each operation */
+  //errorBool |= status.stallGuard; /* check stall */
+  //errorBool |= status.stst; /* stabdstill */
+  errorBool |= (status.stallGuard && status.stst); /* check stallgard with stabdstill */
   if (lastPwm != 0) errorBool = 0; /* don't care status value if stepper is in stop condition */
 }
 
 void MeuhMotorDriver::getMotorFaults(bool &leftFault, bool &rightFault, bool &mowFault)
 {
-  if ((meuhRobot.lastMowPwm != 0) && (meuhRobot.encoderTicksMow == lastEncoderTicksMow))
-    {
-      M_MotorFault = true;
-      CONSOLE.print(" mowCurr=");
-      CONSOLE.println(meuhRobot.mowCurr);
-    }
+  ///if ((meuhRobot.lastMowPwm != 0) && (meuhRobot.encoderTicksMow == lastEncoderTicksMow))
+  {
+    ///M_MotorFault = true;
+    ///CONSOLE.print(" mowCurr=");
+    ///CONSOLE.println(meuhRobot.mowCurr);
+  }
 
   checkTmcState(L_Stepper, L_DrvStatus, L_MotorFault, meuhRobot.motorLeftCurr, meuhRobot.lastLeftPwm);
   if (L_MotorFault)
@@ -748,21 +794,22 @@ void MeuhMotorDriver::resetMotorFaults()
   CONSOLE.println("meuhRobot: resetting motor fault");
   if (M_MotorFault)
     {
+      CONSOLE.println("Fault : Re-init JYQD");
       PwmSetDutyCycle(pwmJYQD, 0);
-      GpioPinWrite(pin_enable_jyqd, 0); // disable JYQD
-      delay(500); // wait ....
+      GpioPinWrite(pin_enable_jyqd, JYQD_OFF); // disable JYQD
+      delay(50); // wait ....
     }
 
   if (L_MotorFault)
     {
-      if ((L_DrvStatus.stallGuard) || (L_DrvStatus.stst))
+      if ((L_DrvStatus.stallGuard) && (L_DrvStatus.stst)) // overload detection ?
         {
           L_MotorFault = false;
           L_Stepper.sg_stop(0); // reset
           L_Stepper.sg_stop(1); // re activate
-          meuhRobot.triggeredLeftBumper = 1; // simulate bumper
+          meuhRobot.triggeredLeftBumper = 1; // simulate L bumper
         }
-        else
+      else
         {
           CONSOLE.println("Fault : Re-init TMC Left");
           initTmc5160(L_Stepper);
@@ -771,14 +818,14 @@ void MeuhMotorDriver::resetMotorFaults()
 
   if (R_MotorFault)
     {
-      if ((R_DrvStatus.stallGuard) || (R_DrvStatus.stst))
+      if ((R_DrvStatus.stallGuard) && (R_DrvStatus.stst)) // overload detection ?
         {
           R_MotorFault = false;
           R_Stepper.sg_stop(0); // reset
           R_Stepper.sg_stop(1); // re activate
-          meuhRobot.triggeredRightBumper = 1; // simulate bumper
+          meuhRobot.triggeredRightBumper = 1; // simulate R bumper
         }
-        else
+      else
         {
           CONSOLE.println("Fault : Re-init TMC Right");
           initTmc5160(R_Stepper);
@@ -797,11 +844,17 @@ void MeuhMotorDriver::getMotorCurrent(float &leftCurrent, float &rightCurrent, f
 
 void MeuhMotorDriver::getMotorEncoderTicks(int &leftTicks, int &rightTicks, int &mowTicks)
 {
-  int32_t actualTicksLeft = L_Stepper.XACTUAL();
+  int32_t actualTicksLeft = 0;
+  int32_t actualTicksRight = 0;
+
+  if (relayPower) // XACTUAL is valid if TMCs are powered
+  {
+  actualTicksLeft = L_Stepper.XACTUAL();
   L_Stepper.XACTUAL(0); // reset value to avoid overflow
-  int32_t actualTicksRight = R_Stepper.XACTUAL();
+  actualTicksRight = R_Stepper.XACTUAL();
   R_Stepper.XACTUAL(0); // reset value to avoid overflow
   meuhRobot.getTicksMow();
+  }
 
   leftTicks = (int)abs(actualTicksLeft);
   rightTicks = (int)abs(actualTicksRight);
@@ -830,6 +883,14 @@ void MeuhBatteryDriver::run()
     {
       nextTempTime = millis() + 57000; // 57 sec
       updateBatteryTemperature();
+      vccVoltage = meuhRobot.readAdcChannel(ASD_VCC_CHANNEL) * VCC_POT_FACTOR;
+      if (vccVoltage > 5.25)
+        {
+          CONSOLE.print("Vcc is ");
+          CONSOLE.print(vccVoltage);
+          CONSOLE.println(" V -> Shutdown now !");
+          keepPowerOn(0);
+        }
     }
 }
 
@@ -859,13 +920,14 @@ float MeuhBatteryDriver::getBatteryTemperature()
 float MeuhBatteryDriver::getBatteryVoltage()
 {
   float raw = meuhRobot.readAdcChannel(ASD_BAT_CHANNEL);
-  meuhRobot.batteryVoltage = raw * BAT_POT_FACTOR;
+  ADC_FILTER(meuhRobot.batteryVoltage, raw);
   return meuhRobot.batteryVoltage;
 }
 
 float MeuhBatteryDriver::getChargeVoltage()
 {
-  meuhRobot.chargeVoltage = (meuhRobot.readAdcChannel(ASD_CHARGE_CHANNEL) * CHARGE_POT_FACTOR);
+  float raw = meuhRobot.readAdcChannel(ASD_CHARGE_CHANNEL);
+  ADC_FILTER(meuhRobot.chargeVoltage, raw);
   return meuhRobot.chargeVoltage;
 }
 
@@ -906,7 +968,7 @@ void MeuhBatteryDriver::keepPowerOn(bool flag)
           linuxShutdownTime = millis() + 10000; // re-trigger linux command after 10 secs
           CONSOLE.println("LINUX will SHUTDOWN!");
 
-          meuhRobot.setFanPowerTune(false);
+          meuhRobot.setFanPowerTune(0);
           Process p;
           p.runShellCommand("shutdown now");
           meuhRobot.exitApp(0); // needed ?
@@ -991,8 +1053,7 @@ void MeuhRainSensorDriver::run()
   unsigned long t = millis();
   if (t < nextControlTime) return;
   nextControlTime = t + 10000;    // save CPU resources by running at 0.1 Hz
-  bool val;
-  GpioPinRead(pin_rain_sensor, &val);
+  bool val = GpioPinRead(pin_rain_sensor);
   isRaining = (!val);
 }
 

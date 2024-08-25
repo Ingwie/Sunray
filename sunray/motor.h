@@ -1,4 +1,4 @@
-// Ardumower Sunray 
+// Ardumower Sunray
 // Copyright (c) 2013-2020 by Alexander Grau, Grau GmbH
 // Licensed GPLv3 for open source use
 // or Grau GmbH Commercial License for commercial use (http://grauonline.de/cms2/?page_id=153)
@@ -22,88 +22,88 @@ class Motor {
     int ticksPerRevolution; // ticks per revolution
     float ticksPerCm;  // ticks per cm
     bool activateLinearSpeedRamp;  // activate ramp to accelerate/slow down linear speed?
-    bool toggleMowDir; // toggle mowing motor direction each mow motor start?    
+    bool toggleMowDir; // toggle mowing motor direction each mow motor start?
     bool motorLeftSwapDir;
     bool motorRightSwapDir;
     bool motorError;
-    bool motorLeftOverload; 
-    bool motorRightOverload; 
-    bool motorMowOverload; 
-    bool tractionMotorsEnabled;       
+    bool motorLeftOverload;
+    bool motorRightOverload;
+    bool motorMowOverload;
+    bool tractionMotorsEnabled;
     bool enableMowMotor;
-    bool motorMowForwardSet; 
-    bool odometryError;    
+    bool motorMowForwardSet;
+    bool odometryError;
     unsigned long motorOverloadDuration; // accumulated duration (ms)
     int  pwmMax;
-    int  pwmMaxMow;  
+    int  pwmMaxMow;
     float  pwmSpeedOffset;
     float mowMotorCurrentAverage;
     float currentFactor;
     bool pwmSpeedCurveDetection;
     unsigned long motorLeftTicks;
     unsigned long motorRightTicks;
-    unsigned long motorMowTicks;    
+    unsigned long motorMowTicks;
     float linearSpeedSet; // m/s
     float angularSpeedSet; // rad/s
     float motorLeftSense; // left motor current (amps)
     float motorRightSense; // right  motor current (amps)
-    float motorMowSense;  // mower motor current (amps)         
+    float motorMowSense;  // mower motor current (amps)
     float motorLeftSenseLP; // left motor current (amps, low-pass)
     float motorRightSenseLP; // right  motor current (amps, low-pass)
-    float motorMowSenseLP;  // mower motor current (amps, low-pass)       
+    float motorMowSenseLP;  // mower motor current (amps, low-pass)
     float motorsSenseLP; // all motors current (amps, low-pass)
-    float motorLeftSenseLPNorm; 
+    float motorLeftSenseLPNorm;
     float motorRightSenseLPNorm;
     unsigned long motorMowSpinUpTime;
-    bool motorRecoveryState;    
+    bool motorRecoveryState;
     void begin();
-    void run();      
+    void run();
     void test();
     void plot();
     void enableTractionMotors(bool enable);
     void setLinearAngularSpeed(float linear, float angular, bool useLinearRamp = true);
-    void setMowState(bool switchOn);   
+    void setMowState(bool switchOn);
     void setMowMaxPwm( int val );
     void stopImmediately(bool includeMowerMotor);
-  protected: 
+  protected:
     float motorLeftRpmSet; // set speed
-    float motorRightRpmSet;   
+    float motorRightRpmSet;
     float motorLeftRpmCurr;
     float motorRightRpmCurr;
-    float motorMowRpmCurr;    
+    float motorMowRpmCurr;
     float motorLeftRpmCurrLP;
-    float motorRightRpmCurrLP;    
-    float motorMowRpmCurrLP;    
+    float motorRightRpmCurrLP;
+    float motorMowRpmCurrLP;
     float motorLeftRpmLast;
     float motorRightRpmLast;
-    float motorMowPWMSet;  
-    float motorMowPWMCurr; 
+    float motorMowPWMSet;
+    float motorMowPWMCurr;
     int motorLeftPWMCurr;
-    int motorRightPWMCurr;    
-    float motorMowPWMCurrLP; 
+    int motorRightPWMCurr;
+    float motorMowPWMCurrLP;
     float motorLeftPWMCurrLP;
-    float motorRightPWMCurrLP;    
-    unsigned long lastControlTime;    
-    unsigned long nextSenseTime;          
+    float motorRightPWMCurrLP;
+    unsigned long lastControlTime;
+    unsigned long nextSenseTime;
     bool recoverMotorFault;
     int recoverMotorFaultCounter;
     unsigned long nextRecoverMotorFaultTime;
-    int motorLeftTicksZero;    
-    int motorRightTicksZero;    
+    int motorLeftTicksZero;
+    int motorRightTicksZero;
     PID motorLeftPID;
-    PID motorRightPID;        
+    PID motorRightPID;
     bool setLinearAngularSpeedTimeoutActive;
-    unsigned long setLinearAngularSpeedTimeout;    
+    unsigned long setLinearAngularSpeedTimeout;
     void speedPWM ( int pwmLeft, int pwmRight, int pwmMow );
-    void control();    
+    void control();
     bool checkFault();
     void checkOverload();
     bool checkOdometryError();
     bool checkMowRpmFault();
-    bool checkCurrentTooHighError();    
+    bool checkCurrentTooHighError();
     bool checkCurrentTooLowError();
     void sense();
-    void dumpOdoTicks(int seconds);    
+    void dumpOdoTicks(int seconds);
 };
 
 

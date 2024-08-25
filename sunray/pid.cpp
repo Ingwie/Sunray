@@ -1,8 +1,8 @@
-/*  
+/*
    How to find out P,I,D:
     1. Increase P until system starts to oscillate
-    2. Set I =0.6 * P and D = 0.125 * P 
-   
+    2. Set I =0.6 * P and D = 0.125 * P
+
 */
 
 #include "pid.h"
@@ -13,7 +13,7 @@ PID::PID()
   consoleWarnTimeout = 0;
   lastControlTime = 0;
 }
-    
+
 PID::PID(float Kp, float Ki, float Kd){
   this->Kp = Kp;
   this->Ki = Ki;
@@ -67,7 +67,7 @@ float PID::compute() {
 VelocityPID::VelocityPID()
 {
 }
-    
+
 VelocityPID::VelocityPID(float Kp, float Ki, float Kd){
   this->Kp = Kp;
   this->Ki = Ki;
@@ -76,7 +76,7 @@ VelocityPID::VelocityPID(float Kp, float Ki, float Kd){
 
 
 float VelocityPID::compute()
-{   
+{
   unsigned long now = micros();
   Ta = ((now - lastControlTime) / 1000000.0);
   lastControlTime = now;
@@ -87,22 +87,22 @@ float VelocityPID::compute()
 
   // compute max/min output
   if (w < 0) { y_min = -max_output; y_max = 0; }
-  if (w > 0) { y_min = 0; y_max = max_output; }     
+  if (w > 0) { y_min = 0; y_max = max_output; }
 
   y = yold
       + Kp * (e - eold1)
       + Ki * Ta * e
       + Kd/Ta * (e - 2* eold1 + eold2);
-     
-  // restrict output to min/max 
+
+  // restrict output to min/max
   if (y > y_max) y = y_max;
-  if (y < y_min) y = y_min; 
+  if (y < y_min) y = y_min;
 
   // save variable for next time
   eold2 = eold1;
   eold1 = e;
-  yold = y ;  
-  
+  yold = y ;
+
   return y;
 }
 

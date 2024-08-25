@@ -24,10 +24,10 @@
 #include "../meuh/ADS1115/ADS1115_WE.h"
 //#include "../meuh/PCF8575/PCF8575.h"
 #include "../meuh/TMCStepper-0.7.3/TMCStepper.h"
+
 //-----> Mecanics informations
 // Wheel diameter 270 mm
-// pulley/belt reduction 12/80
-// 1572 steps/meter
+// Gear Reduction 1/20
 
 //-----> BPI-M4 GPIO Pin
 #define pin_i2c_sda_Number        17 // I2C used
@@ -45,7 +45,7 @@
 #define pin_spi_miso_Number       18 // SPI used
 #define pin_tmc_3V3_Number        47 // was pin_gpio47
 #define pin_spi_sck_Number        19 // SPI used
-#define pin_cs_r_tmc_Number       20 // was pin_spi_cs .. Can be used for other task ??
+#define pin_cs_r_tmc_Number       20 // was pin_spi_cs
 #define pin_cs_l_tmc_Number       22 // was pin_pwm2
 #define pin_buzzer_Number         45 // was pin sdio_d3
 #define pin_pwm_fan_Number        23 // was pin_pwm3
@@ -65,13 +65,21 @@
 #define ASD_VCC_CHANNEL         ADS1115_COMP_2_GND
 #define ASD_CUR_CHANNEL         ADS1115_COMP_3_GND
 #define POT_FACTOR(RMeas, RAds) (RAds + RMeas)/RMeas
-#define BAT_POT_FACTOR          15.276 // POT_FACTOR(22000.0f, 300000.0f) // todo measure real values
-#define CHARGE_POT_FACTOR       15.276 // POT_FACTOR(22000.0f, 300000.0f)
-#define VCC_POT_FACTOR          2.64 // POT_FACTOR(4700.0f, 6800.0f)
+#define BAT_POT_FACTOR          15.23 // POT_FACTOR(22000.0f, 300000.0f) // todo measure real values
+#define CHARGE_POT_FACTOR       15.42 // POT_FACTOR(22000.0f, 300000.0f)
+#define VCC_POT_FACTOR          2.635 // POT_FACTOR(4700.0f, 6800.0f)
+#define ADC_FILTER_VAL          0.25 // SIMPLE FILTER
+#define ADC_FILTER(val, raw)    val = ((raw * BAT_POT_FACTOR) * ADC_FILTER_VAL + val * (1 - ADC_FILTER_VAL))
 
 // MAX471 I/2000 v output DIV2 by 1K/1K pot divisor
-#define MAX471_FACTOR           0.5f
-#define MAX471_VOLTS_TO_AMPS(x) (x * 2)
+#define MAX471_VOLTS_TO_AMPS(x) (float)(x * 2.0)
+
+#define FAN_MIN_PWM 0.35
+#define FAN_MIN_TEMP 55.0
+
+#define JYQD_OFF 0
+#define JYQD_ON  1
+
 
 //-----> TMC settings and helper
 
@@ -103,18 +111,18 @@ struct TMC5160_DRV_STATUS_t
 };
 
 #define TMC_RsensE           0.11f // ohms
-#define TMC_RMS_CURRENT_MA   600.0 // mA
+#define TMC_RMS_CURRENT_MA   800.0 // mA
 #define TMC_SPEED_MULT       (135000.0f/255.0f) // pwm to tmc mult value -> 0.5 M/S Max with 1/20 reduction
 
 //-----> PWM macros used to drive the JYQD
-#define JYQD_PWM_PERIOD      10e3 // 0.1mS-10KHz
+#define JYQD_PWM_PERIOD      102400.0f
 
 class MeuhRobotDriver: public RobotDriver
 {
 public:
   String robotID;
   String mcuFirmwareName = "RobotMeuh";
-  String mcuFirmwareVersion = "0.00";
+  String mcuFirmwareVersion = "0.01";
   int lastLeftPwm;
   int lastRightPwm;
   int lastMowPwm;
@@ -123,6 +131,7 @@ public:
   //unsigned long encoderTicksRight;
   //bool mcuCommunicationLost;
   float batteryVoltage;
+  float batteryCurrent;
   float chargeVoltage;
   float chargeCurrent;
   float idleCurrent;

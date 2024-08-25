@@ -150,9 +150,9 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 // motor speed control (PID coefficients) - these values are tuned for Ardumower motors
 // general information about PID controllers: https://wiki.ardumower.de/index.php?title=PID_control
 #define MOTOR_TA_MAX     0.15   // PID max interval time
-#define MOTOR_PID_KP     0.8    // do not change 2.0 (for non-Ardumower motors or if the motor speed control is too fast you may try: KP=1.0, KI=0, KD=0)
-#define MOTOR_PID_KI     0.15   // do not change 0.03
-#define MOTOR_PID_KD     0   // do not change 0.03
+#define MOTOR_PID_KP     0.12    // do not change 2.0 (for non-Ardumower motors or if the motor speed control is too fast you may try: KP=1.0, KI=0, KD=0)
+#define MOTOR_PID_KI     0.02    // do not change 0.03
+#define MOTOR_PID_KD     0.01   // do not change 0.03
 
 #define MOTOR_LEFT_SWAP_DIRECTION 1  // uncomment to swap left motor direction
 #define MOTOR_RIGHT_SWAP_DIRECTION 1  // uncomment to swap right motor direction
@@ -163,7 +163,7 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 // certain time (normally a few seconds) and the mower will try again and set a virtual obstacle after too many tries
 // On the other hand, the overload detection will detect situations the fault signal cannot detect: slightly higher current for a longer time
 
-//#define MAX_MOW_PWM 200  // use this to permanently reduce mowing motor power (255=max)
+#define MAX_MOW_PWM 210  // use this to permanently reduce mowing motor power (255=max)
 
 #define MOW_FAULT_CURRENT 3.0       // mowing motor fault current (amps)
 #define MOW_TOO_LOW_CURRENT 0   // mowing motor too low current (amps) , set to zero (0) to disable
@@ -182,7 +182,7 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 //#define ENABLE_FAULT_DETECTION  false       // use this if you keep getting 'motor error'
 
 //#define ENABLE_RPM_FAULT_DETECTION  true     // use mow rpm signal to detect a motor fault (requires mowing motor with rpm output!)
-#define ENABLE_RPM_FAULT_DETECTION  false     // do not use mow rpm signal to detect a motor fault
+#define ENABLE_RPM_FAULT_DETECTION  true     // do not use mow rpm signal to detect a motor fault
 
 // should the robot trigger obstacle avoidance on motor errors if motor recovery failed?
 #define ENABLE_FAULT_OBSTACLE_AVOIDANCE true
@@ -311,9 +311,7 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 //#define GPS_SKYTRAQ  1               // comment out for ublox gps, uncomment for skytraq gps/NMEA
 
 #define FREE_GPS_POSITION true
-#define GPS_X_OFFSET      15.0 // cm X is front-back axis
-#define GPS_Y_OFFSET      0.0 // cm Y is the wheels axis
-#define GPS_Z_OFFSET      10.0 // cm
+
 
 #define REQUIRE_VALID_GPS  true       // mower will pause if no float and no fix GPS solution during mowing (recommended)
 //#define REQUIRE_VALID_GPS  false    // mower will continue to mow if no float or no fix solution (not recommended)
@@ -349,8 +347,8 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 #define ALLOW_ROUTE_OUTSIDE_PERI_METER 0.1   // max. distance (m) to allow routing from outside perimeter
 // (increase if you get 'no map route' errors near perimeter)
 
-//#define OBSTACLE_DETECTION_ROTATION true // detect robot rotation stuck (requires IMU)
-#define OBSTACLE_DETECTION_ROTATION false   // NOTE: recommended to turn this off for slope environment
+#define OBSTACLE_DETECTION_ROTATION true // detect robot rotation stuck (requires IMU)
+//#define OBSTACLE_DETECTION_ROTATION false   // NOTE: recommended to turn this off for slope environment
 
 #define OBSTACLE_AVOIDANCE true   // try to find a way around obstacle
 //#define OBSTACLE_AVOIDANCE false  // stop robot on obstacle
@@ -422,8 +420,8 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 // ------ experimental options  -------------------------
 
 // drive curves smoothly?
-//#define SMOOTH_CURVES  true
-#define SMOOTH_CURVES  false
+#define SMOOTH_CURVES  true
+//#define SMOOTH_CURVES  false
 
 // --------- serial monitor output (CONSOLE) ------------------------
 // which Arduino Due USB port do you want to your for serial monitor output (CONSOLE)?

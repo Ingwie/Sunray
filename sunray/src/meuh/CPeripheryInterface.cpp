@@ -31,12 +31,12 @@ void GpioPinWrite(gpio_t * name, bool value)
     }
 }
 
-void GpioPinRead(gpio_t * name, bool * value)
+bool GpioPinRead(gpio_t * name)
 {
   bool tmp;
   if (gpio_read(name, &tmp) < 0) \
     {fprintf(stderr, "gpio_read(): %s\n", gpio_errmsg(name)); robotDriver.exitApp(1);}
-  *value = tmp;
+  return(tmp);
 }
 
 void GpioSetEdge(gpio_t * name, gpio_edge edge)

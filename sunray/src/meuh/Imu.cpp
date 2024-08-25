@@ -18,6 +18,10 @@
 #include "Imu.h"
 #include <arpa/inet.h>
 
+//#define X_TRANSFOM -1.0
+//#define Y_TRANSFOM 1.0
+//#define Z_TRANSFOM -1.0
+
 void initImusGY85() // init Gyro, accel and compass
 {
  initGyro();
@@ -72,6 +76,10 @@ bool readGyro()
  imuGyro.x -= 8;
  imuGyro.y -= 10;
  imuGyro.z -= 110;
+// Imu is upside down so (TODO use Misalignment matrix in Fusionimu.cpp)
+// imuGyro.x *= X_TRANSFOM;
+// imuGyro.y *= Y_TRANSFOM;
+// imuGyro.z *= Z_TRANSFOM;
 
  return tmp;
 }
@@ -130,6 +138,10 @@ bool readAcc() // return 0 if fail
  imuAcc.x += 1;
  imuAcc.y += 12;
  imuAcc.z += 26;
+// Imu is upside down so
+// imuAcc.x *= X_TRANSFOM;
+// imuAcc.y *= Y_TRANSFOM;
+// imuAcc.z *= Z_TRANSFOM;
 
  return tmp;
 }
@@ -159,5 +171,10 @@ void initMag()
 
 bool readMag() // return 0 if fail
 {
- return i2c_readReg(MAG_ADRESS, 0x00, (uint8_t*)&imuMag, 6);
+ bool tmp = i2c_readReg(MAG_ADRESS, 0x00, (uint8_t*)&imuMag, 6);
+// Imu is upside down so
+// imuMag.x *= X_TRANSFOM;
+// imuMag.y *= Y_TRANSFOM;
+// imuMag.z *= Z_TRANSFOM;
+ return tmp;
 }

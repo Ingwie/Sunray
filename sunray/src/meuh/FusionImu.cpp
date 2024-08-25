@@ -115,7 +115,7 @@ bool computeFusionImu() // return false if fail
 
 // GPS offset
  FusionMatrix matrix = FusionQuaternionToMatrix(quaternion);
- FusionVector gpsOrigin = {15, 0 , 10};
+ FusionVector gpsOrigin = {14.0, 0.0 , 20.0};
  gpsOffset = FusionMatrixMultiplyVector(matrix, gpsOrigin);
 
   return ret;
