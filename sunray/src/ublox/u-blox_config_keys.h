@@ -42,9 +42,11 @@
 #ifndef __u_blox_config_keys_h__
 #define __u_blox_config_keys_h__
 
+#include "inttypes.h"
+
 //The following consts are used to generate KEY values for the advanced protocol functions of VELGET/SET/DEL
 const uint8_t VAL_SIZE_1 = 0x01; //One bit
-const uint8_t VAL_SIZE_8 = 0x02;	 //One byte
+const uint8_t VAL_SIZE_8 = 0x02;	 //One uint8_t
 const uint8_t VAL_SIZE_16 = 0x03;	 //Two bytes
 const uint8_t VAL_SIZE_32 = 0x04;	 //Four bytes
 const uint8_t VAL_SIZE_64 = 0x05;	 //Eight bytes
@@ -72,7 +74,7 @@ const uint8_t VAL_GROUP_USBINPROT = 0x77;
 const uint8_t VAL_GROUP_USBOUTPROT = 0x78;
 
 const uint8_t VAL_GROUP_UART_SIZE = VAL_SIZE_1; //All fields in UART group are currently 1 bit
-const uint8_t VAL_GROUP_I2C_SIZE = VAL_SIZE_8;	//All fields in I2C group are currently 1 byte
+const uint8_t VAL_GROUP_I2C_SIZE = VAL_SIZE_8;	//All fields in I2C group are currently 1 uint8_t
 
 const uint8_t VAL_ID_I2C_ADDRESS = 0x01;
 

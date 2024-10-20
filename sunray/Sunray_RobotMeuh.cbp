@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Sunray_RobotMeuh" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/Sunray_RobotMeuh" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-DTESTNOROOT" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/Sunray_RobotMeuh" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="`wx-config --cflags`" />
+			<Add option="-DPERIPHERY_GPIO_CDEV_SUPPORT=1" />
+		</Compiler>
+		<Linker>
+			<Add option="`wx-config --libs`" />
+		</Linker>
+		<Unit filename="Sunray_RobotMeuhApp.cpp" />
+		<Unit filename="Sunray_RobotMeuhApp.h" />
+		<Unit filename="Sunray_RobotMeuhMain.cpp" />
+		<Unit filename="Sunray_RobotMeuhMain.h" />
+		<Unit filename="src/Bridge.cpp" />
+		<Unit filename="src/Bridge.h" />
+		<Unit filename="src/BridgeClient.cpp" />
+		<Unit filename="src/BridgeClient.h" />
+		<Unit filename="src/BridgeServer.cpp" />
+		<Unit filename="src/BridgeServer.h" />
+		<Unit filename="src/Client.h" />
+		<Unit filename="src/HardwareSerial.h" />
+		<Unit filename="src/IPAddress.cpp" />
+		<Unit filename="src/IPAddress.h" />
+		<Unit filename="src/LineTracker.cpp" />
+		<Unit filename="src/LineTracker.h" />
+		<Unit filename="src/LinuxSerial.cpp" />
+		<Unit filename="src/LinuxSerial.h" />
+		<Unit filename="src/NutsBolts.cpp" />
+		<Unit filename="src/NutsBolts.h" />
+		<Unit filename="src/Print.cpp" />
+		<Unit filename="src/Print.h" />
+		<Unit filename="src/Printable.h" />
+		<Unit filename="src/PubSubClient.cpp" />
+		<Unit filename="src/PubSubClient.h" />
+		<Unit filename="src/RingBuffer.cpp" />
+		<Unit filename="src/RingBuffer.h" />
+		<Unit filename="src/RunningMedian.h" />
+		<Unit filename="src/Server.h" />
+		<Unit filename="src/StateEstimator.cpp" />
+		<Unit filename="src/StateEstimator.h" />
+		<Unit filename="src/Stats.cpp" />
+		<Unit filename="src/Stats.h" />
+		<Unit filename="src/Storage.cpp" />
+		<Unit filename="src/Storage.h" />
+		<Unit filename="src/Stream.cpp" />
+		<Unit filename="src/Stream.h" />
+		<Unit filename="src/StringArray.h" />
+		<Unit filename="src/WString.cpp" />
+		<Unit filename="src/WString.h" />
+		<Unit filename="src/WiFi.cpp" />
+		<Unit filename="src/WiFi.h" />
+		<Unit filename="src/battery.cpp" />
+		<Unit filename="src/battery.h" />
+		<Unit filename="src/bumper.cpp" />
+		<Unit filename="src/bumper.h" />
+		<Unit filename="src/buzzer.cpp" />
+		<Unit filename="src/buzzer.h" />
+		<Unit filename="src/comm.cpp" />
+		<Unit filename="src/comm.h" />
+		<Unit filename="src/config.h" />
+		<Unit filename="src/driver/MeuhRobotDriver.cpp" />
+		<Unit filename="src/driver/MeuhRobotDriver.h" />
+		<Unit filename="src/driver/RobotDriver.h" />
+		<Unit filename="src/gps.h" />
+		<Unit filename="src/helper.cpp" />
+		<Unit filename="src/helper.h" />
+		<Unit filename="src/httpserver.cpp" />
+		<Unit filename="src/httpserver.h" />
+		<Unit filename="src/map.cpp" />
+		<Unit filename="src/map.h" />
+		<Unit filename="src/meuh/ADS1115/ADS1115_WE.cpp" />
+		<Unit filename="src/meuh/ADS1115/ADS1115_WE.h" />
+		<Unit filename="src/meuh/CPeripheryInterface.cpp" />
+		<Unit filename="src/meuh/CPeripheryInterface.h" />
+		<Unit filename="src/meuh/FusionImu.cpp" />
+		<Unit filename="src/meuh/FusionImu.h" />
+		<Unit filename="src/meuh/I2chelper.cpp" />
+		<Unit filename="src/meuh/I2chelper.h" />
+		<Unit filename="src/meuh/Imu.cpp" />
+		<Unit filename="src/meuh/Imu.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/TMCStepper.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/TMCStepper_UTILITY.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/CHOPCONF.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/COOLCONF.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/DRVCONF.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/DRVCTRL.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/DRVSTATUS.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/DRV_CONF.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/DRV_STATUS.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/ENCMODE.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/GCONF.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/IHOLD_IRUN.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/PWMCONF.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/RAMP_STAT.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/SERIAL_SWITCH.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/SERIAL_SWITCH.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/SGCSCONF.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/SHORT_CONF.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/SMARTEN.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/SW_MODE.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/SW_SPI.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/SW_SPI.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC2130Stepper.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC2130_bitfields.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC2160Stepper.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC2160_bitfields.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC2208Stepper.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC2208_bitfields.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC2209Stepper.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC2209_bitfields.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC2660Stepper.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC2660_bitfields.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC5130Stepper.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC5130_bitfields.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC5160Stepper.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC5160_bitfields.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMCStepper.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC_MACROS.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/TMC_platforms.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/bcm2835_spi.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/bcm2835_spi.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/bcm2835_stream.cpp" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/bcm2835_stream.h" />
+		<Unit filename="src/meuh/TMCStepper-0.7.3/source/rpi_bcm2835.h" />
+		<Unit filename="src/meuh/c-periphery/gpio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/meuh/c-periphery/gpio.h" />
+		<Unit filename="src/meuh/c-periphery/gpio_cdev_v1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/meuh/c-periphery/gpio_cdev_v2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/meuh/c-periphery/gpio_internal.h" />
+		<Unit filename="src/meuh/c-periphery/gpio_sysfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/meuh/c-periphery/i2c.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/meuh/c-periphery/i2c.h" />
+		<Unit filename="src/meuh/c-periphery/led.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/meuh/c-periphery/led.h" />
+		<Unit filename="src/meuh/c-periphery/mmio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/meuh/c-periphery/mmio.h" />
+		<Unit filename="src/meuh/c-periphery/pwm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/meuh/c-periphery/pwm.h" />
+		<Unit filename="src/meuh/c-periphery/serial.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/meuh/c-periphery/serial.h" />
+		<Unit filename="src/meuh/c-periphery/spi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/meuh/c-periphery/spi.h" />
+		<Unit filename="src/meuh/c-periphery/version.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/meuh/c-periphery/version.h" />
+		<Unit filename="src/meuh/fusion/Fusion.h" />
+		<Unit filename="src/meuh/fusion/FusionAhrs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/meuh/fusion/FusionAhrs.h" />
+		<Unit filename="src/meuh/fusion/FusionAxes.h" />
+		<Unit filename="src/meuh/fusion/FusionCalibration.h" />
+		<Unit filename="src/meuh/fusion/FusionCompass.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/meuh/fusion/FusionCompass.h" />
+		<Unit filename="src/meuh/fusion/FusionConvention.h" />
+		<Unit filename="src/meuh/fusion/FusionMath.h" />
+		<Unit filename="src/meuh/fusion/FusionOffset.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/meuh/fusion/FusionOffset.h" />
+		<Unit filename="src/meuh/rtc.cpp" />
+		<Unit filename="src/meuh/rtc.h" />
+		<Unit filename="src/motor.cpp" />
+		<Unit filename="src/motor.h" />
+		<Unit filename="src/mqtt.cpp" />
+		<Unit filename="src/mqtt.h" />
+		<Unit filename="src/op/ChargeOp.cpp" />
+		<Unit filename="src/op/DockOp.cpp" />
+		<Unit filename="src/op/ErrorOp.cpp" />
+		<Unit filename="src/op/EscapeForwardOp.cpp" />
+		<Unit filename="src/op/EscapeReverseOp.cpp" />
+		<Unit filename="src/op/GpsRebootRecoveryOp.cpp" />
+		<Unit filename="src/op/GpsWaitFixOp.cpp" />
+		<Unit filename="src/op/GpsWaitFloatOp.cpp" />
+		<Unit filename="src/op/IdleOp.cpp" />
+		<Unit filename="src/op/ImuCalibrationOp.cpp" />
+		<Unit filename="src/op/KidnapWait.cpp" />
+		<Unit filename="src/op/MowOp.cpp" />
+		<Unit filename="src/op/Op.cpp" />
+		<Unit filename="src/op/op.h" />
+		<Unit filename="src/pgmspace.h" />
+		<Unit filename="src/pid.cpp" />
+		<Unit filename="src/pid.h" />
+		<Unit filename="src/rcmodel.cpp" />
+		<Unit filename="src/rcmodel.h" />
+		<Unit filename="src/reset.cpp" />
+		<Unit filename="src/reset.h" />
+		<Unit filename="src/robot.cpp" />
+		<Unit filename="src/robot.h" />
+		<Unit filename="src/sonar.cpp" />
+		<Unit filename="src/sonar.h" />
+		<Unit filename="src/stdlib_noniso.cpp" />
+		<Unit filename="src/stdlib_noniso.h" />
+		<Unit filename="src/timetable.cpp" />
+		<Unit filename="src/timetable.h" />
+		<Unit filename="src/ublox/SparkFun_Ublox_Arduino_Library.cpp" />
+		<Unit filename="src/ublox/SparkFun_Ublox_Arduino_Library.h" />
+		<Unit filename="src/ublox/u-blox_config_keys.h" />
+		<Unit filename="src/ublox/ublox.cpp" />
+		<Unit filename="src/ublox/ublox.h" />
+		<Unit filename="wxsmith/Sunray_RobotMeuhframe.wxs" />
+		<Extensions>
+			<wxsmith version="1">
+				<gui name="wxWidgets" src="Sunray_RobotMeuhApp.cpp" main="Sunray_RobotMeuhFrame" init_handlers="necessary" language="CPP" />
+				<resources>
+					<wxFrame wxs="wxsmith/Sunray_RobotMeuhframe.wxs" src="Sunray_RobotMeuhMain.cpp" hdr="Sunray_RobotMeuhMain.h" fwddecl="0" i18n="1" name="Sunray_RobotMeuhFrame" language="CPP" />
+				</resources>
+			</wxsmith>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
